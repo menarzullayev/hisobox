@@ -108,7 +108,7 @@ a {
 }
 
 .summary__amount--clear {
-  color: var(--qd-success);
+  color: var(--qd-ok);
 }
 
 .summary__overdue,
@@ -119,13 +119,13 @@ a {
 }
 
 .summary__overdue {
-  background: var(--qd-danger-soft);
-  color: var(--qd-danger);
+  background: var(--qd-bad-soft);
+  color: var(--qd-bad);
 }
 
 .summary__due {
-  background: var(--qd-warning-soft);
-  color: var(--qd-warning);
+  background: var(--qd-pending-soft);
+  color: var(--qd-pending);
 }
 
 .entries__title {
@@ -155,7 +155,7 @@ a {
 }
 
 .entry__amount--paid {
-  color: var(--qd-success);
+  color: var(--qd-ok);
 }
 
 .entry__meta,

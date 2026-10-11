@@ -50,9 +50,9 @@ const TEXT_PAIRS: readonly Pair[] = [
   ["--qd-text", "--qd-surface"],
   ["--qd-text", "--qd-surface-2"],
   ["--qd-text", "--qd-accent-soft"],
-  ["--qd-text", "--qd-success-soft"],
-  ["--qd-text", "--qd-warning-soft"],
-  ["--qd-text", "--qd-danger-soft"],
+  ["--qd-text", "--qd-ok-soft"],
+  ["--qd-text", "--qd-pending-soft"],
+  ["--qd-text", "--qd-bad-soft"],
   // Labels, hints, meta lines, idle navigation.
   ["--qd-muted", "--qd-bg"],
   ["--qd-muted", "--qd-surface"],
@@ -65,19 +65,19 @@ const TEXT_PAIRS: readonly Pair[] = [
   ["--qd-on-accent", "--qd-accent"],
   ["--qd-on-accent", "--qd-accent-hover"],
   // Status text on a card and on its own soft ground (badges, notices).
-  ["--qd-success", "--qd-bg"],
-  ["--qd-success", "--qd-success-soft"],
-  ["--qd-warning", "--qd-bg"],
-  ["--qd-warning", "--qd-warning-soft"],
-  ["--qd-danger", "--qd-bg"],
-  ["--qd-danger", "--qd-danger-soft"],
-  ["--qd-on-danger", "--qd-danger"],
+  ["--qd-ok", "--qd-bg"],
+  ["--qd-ok", "--qd-ok-soft"],
+  ["--qd-pending", "--qd-bg"],
+  ["--qd-pending", "--qd-pending-soft"],
+  ["--qd-bad", "--qd-bg"],
+  ["--qd-bad", "--qd-bad-soft"],
+  ["--qd-on-bad", "--qd-bad"],
   // The toast is the page inverted.
   ["--qd-bg", "--qd-text"],
   // Combined by the style sheets beyond the notes: a warning line or a field's error that sits on the
   // page ground or inside an information notice.
-  ["--qd-danger", "--qd-surface"],
-  ["--qd-danger", "--qd-accent-soft"],
+  ["--qd-bad", "--qd-surface"],
+  ["--qd-bad", "--qd-accent-soft"],
 ];
 
 /** Borders of controls and the focus ring, against every ground a control sits on. */
@@ -88,13 +88,13 @@ const NON_TEXT_PAIRS: readonly Pair[] = [
   ["--qd-focus", "--qd-surface"],
   ["--qd-focus", "--qd-surface-2"],
   ["--qd-focus", "--qd-accent-soft"],
-  ["--qd-focus", "--qd-success-soft"],
-  ["--qd-focus", "--qd-warning-soft"],
-  ["--qd-focus", "--qd-danger-soft"],
+  ["--qd-focus", "--qd-ok-soft"],
+  ["--qd-focus", "--qd-pending-soft"],
+  ["--qd-focus", "--qd-bad-soft"],
   // The marks of a notice and of a field's error are drawn in these.
-  ["--qd-danger", "--qd-danger-soft"],
-  ["--qd-success", "--qd-success-soft"],
-  ["--qd-warning", "--qd-warning-soft"],
+  ["--qd-bad", "--qd-bad-soft"],
+  ["--qd-ok", "--qd-ok-soft"],
+  ["--qd-pending", "--qd-pending-soft"],
   ["--qd-link", "--qd-accent-soft"],
 ];
 
@@ -125,8 +125,8 @@ describe.each([
 });
 
 describe("the themes of tokens.css", () => {
-  it("has the 22 color tokens, 21 of them plain hex and the overlay translucent", () => {
-    expect(Object.keys(light)).toHaveLength(21);
+  it("has the 33 color tokens, 32 of them plain hex and the overlay translucent", () => {
+    expect(Object.keys(light)).toHaveLength(33);
     expect(BLOCKS.light).toMatch(/--qd-overlay:\s*rgba\(/);
     // The nine names the Telegram theme replaces (shared/telegram.ts) are still there.
     for (const name of ["bg", "surface", "text", "muted", "link", "accent", "on-accent", "border", "focus"]) {
@@ -167,9 +167,9 @@ describe("the check itself", () => {
   it("fails on a weak pair: grey text that is a little too light for a white card", () => {
     const weak = { ...light, "--qd-muted": "#777777" };
     expect(failures(weak, TEXT_PAIRS, AA_TEXT)).toEqual([
-      "--qd-muted on --qd-bg: 4.48",
-      "--qd-muted on --qd-surface: 4.03",
-      "--qd-muted on --qd-surface-2: 3.68",
+      "--qd-muted on --qd-bg: 4.22",
+      "--qd-muted on --qd-surface: 4.48",
+      "--qd-muted on --qd-surface-2: 3.87",
     ]);
   });
 
@@ -183,9 +183,9 @@ describe("the check itself", () => {
 
   it("fails on a border too faint to show where a field is, and on a color that is missing", () => {
     expect(failures({ ...light, "--qd-border": light["--qd-line"] ?? "" }, NON_TEXT_PAIRS, AA_NON_TEXT)).toHaveLength(2);
-    const withoutSoft = Object.fromEntries(Object.entries(light).filter(([name]) => name !== "--qd-danger-soft"));
-    expect(failures(withoutSoft, [["--qd-danger", "--qd-danger-soft"]], AA_TEXT)).toEqual([
-      "--qd-danger on --qd-danger-soft: not defined",
+    const withoutSoft = Object.fromEntries(Object.entries(light).filter(([name]) => name !== "--qd-bad-soft"));
+    expect(failures(withoutSoft, [["--qd-bad", "--qd-bad-soft"]], AA_TEXT)).toEqual([
+      "--qd-bad on --qd-bad-soft: not defined",
     ]);
   });
 });

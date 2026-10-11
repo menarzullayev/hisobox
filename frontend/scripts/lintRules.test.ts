@@ -13,6 +13,16 @@ import { describe, expect, it } from "vitest";
 const root = resolve(import.meta.dirname, "..");
 const eslint = new ESLint({ cwd: root });
 
+/**
+ * The first `lintText` pays for the whole ESLint cold start — config, plugins, parser. Under a full
+ * run (150 files, several workers on one machine) that first call measured past the 5 s default and
+ * the case failed on the clock, not on the rule. Alone the same file passes in 1.3 s.
+ *
+ * So the budget is raised for this file only, and deliberately not in `vite.config.ts`: a global
+ * `testTimeout` would hide the next test that is genuinely slow.
+ */
+const ESLINT_TIMEOUT = 20_000;
+
 async function errorsOf(code: string): Promise<string[]> {
   const [result] = await eslint.lintText(code, { filePath: resolve(root, "src/shared/Probe.tsx") });
   return (result?.messages ?? []).filter((message) => message.severity === 2).map((message) => message.ruleId ?? "(parser)");
@@ -33,7 +43,7 @@ describe("the accessibility rules refuse", () => {
     ["a role an element already has", `export const A = () => <button type="button" role="button">Saqlash</button>;`, "jsx-a11y/no-redundant-roles"],
   ])("%s", async (_name, code, rule) => {
     expect(await errorsOf(code)).toContain(rule);
-  });
+  }, ESLINT_TIMEOUT);
 
   it("and pass the same things written rightly", async () => {
     const code = `
@@ -48,7 +58,7 @@ describe("the accessibility rules refuse", () => {
         </>
       );`;
     expect(await errorsOf(code)).toEqual([]);
-  });
+  }, ESLINT_TIMEOUT);
 
   it("pass the panel's table, whose roles are spelled out on purpose", async () => {
     const code = `
@@ -60,7 +70,7 @@ describe("the accessibility rules refuse", () => {
         </table>
       );`;
     expect(await errorsOf(code)).toEqual([]);
-  });
+  }, ESLINT_TIMEOUT);
 });
 
 describe("the rules of hooks refuse", () => {
@@ -73,7 +83,7 @@ describe("the rules of hooks refuse", () => {
       return null;
     }`;
     expect(await errorsOf(code)).toContain("react-hooks/rules-of-hooks");
-  });
+  }, ESLINT_TIMEOUT);
 
   it("an effect that reads a value its list does not name", async () => {
     const code = `${HOOKS}export function A({ id }: { id: string }) {
@@ -82,14 +92,14 @@ describe("the rules of hooks refuse", () => {
       return <p>{seen}</p>;
     }`;
     expect(await errorsOf(code)).toEqual(["react-hooks/exhaustive-deps"]);
-  });
+  }, ESLINT_TIMEOUT);
 
   it("an effect whose list is a spread, which nothing can check", async () => {
     const code = `${HOOKS}export function useA(run: () => void, deps: readonly unknown[]) {
       useEffect(() => { run(); }, [...deps]);
     }`;
     expect(await errorsOf(code)).toContain("react-hooks/exhaustive-deps");
-  });
+  }, ESLINT_TIMEOUT);
 
   it("and pass an effect whose list is complete", async () => {
     const code = `${HOOKS}export function A({ id }: { id: string }) {
@@ -98,7 +108,7 @@ describe("the rules of hooks refuse", () => {
       return <p>{seen}</p>;
     }`;
     expect(await errorsOf(code)).toEqual([]);
-  });
+  }, ESLINT_TIMEOUT);
 });
 
 describe("the application's own source", () => {
