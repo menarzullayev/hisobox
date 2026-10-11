@@ -39,3 +39,9 @@ e2e/playwright-report/
 
 # Proof of the single-host deployment: generated env file, state, results
 deploy/production/.local-single/
+
+# Graphify code graph: generated locally, ~30 MB, rebuilt on demand
+graphify-out/
+
+# Agent working memory and session artifacts (not project source)
+.workbuddy-ai/

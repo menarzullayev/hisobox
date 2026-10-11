@@ -243,8 +243,8 @@
 .offline {
   padding: var(--qd-space-3) var(--qd-space-4);
   border-bottom: 1px solid var(--qd-line);
-  background: var(--qd-danger-soft);
-  color: var(--qd-danger);
+  background: var(--qd-bad-soft);
+  color: var(--qd-bad);
   font: var(--qd-type-control);
 }
 

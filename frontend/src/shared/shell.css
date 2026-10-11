@@ -374,18 +374,18 @@ a {
 }
 
 .badge--success {
-  background: var(--qd-success-soft);
-  color: var(--qd-success);
+  background: var(--qd-ok-soft);
+  color: var(--qd-ok);
 }
 
 .badge--warning {
-  background: var(--qd-warning-soft);
-  color: var(--qd-warning);
+  background: var(--qd-pending-soft);
+  color: var(--qd-pending);
 }
 
 .badge--danger {
-  background: var(--qd-danger-soft);
-  color: var(--qd-danger);
+  background: var(--qd-bad-soft);
+  color: var(--qd-bad);
 }
 
 /* ---------- Tiles (section shortcuts) ---------- */
@@ -448,18 +448,18 @@ a {
 }
 
 .tile__icon--success {
-  background: var(--qd-success-soft);
-  color: var(--qd-success);
+  background: var(--qd-ok-soft);
+  color: var(--qd-ok);
 }
 
 .tile__icon--warning {
-  background: var(--qd-warning-soft);
-  color: var(--qd-warning);
+  background: var(--qd-pending-soft);
+  color: var(--qd-pending);
 }
 
 .tile__icon--danger {
-  background: var(--qd-danger-soft);
-  color: var(--qd-danger);
+  background: var(--qd-bad-soft);
+  color: var(--qd-bad);
 }
 
 .tile__title {

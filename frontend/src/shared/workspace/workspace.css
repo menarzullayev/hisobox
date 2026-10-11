@@ -77,22 +77,22 @@
 }
 
 .notice--error {
-  border-color: var(--qd-danger);
-  background: var(--qd-danger-soft);
+  border-color: var(--qd-bad);
+  background: var(--qd-bad-soft);
   font-weight: 600;
 }
 
 .notice--error::before {
   content: "!";
   content: "!" / "";
-  border-color: var(--qd-danger);
-  background: var(--qd-danger);
-  color: var(--qd-on-danger);
+  border-color: var(--qd-bad);
+  background: var(--qd-bad);
+  color: var(--qd-on-bad);
 }
 
 .notice--done {
-  border-color: var(--qd-success);
-  background: var(--qd-success-soft);
+  border-color: var(--qd-ok);
+  background: var(--qd-ok-soft);
 }
 
 /* A tick: the two lit edges of a turned box. */
@@ -104,19 +104,19 @@
   height: 0.875rem;
   border-width: 0 2px 2px 0;
   border-radius: 0;
-  color: var(--qd-success);
+  color: var(--qd-ok);
   transform: rotate(45deg);
 }
 
 .notice--warning {
-  border-color: var(--qd-warning);
-  background: var(--qd-warning-soft);
+  border-color: var(--qd-pending);
+  background: var(--qd-pending-soft);
 }
 
 .notice--warning::before {
   content: "!";
   content: "!" / "";
-  color: var(--qd-warning);
+  color: var(--qd-pending);
 }
 
 /* ---------- Toast ---------- */
@@ -167,8 +167,8 @@
 }
 
 .toast--error {
-  background: var(--qd-danger);
-  color: var(--qd-on-danger);
+  background: var(--qd-bad);
+  color: var(--qd-on-bad);
 }
 
 /* ---------- Modal ---------- */
@@ -273,9 +273,9 @@
 
 .button--danger,
 .button--danger:hover {
-  border-color: var(--qd-danger);
-  background: var(--qd-danger);
-  color: var(--qd-on-danger);
+  border-color: var(--qd-bad);
+  background: var(--qd-bad);
+  color: var(--qd-on-bad);
 }
 
 .button--ghost {
@@ -396,7 +396,7 @@
 /* An invalid field has a heavier border and the message under it, not only another color. */
 .input[aria-invalid="true"] {
   border-width: 2px;
-  border-color: var(--qd-danger);
+  border-color: var(--qd-bad);
 }
 
 select.input {
@@ -440,7 +440,7 @@ textarea.input--text {
   align-items: flex-start;
   gap: var(--qd-space-1);
   margin: var(--qd-space-1) 0 0;
-  color: var(--qd-danger);
+  color: var(--qd-bad);
   font: var(--qd-type-small);
   font-weight: 600;
 }
@@ -454,8 +454,8 @@ textarea.input--text {
   width: 1.125rem;
   height: 1.125rem;
   border-radius: var(--qd-radius-pill);
-  background: var(--qd-danger);
-  color: var(--qd-on-danger);
+  background: var(--qd-bad);
+  color: var(--qd-on-bad);
   font-size: 0.75rem;
   font-weight: 800;
   line-height: 1;
@@ -665,7 +665,7 @@ a.row__link:hover .row__name,
 }
 
 .row__amount--in {
-  color: var(--qd-success);
+  color: var(--qd-ok);
 }
 
 .row__meta,
@@ -685,7 +685,7 @@ a.row__link:hover .row__name,
   flex-wrap: wrap;
   align-items: center;
   gap: var(--qd-space-1) var(--qd-space-3);
-  color: var(--qd-danger);
+  color: var(--qd-bad);
   font: var(--qd-type-small);
   font-weight: 700;
 }
