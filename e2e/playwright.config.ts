@@ -16,7 +16,7 @@ export default defineConfig({
   use: {
     actionTimeout: 10_000,
     navigationTimeout: 15_000,
-    baseURL: stack.baseURL,
+    baseURL: process.env["BASE_URL"] ?? stack.baseURL,
     // The stack's certificate is self-signed.
     ignoreHTTPSErrors: true,
     trace: "retain-on-failure",
