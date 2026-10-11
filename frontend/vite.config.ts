@@ -113,6 +113,7 @@ export default defineConfig({
         panel: resolve(import.meta.dirname, "panel/index.html"),
         admin: resolve(import.meta.dirname, "admin/index.html"),
         k: resolve(import.meta.dirname, "k/index.html"),
+        web: resolve(import.meta.dirname, "web/index.html"),
         [WORKER_ENTRY]: resolve(import.meta.dirname, "src/panel/pwa/sw.ts"),
       },
       output: {
