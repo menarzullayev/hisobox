@@ -16,6 +16,7 @@ const SHEETS: readonly (readonly string[])[] = [
   // list below but has a case of its own.
   ["web", "landing.css"],
   ["web", "workspace3d.css"],
+  ["web", "paperphone.css"],
 ];
 
 /** A style sheet with its `prefers-reduced-motion: no-preference` blocks taken out. */
@@ -35,6 +36,7 @@ describe("the style sheets use the design tokens and nothing else", () => {
     [["panel", "panel.css"]],
     [["k", "k.css"]],
     [["web", "workspace3d.css"]],
+    [["web", "paperphone.css"]],
   ])("%j: no color written out, no unknown variable, the focus ring left alone", (path) => {
     expect(styleProblems(readStyleSheet(...path), tokens)).toEqual([]);
   });

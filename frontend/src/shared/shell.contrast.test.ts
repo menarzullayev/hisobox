@@ -78,6 +78,10 @@ const TEXT_PAIRS: readonly Pair[] = [
   // page ground or inside an information notice.
   ["--qd-bad", "--qd-surface"],
   ["--qd-bad", "--qd-accent-soft"],
+  // The landing page's drawn notebook: the handwriting has to be readable on the sheet it is written
+  // on, in both themes. The sheet is a depicted object rather than a surface, so it is dimmed for a
+  // dark theme but never turned into a dark rectangle — the two are checked together.
+  ["--qd-ink", "--qd-paper"],
 ];
 
 /** Borders of controls and the focus ring, against every ground a control sits on. */
@@ -125,8 +129,8 @@ describe.each([
 });
 
 describe("the themes of tokens.css", () => {
-  it("has the 33 color tokens, 32 of them plain hex and the overlay translucent", () => {
-    expect(Object.keys(light)).toHaveLength(33);
+  it("has the 38 color tokens, 37 of them plain hex and the overlay translucent", () => {
+    expect(Object.keys(light)).toHaveLength(38);
     expect(BLOCKS.light).toMatch(/--qd-overlay:\s*rgba\(/);
     // The nine names the Telegram theme replaces (shared/telegram.ts) are still there.
     for (const name of ["bg", "surface", "text", "muted", "link", "accent", "on-accent", "border", "focus"]) {

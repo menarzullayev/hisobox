@@ -423,6 +423,16 @@ a {
   color: var(--qd-muted);
 }
 
+/* The stage the workspace sits on, above the tour's tabs. The composition leans out of its own box —
+   the screens float past its edges — so the stage keeps room above and below for them, and the text
+   above and the list below are never crowded. */
+.band__stage {
+  position: relative;
+  max-width: 56rem;
+  margin: 0 auto var(--qd-space-6);
+  padding-block: 3.5rem;
+}
+
 .grid {
   display: grid;
   gap: var(--qd-space-4);

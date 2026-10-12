@@ -21,9 +21,10 @@ import { LANGUAGES, type Language, type MessageKey } from "../i18n/types";
 import { BRAND_NAME } from "../shared/brand";
 import { BOT_USERNAME } from "../shared/settings";
 import { start as startAnalytics, track } from "./analytics";
+import { PaperPhone, PaperToPhone } from "./PaperPhone";
 import { pricingParams } from "./pricing";
 
-/** The workspace is a chunk of its own: the headline and the calls to action are on screen before it. */
+/** The workspace is a chunk of its own: it sits further down, so it is fetched after the hero. */
 const Workspace = lazy(() => import("./Workspace3D"));
 
 /** Where the product is entered. The panel signs a person in with Telegram; there is no other door. */
@@ -400,13 +401,22 @@ export function Landing() {
             </ul>
           </div>
           <div className="hero__stage">
-            <Suspense fallback={<WorkspaceSkeleton />}>
-              <Workspace />
-            </Suspense>
+            <PaperPhone />
           </div>
         </section>
 
-        {/* 2 — what the product does, one card per area. */}
+        {/* 2 — the notebook and the phone it became, side by side. */}
+        <section className="band" id="daftar" data-section="daftar" aria-labelledby="daftar-title">
+          <div className="band__head">
+            <Eyebrow text={t("landing.paper.before")} />
+            <h2 id="daftar-title">{t("landing.paper.title")}</h2>
+            <p className="band__lead">{t("landing.paper.lead")}</p>
+          </div>
+          <PaperToPhone />
+          <p className="plans__note">{t("landing.showcase.demo")}</p>
+        </section>
+
+        {/* 3 — what the product does, one card per area. */}
         <section className="band" id="funksiyalar" data-section="funksiyalar" aria-labelledby="funksiyalar-title">
           <div className="band__head">
             <Eyebrow text={t("landing.nav.features")} />
@@ -423,17 +433,22 @@ export function Landing() {
           </div>
         </section>
 
-        {/* 3 — the product tour. */}
+        {/* 4 — the product itself: the workspace the whole thing lives in, then its screens one by one. */}
         <section className="band" id="mahsulot" data-section="mahsulot" aria-labelledby="mahsulot-title">
           <div className="band__head">
             <Eyebrow text={t("landing.nav.showcase")} />
             <h2 id="mahsulot-title">{t("landing.showcase.title")}</h2>
             <p className="band__lead">{t("landing.showcase.lead")}</p>
           </div>
+          <div className="band__stage">
+            <Suspense fallback={<WorkspaceSkeleton />}>
+              <Workspace />
+            </Suspense>
+          </div>
           <Showcase />
         </section>
 
-        {/* 4 — how it is started. */}
+        {/* 5 — how it is started. */}
         <section className="band" id="qanday" data-section="qanday" aria-labelledby="qanday-title">
           <div className="band__head">
             <Eyebrow text={t("landing.nav.how")} />
@@ -453,7 +468,7 @@ export function Landing() {
           </ol>
         </section>
 
-        {/* 5 — what it is worth to the business. */}
+        {/* 6 — what it is worth to the business. */}
         <section className="band" id="foydalar" data-section="foydalar" aria-labelledby="foydalar-title">
           <div className="band__head">
             <Eyebrow text={t("landing.nav.benefits")} />
@@ -470,7 +485,7 @@ export function Landing() {
           </div>
         </section>
 
-        {/* 6 — how the data is kept. */}
+        {/* 7 — how the data is kept. */}
         <section className="band band--deep" id="ishonch" data-section="ishonch" aria-labelledby="ishonch-title">
           <div className="band__head">
             <Eyebrow text={t("landing.nav.trust")} />
@@ -487,7 +502,7 @@ export function Landing() {
           </div>
         </section>
 
-        {/* 7 — what it costs. The numbers come from the product's own definitions, never from this page. */}
+        {/* 8 — what it costs. The numbers come from the product's own definitions, never from this page. */}
         <section className="band" id="tariflar" data-section="tariflar" aria-labelledby="tariflar-title">
           <div className="band__head">
             <Eyebrow text={t("landing.nav.pricing")} />
@@ -526,7 +541,7 @@ export function Landing() {
           <p className="plans__note">{t("landing.pricing.note")}</p>
         </section>
 
-        {/* 8 — the questions people ask. Native disclosures: they work without a line of script. */}
+        {/* 9 — the questions people ask. Native disclosures: they work without a line of script. */}
         <section className="band" id="savollar" data-section="savollar" aria-labelledby="savollar-title">
           <div className="band__head">
             <Eyebrow text={t("landing.nav.faq")} />
@@ -542,7 +557,7 @@ export function Landing() {
           </div>
         </section>
 
-        {/* 9 — one last way in. */}
+        {/* 10 — one last way in. */}
         <section className="final" data-section="final" aria-labelledby="final-title">
           <h2 id="final-title">{t("landing.final.title")}</h2>
           <p className="final__body">{t("landing.final.body")}</p>
