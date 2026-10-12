@@ -7,7 +7,7 @@ import type { Column } from "../layout";
 import { Link } from "../router";
 import { NotFoundScreen } from "../screens";
 import { useMay } from "../workspace/context";
-import { Failure, formatInstant, Loading } from "../workspace/parts";
+import { Failure, formatInstant, Loading } from "../ui";
 import { Listing, moneyOrNone, NONE, qtyWithUnit, useStock } from "./parts";
 import { SALE_METHOD_LABELS } from "./saleParts";
 import type { SoldItem, StockItem, StockReport } from "./stockApi";

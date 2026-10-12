@@ -9,7 +9,7 @@ import { onDemand } from "../onDemand";
 import { may, type Viewer } from "../permissions";
 import { NotFoundScreen } from "../screens";
 import { useWorkspace } from "./context";
-import { errorText, Failure, FieldError, Loading } from "./parts";
+import { errorText, Failure, FieldError, Loading } from "../ui";
 
 /** Bounds the server checks (backend/src/hiso_box/application/shops.py, `ShopUpdate.validate`). */
 export const MAX_SHOP_NAME = 80;

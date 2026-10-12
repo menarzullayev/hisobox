@@ -9,7 +9,7 @@ import { addDays, compareDays, parseIsoDate, toIsoDate } from "../promise";
 import { Link } from "../router";
 import { NotFoundScreen } from "../screens";
 import { useMay, useWorkspace } from "../workspace/context";
-import { Empty, Failure, FieldError, formatInstant, Loading, LoadMore } from "../workspace/parts";
+import { Empty, Failure, FieldError, formatInstant, Loading, LoadMore } from "../ui";
 import { OptionPicker, type PickLoader, type PickOption } from "./OptionPicker";
 import { CancelForm, Listing, maySell, useStock } from "./parts";
 import { goodsText, SALE_METHOD_LABELS, SALE_STATUS_LABELS, SaleDetails, SaleStatusBadge, sellerRoleText, sellerText } from "./saleParts";

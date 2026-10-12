@@ -21,7 +21,7 @@ import {
   Loading,
   PayableMoney,
   ReasonForm,
-} from "./parts";
+} from "../ui";
 
 /** The kinds a person records directly: a debt taken on, an opening balance, or a payment. */
 const RECORD_KINDS = ["credit", "opening", "payment"] as const;

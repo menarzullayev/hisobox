@@ -8,7 +8,7 @@ import { useLoad, useSubmit } from "../shared/hooks";
 import { dayText } from "../shared/promiseParts";
 import { Link } from "../shared/router";
 import { NotFoundScreen } from "../shared/screens";
-import { Confirm, Failure, FieldError, formatInstant, Loading } from "../shared/workspace/parts";
+import { Confirm, Failure, FieldError, formatInstant, Loading } from "../shared/ui";
 import type { AdminApi, AdminReceiptDetail, DecidedReceipt, ReceiptCopy } from "./adminApi";
 import "./messages";
 import { actorName, cleanNote, cleanReason, parseReceiptMonths, REASON_MAX, REASON_MIN, RECEIPT_MONTHS_MAX } from "./rules";

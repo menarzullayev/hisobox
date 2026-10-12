@@ -7,7 +7,7 @@ import { compareDays, parseIsoDate, toIsoDate } from "../promise";
 import { dayText } from "../promiseParts";
 import { Link } from "../router";
 import { useMay, useWorkspace } from "../workspace/context";
-import { Empty, Failure, FieldError, formatInstant, Loading, LoadMore, ReasonForm } from "../workspace/parts";
+import { Empty, Failure, FieldError, formatInstant, Loading, LoadMore, ReasonForm } from "../ui";
 import { money } from "./amounts";
 import { Balances } from "./Balances";
 import type { CashApi, CashDay, CashEntry } from "./cashApi";

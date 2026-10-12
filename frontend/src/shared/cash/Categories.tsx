@@ -5,7 +5,7 @@ import { tashkentDay } from "../format";
 import { useSubmit } from "../hooks";
 import { toIsoDate } from "../promise";
 import { useMay, useWorkspace } from "../workspace/context";
-import { Badge, Confirm, errorText, FieldError } from "../workspace/parts";
+import { Badge, Confirm, errorText, FieldError } from "../ui";
 import { type CashApi, type CashCategory, type Direction, DIRECTIONS } from "./cashApi";
 
 /** The longest name of a category (backend/src/hiso_box/domain/cash.py, `MAX_CATEGORY_NAME`). */

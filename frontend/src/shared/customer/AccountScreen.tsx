@@ -31,7 +31,7 @@ import {
   Loading,
   BalanceLine,
   ReasonForm,
-} from "../workspace/parts";
+} from "../ui";
 
 /**
  * Whether "dispute" is offered for an entry: only one that adds to the debt, is not reversed and has

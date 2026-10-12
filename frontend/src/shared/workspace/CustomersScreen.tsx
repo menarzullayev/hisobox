@@ -7,7 +7,7 @@ import { PlusIcon, SearchIcon, UsersIcon } from "../icons";
 import { useDesktop } from "../layout";
 import { Link } from "../router";
 import { useMay, useWorkspace } from "./context";
-import { Avatar, Empty, Failure, Loading, LoadMore, Money } from "./parts";
+import { Avatar, Empty, Failure, Loading, LoadMore, Money } from "../ui";
 
 /** How long typing must pause before the list is searched again. */
 export const SEARCH_DELAY_MS = 300;

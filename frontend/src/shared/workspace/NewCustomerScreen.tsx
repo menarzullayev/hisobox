@@ -15,7 +15,7 @@ import {
   type AddressDraft,
 } from "./AddressFields";
 import { useMay, useWorkspace } from "./context";
-import { errorText, FieldError } from "./parts";
+import { errorText, FieldError } from "../ui";
 
 export const MAX_NAME_LENGTH = 80;
 const MAX_PHONE_LENGTH = 40;

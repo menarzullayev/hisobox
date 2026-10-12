@@ -10,7 +10,7 @@ import { useLoad, useSubmit } from "../hooks";
 import { Link } from "../router";
 import { NotFoundScreen } from "../screens";
 import { useMay, useWorkspace } from "./context";
-import { Empty, errorText, Failure, FieldError, Loading, Money } from "./parts";
+import { Empty, errorText, Failure, FieldError, Loading, Money } from "../ui";
 
 /** The amount an example reminder mentions, in whole UZS. */
 export const EXAMPLE_AMOUNT = 45_000;

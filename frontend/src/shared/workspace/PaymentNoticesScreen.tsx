@@ -10,7 +10,7 @@ import { Link } from "../router";
 import { NotFoundScreen } from "../screens";
 import { useMay, useWorkspace } from "./context";
 import { amountMessage } from "./EntryScreen";
-import { Empty, errorText, Failure, FieldError, formatInstant, Loading, owedText, ReasonForm } from "./parts";
+import { Empty, errorText, Failure, FieldError, formatInstant, Loading, owedText, ReasonForm } from "../ui";
 
 type Panel = { kind: "accept" | "decline"; id: string } | null;
 

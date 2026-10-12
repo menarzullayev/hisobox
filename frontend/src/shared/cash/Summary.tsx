@@ -22,7 +22,7 @@ import {
   PRESETS,
 } from "../reports/period";
 import { useMay, useWorkspace } from "../workspace/context";
-import { Empty, errorText, Failure, FieldError, formatInstant, Loading } from "../workspace/parts";
+import { Empty, errorText, Failure, FieldError, formatInstant, Loading } from "../ui";
 import { money } from "./amounts";
 import { Balances } from "./Balances";
 import {

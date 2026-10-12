@@ -3,7 +3,7 @@ import { type FormEvent, useState } from "react";
 import { useI18n } from "../i18n/I18nProvider";
 import { useLoad, useSubmit } from "../shared/hooks";
 import { isRole } from "../shared/navigation";
-import { Confirm, errorText, Failure, Loading } from "../shared/workspace/parts";
+import { Confirm, errorText, Failure, Loading } from "../shared/ui";
 import type { CatalogueGroup, Label, Member, MemberPermissions } from "./backoffice";
 import "./messages";
 import { useOffice } from "./office";

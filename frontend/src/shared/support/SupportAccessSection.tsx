@@ -5,7 +5,7 @@ import { type ApiError, toApiError } from "../api";
 import { usePagedList, useSubmit } from "../hooks";
 import { type Column, useDesktop } from "../layout";
 import { useWorkspace } from "../workspace/context";
-import { Confirm, Empty, Failure, formatInstant, Loading, LoadMore } from "../workspace/parts";
+import { Confirm, Empty, Failure, formatInstant, Loading, LoadMore } from "../ui";
 import "./messages";
 import { adminCode, isOpen, type SupportAccess, type SupportApi, supportOf } from "./supportApi";
 

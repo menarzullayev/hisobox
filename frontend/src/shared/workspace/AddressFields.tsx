@@ -4,7 +4,7 @@ import { useI18n, type Translate } from "../../i18n/I18nProvider";
 import type { AddressInput, ApiError, CustomerAddress, LastAddress, MahallaOption, Place, PlaceList } from "../api";
 import { useLoad } from "../hooks";
 import { useWorkspace } from "./context";
-import { Failure, FieldError, Loading } from "./parts";
+import { Failure, FieldError, Loading } from "../ui";
 
 /** How long typing must pause before the territory reference is searched again. */
 export const ADDRESS_SEARCH_DELAY_MS = 300;

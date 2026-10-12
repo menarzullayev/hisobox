@@ -17,7 +17,7 @@ import {
   SHOP_ID,
 } from "../testing/fakeServer";
 import { ApiError, createApi, RECEIPT_MAX_BYTES, RECEIPT_TYPES } from "./api";
-import { errorText } from "./workspace/parts";
+import { errorText } from "./ui";
 
 const KEY = "key-0000-0001";
 

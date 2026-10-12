@@ -8,7 +8,7 @@ import { amountInput, type Currency } from "../money";
 import { useMay, useWorkspace } from "./context";
 import { limitMessage, limitRange } from "./CreditLimitSection";
 import { parseLimit } from "./creditRules";
-import { errorText, Failure, FieldError, Loading } from "./parts";
+import { errorText, Failure, FieldError, Loading } from "../ui";
 
 function ReadOnly({ settings }: { settings: CreditSettings }) {
   const { t, language } = useI18n();

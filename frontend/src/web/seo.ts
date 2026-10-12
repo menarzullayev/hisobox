@@ -11,7 +11,7 @@
  * These are pure functions so that `vite.config.ts` can call them and a test can check them without a
  * build. Nothing here is fetched at run time.
  */
-import { BRAND_NAME, BRAND_TAGLINE } from "../shared/brand.ts";
+import { BRAND_NAME, BRAND_TAGLINE } from "../shared/brand";
 
 /** Where the plugin puts the head tags that need the site's address, in web/index.html. */
 export const SEO_MARKER = "<!--seo:origin-->";

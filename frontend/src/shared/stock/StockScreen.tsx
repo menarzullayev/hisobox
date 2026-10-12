@@ -8,7 +8,7 @@ import { BoxIcon } from "../icons";
 import type { Column } from "../layout";
 import { Link } from "../router";
 import { useMay } from "../workspace/context";
-import { Badge, Empty, errorText, Failure, Loading, LoadMore } from "../workspace/parts";
+import { Badge, Empty, errorText, Failure, Loading, LoadMore } from "../ui";
 import type { ScanHost } from "./barcode";
 import { LookupNotice, useLookup } from "./ItemFinder";
 import { Listing, moneyOrNone, qtyWithUnit, useStock, useStockSettings } from "./parts";

@@ -8,7 +8,7 @@ import { currencyOf } from "../money";
 import { Link } from "../router";
 import { NotFoundScreen } from "../screens";
 import { useMay, useWorkspace } from "./context";
-import { Confirm, Empty, Failure, formatInstant, Loading, ReasonForm } from "./parts";
+import { Confirm, Empty, Failure, formatInstant, Loading, ReasonForm } from "../ui";
 
 type Panel = { kind: "reverse" | "decline"; id: string } | null;
 

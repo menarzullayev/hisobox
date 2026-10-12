@@ -9,7 +9,7 @@ import { type Column, useDesktop } from "../layout";
 import { parseIsoDate } from "../promise";
 import { NotFoundScreen } from "../screens";
 import { useMay, useWorkspace } from "../workspace/context";
-import { Confirm, Empty, errorText, Failure, FieldError, formatInstant, Loading } from "../workspace/parts";
+import { Confirm, Empty, errorText, Failure, FieldError, formatInstant, Loading } from "../ui";
 import {
   canDiscard,
   FILE_PROBLEMS,

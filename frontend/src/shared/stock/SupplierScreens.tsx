@@ -10,7 +10,7 @@ import { type Currency, parseMoney } from "../money";
 import { Link } from "../router";
 import { NotFoundScreen } from "../screens";
 import { useMay } from "../workspace/context";
-import { Confirm, CurrencyToggle, Empty, errorText, Failure, FieldError, formatInstant, Loading, LoadMore } from "../workspace/parts";
+import { Confirm, CurrencyToggle, Empty, errorText, Failure, FieldError, formatInstant, Loading, LoadMore } from "../ui";
 import { CancelForm, DOCUMENT_KIND_LABELS, Fact, kindText, Listing, MethodChoice, NONE, useStock, useStockSettings } from "./parts";
 import { MAX_NOTE, tidy } from "./quantity";
 import type { PaymentMethod, Supplier, SupplierBalance, SupplierEntry, SupplierInput } from "./stockApi";

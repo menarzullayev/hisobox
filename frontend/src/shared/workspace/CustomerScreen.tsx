@@ -30,7 +30,7 @@ import { owesAnything } from "./CustomersScreen";
 import { GoodsList } from "./GoodsEditor";
 import { LinkSection } from "./LinkSection";
 import { cleanName, customerFieldErrors, nameProblem } from "./NewCustomerScreen";
-import { BalanceLine, ENTRY_KIND_LABELS, errorText, Failure, FieldError, Loading, OverdueLines } from "./parts";
+import { BalanceLine, ENTRY_KIND_LABELS, errorText, Failure, FieldError, Loading, OverdueLines } from "../ui";
 import { PaymentHistoryNote } from "./PaymentHistoryNote";
 import { ReminderAction } from "./ReminderAction";
 

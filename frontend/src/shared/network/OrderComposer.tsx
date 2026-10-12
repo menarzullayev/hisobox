@@ -9,7 +9,7 @@ import { ItemFinder } from "../stock/ItemFinder";
 import { readQty, tidy } from "../stock/quantity";
 import type { ItemFilter } from "../stock/stockApi";
 import { useMay } from "../workspace/context";
-import { Confirm, errorText, Failure, FieldError, Loading } from "../workspace/parts";
+import { Confirm, errorText, Failure, FieldError, Loading } from "../ui";
 import type { Draft, DraftInput, NetLink } from "./networkApi";
 import { MAX_LINES, MAX_NAME, MAX_NOTE, partnerText, UNITS, useNetwork, useUnitLabel } from "./parts";
 

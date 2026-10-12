@@ -4,7 +4,7 @@ import { useI18n } from "../../i18n/I18nProvider";
 import { type Loaded, useLoad } from "../hooks";
 import { Link } from "../router";
 import { useMay } from "../workspace/context";
-import { errorText, Failure, formatInstant, Loading } from "../workspace/parts";
+import { errorText, Failure, formatInstant, Loading } from "../ui";
 import { LinksList, WaitingFigures } from "./LinkScreens";
 import type { NoteSummary, OrderSummary, Overview, Payment } from "./networkApi";
 import { money, TAB, Tabs, useNetwork } from "./parts";

@@ -13,7 +13,7 @@ import { Fact, Listing, qtyWithUnit, useStockSettings } from "../stock/parts";
 import { lineCost, readCount, readUnitCost } from "../stock/quantity";
 import type { ItemFilter } from "../stock/stockApi";
 import { useMay } from "../workspace/context";
-import { Badge, CurrencyToggle, Empty, errorText, Failure, FieldError, formatInstant, Loading, LoadMore } from "../workspace/parts";
+import { Badge, CurrencyToggle, Empty, errorText, Failure, FieldError, formatInstant, Loading, LoadMore } from "../ui";
 import { type AcceptLine, type Draft, type LinkRole, type Order, ORDER_STATUSES, type OrderLine, type OrderStatus, type OrderSummary } from "./networkApi";
 import { History, money, NONE, NOTE_STATUS_LABELS, ORDER_STATUS_LABELS, ReasonBox, roleText, Status, TAB, Tabs, useNetwork, useUnitLabel } from "./parts";
 

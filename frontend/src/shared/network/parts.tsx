@@ -9,7 +9,7 @@ import { Link } from "../router";
 import { labelOf, useStockSettings } from "../stock/parts";
 import { tidy } from "../stock/quantity";
 import { useWorkspace } from "../workspace/context";
-import { Badge, errorText, FieldError, formatInstant } from "../workspace/parts";
+import { Badge, errorText, FieldError, formatInstant } from "../ui";
 import "./messages";
 import "./network.css";
 import {

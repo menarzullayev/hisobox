@@ -8,7 +8,7 @@ import { formatMoney } from "../format";
 import { useLoad, useSubmit } from "../hooks";
 import { useMay, useWorkspace } from "./context";
 import { limitIn, mayExceed, parseLimit } from "./creditRules";
-import { errorText, Failure, FieldError, Loading } from "./parts";
+import { errorText, Failure, FieldError, Loading } from "../ui";
 
 type Bounds = CreditSettings["bounds"];
 

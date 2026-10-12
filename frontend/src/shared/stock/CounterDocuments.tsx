@@ -7,7 +7,7 @@ import { usePagedList, useSubmit } from "../hooks";
 import { Link } from "../router";
 import { NotFoundScreen } from "../screens";
 import { useMay } from "../workspace/context";
-import { Empty, Failure, Loading, LoadMore } from "../workspace/parts";
+import { Empty, Failure, Loading, LoadMore } from "../ui";
 import { dateText, mayComposeDocuments, mayWriteDocuments, NeedsView, StatusBadge } from "./DocumentScreens";
 import { CancelForm, DOCUMENT_KIND_LABELS, DOCUMENT_STATUS_LABELS, permissionOfKind, useStock } from "./parts";
 import { DOCUMENT_STATUSES, type DocumentStatus, type DocumentSummary } from "./stockApi";

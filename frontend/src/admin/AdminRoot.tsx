@@ -12,7 +12,7 @@ import { useHashPath } from "../shared/router";
 import { NotFoundScreen } from "../shared/screens";
 import { BOT_USERNAME } from "../shared/settings";
 import { Shell } from "../shared/Shell";
-import { errorText, Failure, FieldError, formatInstant, Loading } from "../shared/workspace/parts";
+import { errorText, Failure, FieldError, formatInstant, Loading } from "../shared/ui";
 import { QrCode } from "../shared/workspace/StartCode";
 import "../shared/workspace/workspace.css";
 import { type AdminApi, type AuthStatus, createAdminApi } from "./adminApi";

@@ -15,7 +15,7 @@ import { Fact, Listing, MethodChoice, qtyWithUnit, useStockSettings } from "../s
 import { readCount, readUnitCost } from "../stock/quantity";
 import type { ItemFilter } from "../stock/stockApi";
 import { useMay } from "../workspace/context";
-import { Empty, errorText, Failure, FieldError, formatInstant, Loading, LoadMore } from "../workspace/parts";
+import { Empty, errorText, Failure, FieldError, formatInstant, Loading, LoadMore } from "../ui";
 import { type ConfirmLine, type Method, type Note, NOTE_STATUSES, type NoteLine, type NoteStatus, type NoteSummary } from "./networkApi";
 import { History, money, NOTE_STATUS_LABELS, NOTE_TERMS_LABELS, ReasonBox, roleText, Status, TAB, Tabs, useNetwork, useUnitLabel } from "./parts";
 

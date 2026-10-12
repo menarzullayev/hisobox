@@ -7,7 +7,7 @@ import { type DesktopParts, DesktopProvider } from "../shared/layout";
 import { Link } from "../shared/router";
 import { useMay } from "../shared/workspace/context";
 import { owesAnything } from "../shared/workspace/CustomersScreen";
-import { Money } from "../shared/workspace/parts";
+import { Money } from "../shared/ui";
 import { type Column, DataTable } from "./DataTable";
 import "./messages";
 

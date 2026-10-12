@@ -8,7 +8,7 @@ import { useDesktop } from "../layout";
 import type { Currency } from "../money";
 import { Link } from "../router";
 import { useWorkspace } from "./context";
-import { Avatar, CurrencyToggle, Empty, Failure, Loading, LoadMore, Money, OverdueLines } from "./parts";
+import { Avatar, CurrencyToggle, Empty, Failure, Loading, LoadMore, Money, OverdueLines } from "../ui";
 import { SubscriptionBanner } from "./SubscriptionScreen";
 
 /**

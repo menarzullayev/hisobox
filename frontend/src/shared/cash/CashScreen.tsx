@@ -7,7 +7,7 @@ import { toIsoDate } from "../promise";
 import "../reports/reports.css";
 import { NotFoundScreen } from "../screens";
 import { useMay, useWorkspace } from "../workspace/context";
-import { Failure, Loading } from "../workspace/parts";
+import { Failure, Loading } from "../ui";
 import { money } from "./amounts";
 import { type CashCategories, type CashEntry, cashOf, type Direction } from "./cashApi";
 import { CashEntryForm } from "./CashEntryForm";

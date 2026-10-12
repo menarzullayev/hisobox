@@ -8,7 +8,7 @@ import { type Loaded, useLoad } from "../hooks";
 import { type TableProps, useDesktop } from "../layout";
 import type { Currency } from "../money";
 import { useWorkspace } from "../workspace/context";
-import { errorText, FieldError } from "../workspace/parts";
+import { errorText, FieldError } from "../ui";
 import { stockQtyText } from "../workspace/StockNotes";
 import "./messages";
 import { MAX_REASON, tidy } from "./quantity";

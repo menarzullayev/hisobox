@@ -4,7 +4,7 @@ import { useI18n } from "../i18n/I18nProvider";
 import { type Column, DataTable } from "../panel/DataTable";
 import { usePagedList } from "../shared/hooks";
 import { Link, navigate } from "../shared/router";
-import { Empty, Failure, FieldError, formatInstant, Loading, LoadMore } from "../shared/workspace/parts";
+import { Empty, Failure, FieldError, formatInstant, Loading, LoadMore } from "../shared/ui";
 import type { AdminApi, AuditRow } from "./adminApi";
 import "./messages";
 import { actorName, isUuid, shortId } from "./rules";

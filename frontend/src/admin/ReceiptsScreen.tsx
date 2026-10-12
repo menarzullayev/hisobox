@@ -5,7 +5,7 @@ import { type Column, DataTable } from "../panel/DataTable";
 import { formatMoney } from "../shared/format";
 import { usePagedList } from "../shared/hooks";
 import { Link } from "../shared/router";
-import { Empty, Failure, formatInstant, Loading, LoadMore } from "../shared/workspace/parts";
+import { Empty, Failure, formatInstant, Loading, LoadMore } from "../shared/ui";
 import type { AdminApi, QueuedReceipt } from "./adminApi";
 import "./messages";
 import { RECEIPT_STATUSES } from "./rules";

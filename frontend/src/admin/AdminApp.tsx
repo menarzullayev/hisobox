@@ -7,7 +7,7 @@ import { type ApiError, toApiError } from "../shared/api";
 import { useHashPath } from "../shared/router";
 import { NotFoundScreen, PlaceholderScreen, SignInRequiredScreen } from "../shared/screens";
 import { Shell } from "../shared/Shell";
-import { errorText, formatInstant } from "../shared/workspace/parts";
+import { errorText, formatInstant } from "../shared/ui";
 import "../shared/workspace/workspace.css";
 import type { AdminApi } from "./adminApi";
 import { AuditScreen } from "./AuditScreen";

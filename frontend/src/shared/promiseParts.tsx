@@ -6,7 +6,7 @@ import type { ApiError, PromiseRecord } from "./api";
 import { DATE_REASON_MAX, type DateChoice, type DateProblem, type DayRange, reasonFits, tidyReason } from "./dateRules";
 import { formatCalendarDay } from "./format";
 import { MAX_PROMISE_DAYS, parseIsoDate, toIsoDate } from "./promise";
-import { errorText, FieldError, formatInstant } from "./workspace/parts";
+import { errorText, FieldError, formatInstant } from "./ui";
 
 const PROBLEMS: Readonly<Record<DateProblem, MessageKey>> = {
   required: "dates.date.required",

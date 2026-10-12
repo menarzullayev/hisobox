@@ -16,7 +16,7 @@ import { usePagedList } from "../hooks";
 import type { AmountProblem } from "../money";
 import { cleanItemName, itemNameProblem, MAX_ITEM_NAME, MAX_UNIT_INPUT, priceMessage, qtyMessage } from "./catalogRules";
 import { useWorkspace } from "./context";
-import { errorText, FieldError, Loading, LoadMore } from "./parts";
+import { errorText, FieldError, Loading, LoadMore } from "../ui";
 
 /** How long typing must pause before the catalog is searched again. */
 export const PICK_SEARCH_DELAY_MS = 300;

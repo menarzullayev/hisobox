@@ -6,7 +6,7 @@ import { useLoad } from "../hooks";
 import { Link, useHashPath } from "../router";
 import { NotFoundScreen } from "../screens";
 import { Shell, type ShellNavItem } from "../Shell";
-import { Empty, Failure, Loading, Money } from "../workspace/parts";
+import { Empty, Failure, Loading, Money } from "../ui";
 import "../workspace/workspace.css";
 import { AccountScreen } from "./AccountScreen";
 import { MY_PATH } from "./paths";

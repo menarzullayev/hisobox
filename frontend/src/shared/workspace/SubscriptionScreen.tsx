@@ -10,7 +10,7 @@ import { parseIsoDate } from "../promise";
 import { Link } from "../router";
 import { NotFoundScreen } from "../screens";
 import { useWorkspace } from "./context";
-import { Failure, Loading } from "./parts";
+import { Failure, Loading } from "../ui";
 import { endsSoon, modeOfState, type ShopMode } from "./shopMode";
 
 const STATE_LABELS: Readonly<Record<string, MessageKey>> = {

@@ -4,7 +4,7 @@ import { useI18n } from "../../i18n/I18nProvider";
 import type { MessageKey } from "../../i18n/types";
 import { useLoad, useSubmit } from "../hooks";
 import { useWorkspace } from "../workspace/context";
-import { Confirm, errorText, formatInstant } from "../workspace/parts";
+import { Confirm, errorText, formatInstant } from "../ui";
 import { QrCode } from "../workspace/StartCode";
 import "./messages";
 import { sharesOf, type ShareState, shareUrl } from "./shareApi";

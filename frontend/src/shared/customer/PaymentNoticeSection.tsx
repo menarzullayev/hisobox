@@ -7,7 +7,7 @@ import { formatMoney } from "../format";
 import { useSubmit } from "../hooks";
 import { type Currency, currencyOf, parseMoney } from "../money";
 import { amountMessage } from "../workspace/EntryScreen";
-import { CurrencyToggle, errorText, FieldError, formatInstant } from "../workspace/parts";
+import { CurrencyToggle, errorText, FieldError, formatInstant } from "../ui";
 
 /** How many of a customer's notices may wait for the shop at once (backend/src/hiso_box/domain/payment_notices.py). */
 export const MAX_OPEN_NOTICES = 3;

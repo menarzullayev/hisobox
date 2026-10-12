@@ -7,7 +7,7 @@ import type { Column } from "../layout";
 import { Link } from "../router";
 import { NotFoundScreen } from "../screens";
 import { useMay } from "../workspace/context";
-import { errorText, Failure, FieldError, formatInstant, Loading, LoadMore } from "../workspace/parts";
+import { errorText, Failure, FieldError, formatInstant, Loading, LoadMore } from "../ui";
 import { stockQtyText } from "../workspace/StockNotes";
 import { type ScanHost, MAX_BARCODES } from "./barcode";
 import { DOCUMENT_KIND_LABELS, Fact, kindText, labelOf, Listing, maySell, moneyOrNone, NONE, qtyWithUnit, useStock, useStockSettings } from "./parts";

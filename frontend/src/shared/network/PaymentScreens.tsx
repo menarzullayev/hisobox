@@ -9,7 +9,7 @@ import { type Currency, parseMoney } from "../money";
 import { Listing, MethodChoice, useStockSettings } from "../stock/parts";
 import { tidy } from "../stock/quantity";
 import { useMay } from "../workspace/context";
-import { Confirm, CurrencyToggle, Empty, errorText, Failure, FieldError, formatInstant, Loading, LoadMore } from "../workspace/parts";
+import { Confirm, CurrencyToggle, Empty, errorText, Failure, FieldError, formatInstant, Loading, LoadMore } from "../ui";
 import { type Method, type NetLink, type Payment, PAYMENT_STATUSES, type PaymentStatus } from "./networkApi";
 import { MAX_NOTE, money, partnerText, PAYMENT_STATUS_LABELS, ReasonBox, roleText, Status, TAB, Tabs, useNetwork } from "./parts";
 

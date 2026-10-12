@@ -4,7 +4,7 @@ import { useI18n } from "../../i18n/I18nProvider";
 import { type ApiError, isAbort, toApiError } from "../api";
 import { useLoad } from "../hooks";
 import { useMay, useWorkspace } from "../workspace/context";
-import { errorText } from "../workspace/parts";
+import { errorText } from "../ui";
 import { SharedPickForm } from "../workspace/SharedPicker";
 import type { ScanHost } from "./barcode";
 import { qtyWithUnit, useStock } from "./parts";

@@ -4,7 +4,7 @@ import { useI18n } from "../../i18n/I18nProvider";
 import type { MessageKey } from "../../i18n/types";
 import { useLatest } from "../hooks";
 import { SearchIcon } from "../icons";
-import { FieldError } from "../workspace/parts";
+import { FieldError } from "../ui";
 import {
   type BarcodeProblem,
   type CameraSupport,

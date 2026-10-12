@@ -5,7 +5,7 @@ import { useLoad, useSubmit } from "../shared/hooks";
 import { isRole } from "../shared/navigation";
 import { NotFoundScreen } from "../shared/screens";
 import { useMay, useWorkspace } from "../shared/workspace/context";
-import { Confirm, Empty, errorText, Failure, formatInstant, Loading } from "../shared/workspace/parts";
+import { Confirm, Empty, errorText, Failure, formatInstant, Loading } from "../shared/ui";
 import { StartCode } from "../shared/workspace/StartCode";
 import type { CatalogueGroup, Invitation, Member } from "./backoffice";
 import { type Column, DataTable } from "./DataTable";

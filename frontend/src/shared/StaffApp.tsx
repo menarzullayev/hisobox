@@ -25,7 +25,7 @@ import { PayablesScreen } from "./workspace/PayablesScreen";
 import { EntryScreen } from "./workspace/EntryScreen";
 import { NewCustomerScreen } from "./workspace/NewCustomerScreen";
 import { OverviewScreen } from "./workspace/OverviewScreen";
-import { Loading } from "./workspace/parts";
+import { Loading } from "./ui";
 import { RemindersScreen } from "./workspace/RemindersScreen";
 import { matchWorkspaceRoute, type WorkspaceRoute } from "./workspace/routes";
 import type { ShopMode } from "./workspace/shopMode";

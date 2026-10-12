@@ -12,7 +12,7 @@ import { dayText } from "../promiseParts";
 import { Link } from "../router";
 import { NotFoundScreen } from "../screens";
 import { useMay, useWorkspace } from "../workspace/context";
-import { CurrencyToggle, Empty, Failure, FieldError, Loading } from "../workspace/parts";
+import { CurrencyToggle, Empty, Failure, FieldError, Loading } from "../ui";
 import { Figures } from "./Figures";
 import "./messages";
 import {

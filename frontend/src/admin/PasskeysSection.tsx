@@ -3,7 +3,7 @@ import { type FormEvent, useRef, useState } from "react";
 import { useI18n } from "../i18n/I18nProvider";
 import { type ApiError, newIdempotencyKey, toApiError } from "../shared/api";
 import { useLoad } from "../shared/hooks";
-import { errorText, Failure, formatInstant, Loading } from "../shared/workspace/parts";
+import { errorText, Failure, formatInstant, Loading } from "../shared/ui";
 import type { AdminApi } from "./adminApi";
 import { browserPasskeys, PasskeyDeclined, type PasskeyDevice } from "../shared/passkey";
 

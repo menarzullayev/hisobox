@@ -2,7 +2,7 @@ import { useRef, useState } from "react";
 
 import { useI18n } from "../i18n/I18nProvider";
 import { type ApiError, toApiError } from "./api";
-import { errorText } from "./workspace/parts";
+import { errorText } from "./ui";
 
 type Step = "idle" | "asking" | "pending";
 

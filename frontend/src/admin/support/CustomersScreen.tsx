@@ -6,7 +6,7 @@ import type { Customer } from "../../shared/api";
 import { formatMoney } from "../../shared/format";
 import { usePagedList } from "../../shared/hooks";
 import { Link } from "../../shared/router";
-import { Empty, Failure, Loading, LoadMore } from "../../shared/workspace/parts";
+import { Empty, Failure, Loading, LoadMore } from "../../shared/ui";
 import type { AdminApi } from "../adminApi";
 import "../messages";
 import { NONE } from "../ShopsScreen";

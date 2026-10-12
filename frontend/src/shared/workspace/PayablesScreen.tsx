@@ -7,7 +7,7 @@ import { PlusIcon, SearchIcon, UsersIcon } from "../icons";
 import { Link } from "../router";
 import { useMay, useWorkspace } from "./context";
 import { PayableForm } from "./PayableForm";
-import { Avatar, Empty, Failure, Loading, LoadMore, PayableMoney } from "./parts";
+import { Avatar, Empty, Failure, Loading, LoadMore, PayableMoney } from "../ui";
 
 /** How long typing must pause before the list is searched again. */
 const SEARCH_DELAY_MS = 300;

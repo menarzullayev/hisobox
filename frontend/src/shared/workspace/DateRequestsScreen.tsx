@@ -11,7 +11,7 @@ import { dayText } from "../promiseParts";
 import { Link } from "../router";
 import { NotFoundScreen } from "../screens";
 import { useMay, useWorkspace } from "./context";
-import { Confirm, Empty, errorText, Failure, FieldError, formatInstant, Loading } from "./parts";
+import { Confirm, Empty, errorText, Failure, FieldError, formatInstant, Loading } from "../ui";
 
 type Panel = { kind: "accept" | "decline"; id: string } | null;
 

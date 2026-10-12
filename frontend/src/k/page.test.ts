@@ -4,7 +4,7 @@ import { resolve } from "node:path";
 
 import { afterEach, describe, expect, it } from "vitest";
 
-import { cyrillicOf, fileText } from "../../scripts/kCyrillic.ts";
+import { cyrillicOf, fileText } from "../../scripts/kCyrillic";
 import { ACCOUNT_PATH, type Fetch, loadAccount, readAccount, readToken, TOKEN_HEADER } from "./account";
 import {
   CATALOGS,

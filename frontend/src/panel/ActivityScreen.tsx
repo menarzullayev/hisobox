@@ -8,7 +8,7 @@ import { useLoad, usePagedList } from "../shared/hooks";
 import { Link } from "../shared/router";
 import { NotFoundScreen } from "../shared/screens";
 import { useMay, useWorkspace } from "../shared/workspace/context";
-import { Empty, Failure, formatInstant, Loading, LoadMore } from "../shared/workspace/parts";
+import { Empty, Failure, formatInstant, Loading, LoadMore } from "../shared/ui";
 import type { Activity, Member } from "./backoffice";
 import { type Column, DataTable } from "./DataTable";
 import "./messages";

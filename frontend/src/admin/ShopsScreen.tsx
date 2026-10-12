@@ -7,7 +7,7 @@ import { type Column, DataTable } from "../panel/DataTable";
 import { usePagedList } from "../shared/hooks";
 import { dayText } from "../shared/promiseParts";
 import { Link } from "../shared/router";
-import { Empty, Failure, formatInstant, Loading, LoadMore } from "../shared/workspace/parts";
+import { Empty, Failure, formatInstant, Loading, LoadMore } from "../shared/ui";
 import type { AdminApi, AdminShop } from "./adminApi";
 import "./messages";
 

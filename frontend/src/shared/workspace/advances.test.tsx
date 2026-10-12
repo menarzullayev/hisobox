@@ -28,7 +28,7 @@ import { CustomerScreen } from "./CustomerScreen";
 import { CustomersScreen } from "./CustomersScreen";
 import { EntryScreen } from "./EntryScreen";
 import { OverviewScreen } from "./OverviewScreen";
-import { BalanceLine, inCredit, isMixed, Money } from "./parts";
+import { BalanceLine, inCredit, isMixed, Money } from "../ui";
 
 /**
  * The founder's decision: a shop may accept advances. A customer who paid more than they owe has a

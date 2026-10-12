@@ -2,7 +2,7 @@ import { type FormEvent, type ReactNode, useState } from "react";
 
 import { useI18n } from "../i18n/I18nProvider";
 import { usePagedList, useSubmit } from "../shared/hooks";
-import { Empty, errorText, Failure, FieldError, formatInstant, Loading, LoadMore } from "../shared/workspace/parts";
+import { Empty, errorText, Failure, FieldError, formatInstant, Loading, LoadMore } from "../shared/ui";
 import { categoryKey, SHARED_CATEGORIES } from "../shared/sharedCatalog";
 import type { AdminApi, CatalogSuggestion, SuggestionNames } from "./adminApi";
 import "./messages";

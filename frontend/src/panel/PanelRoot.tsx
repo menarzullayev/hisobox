@@ -10,7 +10,7 @@ import { BOT_USERNAME } from "../shared/settings";
 import { Shell } from "../shared/Shell";
 import { type PanelParts, StaffWorkspace } from "../shared/StaffRoot";
 import SupportAccessSection from "../shared/support/SupportAccessSection";
-import { errorText } from "../shared/workspace/parts";
+import { errorText } from "../shared/ui";
 import { ActivityScreen } from "./ActivityScreen";
 import { DeletionSection } from "./DeletionSection";
 import "./messages";

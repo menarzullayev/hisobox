@@ -8,7 +8,7 @@ import { usePagedList, useSubmit } from "../hooks";
 import { categoryKey, SHARED_CATEGORIES } from "../sharedCatalog";
 import { priceMessage } from "./catalogRules";
 import { useWorkspace } from "./context";
-import { Badge, errorText, Failure, FieldError, Loading, LoadMore } from "./parts";
+import { Badge, errorText, Failure, FieldError, Loading, LoadMore } from "../ui";
 
 /** How long typing must pause before the catalogue is searched again. */
 export const SHARED_SEARCH_DELAY_MS = 300;

@@ -3,7 +3,7 @@ import type { MessageKey } from "../../i18n/types";
 import { formatMoney } from "../format";
 import type { Column } from "../layout";
 import type { Role } from "../navigation";
-import { Badge, formatInstant } from "../workspace/parts";
+import { Badge, formatInstant } from "../ui";
 import { stockQtyText } from "../workspace/StockNotes";
 import { Fact, Listing, moneyOrNone, qtyWithUnit } from "./parts";
 import type { PaymentMethod, Sale, SaleLine, SaleStatus, SaleSummary, SaleWarning } from "./stockApi";

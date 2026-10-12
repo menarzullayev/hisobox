@@ -20,7 +20,7 @@
  *
  * No look-behind in the expressions: some web views that open the Mini App do not have it.
  */
-import { BRAND_NAME } from "../shared/brand.ts";
+import { BRAND_NAME } from "../shared/brand";
 
 /** Product and brand names, kept in Latin; an ending after one is still transliterated. */
 export const BRANDS: readonly string[] = [

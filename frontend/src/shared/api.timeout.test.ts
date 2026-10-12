@@ -4,7 +4,7 @@ import { translate } from "../i18n/catalog";
 import type { Language } from "../i18n/types";
 import { fakeServer, ok, SHOP_ID } from "../testing/fakeServer";
 import { ApiError, call, createApi, defaultTimeoutMs, type Fetch, isAbort, NO_ANSWER, TIMEOUT, TIMEOUTS } from "./api";
-import { errorText } from "./workspace/parts";
+import { errorText } from "./ui";
 
 const KEY = "0123456789abcdef";
 

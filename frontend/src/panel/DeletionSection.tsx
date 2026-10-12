@@ -7,7 +7,7 @@ import { formatFullDate } from "../shared/format";
 import { useSubmit } from "../shared/hooks";
 import { Link } from "../shared/router";
 import { useWorkspace } from "../shared/workspace/context";
-import { Confirm, errorText, Failure, FieldError, Loading } from "../shared/workspace/parts";
+import { Confirm, errorText, Failure, FieldError, Loading } from "../shared/ui";
 import type { Deletion } from "./backoffice";
 import "./messages";
 import { useOffice } from "./office";

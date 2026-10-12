@@ -3,7 +3,7 @@ import type { MessageKey } from "../../i18n/types";
 import { formatMoney } from "../format";
 import { useSubmit } from "../hooks";
 import { useWorkspace } from "./context";
-import { errorText } from "./parts";
+import { errorText } from "../ui";
 
 const SENT_LABELS: Readonly<Record<string, MessageKey>> = {
   telegram: "reminders.sent.telegram",

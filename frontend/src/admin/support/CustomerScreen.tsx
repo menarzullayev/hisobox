@@ -8,7 +8,7 @@ import { useLoad } from "../../shared/hooks";
 import { dayText } from "../../shared/promiseParts";
 import { Link } from "../../shared/router";
 import { NotFoundScreen } from "../../shared/screens";
-import { Empty, ENTRY_KIND_LABELS, Failure, formatInstant, Loading } from "../../shared/workspace/parts";
+import { Empty, ENTRY_KIND_LABELS, Failure, formatInstant, Loading } from "../../shared/ui";
 import type { AdminApi } from "../adminApi";
 import "../messages";
 import { NONE } from "../ShopsScreen";

@@ -3,7 +3,7 @@ import { type KeyboardEvent, useEffect, useId, useRef, useState } from "react";
 import { useI18n } from "../../i18n/I18nProvider";
 import { type ApiError, isAbort, toApiError } from "../api";
 import { useLatest } from "../hooks";
-import { errorText } from "../workspace/parts";
+import { errorText } from "../ui";
 
 /** One thing to choose: a supplier, a customer. `detail` is a second, quieter word about it. */
 export type PickOption = { id: string; name: string; detail?: string | undefined };

@@ -8,7 +8,7 @@ import { usePagedList, useSubmit } from "../hooks";
 import { useDesktop } from "../layout";
 import { cleanItemName, itemNameProblem, MAX_ITEM_NAME, MAX_UNIT_INPUT, priceMessage } from "./catalogRules";
 import { useMay, useWorkspace } from "./context";
-import { Badge, Empty, errorText, Failure, FieldError, Loading, LoadMore } from "./parts";
+import { Badge, Empty, errorText, Failure, FieldError, Loading, LoadMore } from "../ui";
 import { SharedPicker } from "./SharedPicker";
 
 /** How long typing must pause before the list is searched again. */

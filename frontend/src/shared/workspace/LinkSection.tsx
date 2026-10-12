@@ -1,7 +1,7 @@
 import { useI18n } from "../../i18n/I18nProvider";
 import { useLoad, useSubmit } from "../hooks";
 import { useMay, useWorkspace } from "./context";
-import { errorText, Failure, formatInstant, Loading } from "./parts";
+import { errorText, Failure, formatInstant, Loading } from "../ui";
 import { StartCode } from "./StartCode";
 
 /**

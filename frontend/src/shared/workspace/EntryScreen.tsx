@@ -42,7 +42,7 @@ import { NotFoundScreen } from "../screens";
 import { useMay, useWorkspace } from "./context";
 import { exceedsLimit, limitIn, refusedLimit } from "./creditRules";
 import { type DraftLine, GoodsEditor, GoodsList, readDrafts } from "./GoodsEditor";
-import { BalanceLine, Confirm, CurrencyToggle, errorText, Failure, FieldError, Loading } from "./parts";
+import { BalanceLine, Confirm, CurrencyToggle, errorText, Failure, FieldError, Loading } from "../ui";
 import { StockRefusal, StockWarnings } from "./StockNotes";
 
 export const MAX_NOTE_LENGTH = 200;

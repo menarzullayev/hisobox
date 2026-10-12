@@ -6,7 +6,7 @@ import { useSubmit } from "../hooks";
 import { type Column, useDesktop } from "../layout";
 import { NotFoundScreen } from "../screens";
 import { useMay, useWorkspace } from "../workspace/context";
-import { Empty, errorText, Failure, formatInstant, Loading } from "../workspace/parts";
+import { Empty, errorText, Failure, formatInstant, Loading } from "../ui";
 import {
   DAILY_LIMIT,
   type ExportJob,

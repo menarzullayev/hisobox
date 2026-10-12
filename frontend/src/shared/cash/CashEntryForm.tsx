@@ -7,7 +7,7 @@ import { useSubmit } from "../hooks";
 import { addDays, compareDays, parseIsoDate, toIsoDate } from "../promise";
 import { useWorkspace } from "../workspace/context";
 import { amountMessage } from "../workspace/EntryScreen";
-import { errorText, FieldError } from "../workspace/parts";
+import { errorText, FieldError } from "../ui";
 import { money, readAmount } from "./amounts";
 import {
   type CashApi,

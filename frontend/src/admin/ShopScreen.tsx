@@ -10,7 +10,7 @@ import { toIsoDate } from "../shared/promise";
 import { dayText } from "../shared/promiseParts";
 import { Link } from "../shared/router";
 import { NotFoundScreen } from "../shared/screens";
-import { Confirm, Empty, Failure, FieldError, formatInstant, Loading } from "../shared/workspace/parts";
+import { Confirm, Empty, Failure, FieldError, formatInstant, Loading } from "../shared/ui";
 import type { AdminApi, AdminShop, AdminShopDetail, AuditRow, SubscriptionAction, SubscriptionReceipt, SubscriptionState } from "./adminApi";
 import "./messages";
 import { OwnerSection } from "./OwnerSection";

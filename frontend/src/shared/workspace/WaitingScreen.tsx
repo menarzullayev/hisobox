@@ -6,7 +6,7 @@ import { useLoad, usePagedList, useSubmit } from "../hooks";
 import { Link } from "../router";
 import { useMay, useWorkspace } from "./context";
 import { SEARCH_DELAY_MS } from "./CustomersScreen";
-import { Confirm, Empty, errorText, Failure, formatInstant, Loading, LoadMore, owedText } from "./parts";
+import { Confirm, Empty, errorText, Failure, formatInstant, Loading, LoadMore, owedText } from "../ui";
 
 const MAX_QUERY_LENGTH = 80;
 const PICK_PAGE = 10;

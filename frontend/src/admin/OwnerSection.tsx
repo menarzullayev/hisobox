@@ -3,7 +3,7 @@ import { type FormEvent, useRef, useState } from "react";
 import { useI18n } from "../i18n/I18nProvider";
 import type { ApiError } from "../shared/api";
 import { useSubmit } from "../shared/hooks";
-import { Confirm, FieldError } from "../shared/workspace/parts";
+import { Confirm, FieldError } from "../shared/ui";
 import type { AdminApi, AdminShop } from "./adminApi";
 import "./messages";
 import { cleanReason, isCode, isOwnerRefusal, REASON_MAX, REASON_MIN, telegramId } from "./rules";

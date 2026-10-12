@@ -9,7 +9,7 @@ import { parseIsoDate } from "../promise";
 import { Link, navigate } from "../router";
 import { NotFoundScreen } from "../screens";
 import { useMay, useWorkspace } from "../workspace/context";
-import { Badge, Empty, Failure, formatInstant, Loading, LoadMore } from "../workspace/parts";
+import { Badge, Empty, Failure, formatInstant, Loading, LoadMore } from "../ui";
 import type { ScanHost } from "./barcode";
 import { draftOf } from "./documentDraft";
 import { DocumentEditor, DocumentRefusal } from "./DocumentEditor";

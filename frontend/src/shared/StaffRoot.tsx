@@ -12,7 +12,7 @@ import { SignInRequiredScreen } from "./screens";
 import { SignOutEverywhere } from "./SignOutEverywhere";
 import { Shell } from "./Shell";
 import { StaffRoutes } from "./StaffApp";
-import { Failure, Loading } from "./workspace/parts";
+import { Failure, Loading } from "./ui";
 import { modeOfRefusal, type ShopMode } from "./workspace/shopMode";
 
 /** What the web panel adds to the workspace; the Mini App passes none of it. */

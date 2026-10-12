@@ -8,7 +8,7 @@ import { useSubmit } from "../hooks";
 import { Link } from "../router";
 import { NotFoundScreen } from "../screens";
 import { useMay } from "../workspace/context";
-import { errorText, Failure, FieldError, Loading } from "../workspace/parts";
+import { errorText, Failure, FieldError, Loading } from "../ui";
 import { StockRefusal } from "../workspace/StockNotes";
 import type { ScanHost } from "./barcode";
 import { ItemFinder } from "./ItemFinder";

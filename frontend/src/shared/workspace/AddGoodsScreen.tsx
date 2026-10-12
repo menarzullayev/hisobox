@@ -10,7 +10,7 @@ import { Link } from "../router";
 import { NotFoundScreen } from "../screens";
 import { useWorkspace } from "./context";
 import { type DraftLine, GoodsEditor, GoodsList, readDrafts } from "./GoodsEditor";
-import { errorText, Failure, Loading } from "./parts";
+import { errorText, Failure, Loading } from "../ui";
 import { StockRefusal, StockWarnings } from "./StockNotes";
 
 /**

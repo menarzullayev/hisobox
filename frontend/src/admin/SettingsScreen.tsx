@@ -4,7 +4,7 @@ import { useI18n, type Translate } from "../i18n/I18nProvider";
 import { type ApiError, toApiError } from "../shared/api";
 import { useLoad, useSubmit } from "../shared/hooks";
 import { Link } from "../shared/router";
-import { Confirm, errorText, Failure, FieldError, formatInstant, Loading } from "../shared/workspace/parts";
+import { Confirm, errorText, Failure, FieldError, formatInstant, Loading } from "../shared/ui";
 import type { AdminApi, PaymentCard, PlatformSettings, SettingValue } from "./adminApi";
 import "./messages";
 import {

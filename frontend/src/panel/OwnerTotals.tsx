@@ -2,7 +2,7 @@ import { useI18n } from "../i18n/I18nProvider";
 import { formatCustomerCount } from "../shared/format";
 import { useLoad } from "../shared/hooks";
 import { useWorkspace } from "../shared/workspace/context";
-import { Empty, Failure, Loading, Money } from "../shared/workspace/parts";
+import { Empty, Failure, Loading, Money } from "../shared/ui";
 import type { ShopTotals, Totals } from "./backoffice";
 import { type Column, DataTable } from "./DataTable";
 import "./messages";

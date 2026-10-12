@@ -3,7 +3,7 @@ import { type FormEvent, useMemo, useState } from "react";
 import { useI18n } from "../../i18n/I18nProvider";
 import { useLoad, useSubmit } from "../hooks";
 import { useWorkspace } from "../workspace/context";
-import { errorText, FieldError } from "../workspace/parts";
+import { errorText, FieldError } from "../ui";
 import "./messages";
 import { type ShareContact, sharesOf } from "./shareApi";
 

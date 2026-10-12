@@ -5,7 +5,7 @@ import { useSubmit } from "../shared/hooks";
 import { Link } from "../shared/router";
 import { isOpen } from "../shared/support/supportApi";
 import { useWorkspace } from "../shared/workspace/context";
-import { Confirm, formatInstant } from "../shared/workspace/parts";
+import { Confirm, formatInstant } from "../shared/ui";
 import type { Transfer } from "./backoffice";
 import { erasureDay } from "./DeletionSection";
 import "./messages";

@@ -11,7 +11,7 @@ import { OptionPicker, type PickLoader, type PickOption } from "../stock/OptionP
 import { Fact, Listing, useStock } from "../stock/parts";
 import { supplierLoader } from "../stock/SupplierPicker";
 import { useMay, useWorkspace } from "../workspace/context";
-import { Confirm, Empty, errorText, Failure, formatInstant, Loading } from "../workspace/parts";
+import { Confirm, Empty, errorText, Failure, formatInstant, Loading } from "../ui";
 import { type Invite, type IssuedInvite, LINK_ROLES, type LinkRole, type NetLink, type Overview, type Reconciliation, type Waiting } from "./networkApi";
 import { History, LINK_STATE_LABELS, money, NONE, partnerText, roleText, Status, TAB, Tabs, useNetwork } from "./parts";
 import { PaymentForm } from "./PaymentScreens";

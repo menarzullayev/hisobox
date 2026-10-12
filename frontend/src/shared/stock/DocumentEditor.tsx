@@ -9,7 +9,7 @@ import { useLoad, useSubmit } from "../hooks";
 import { type Currency, formatUzs } from "../money";
 import { addDays, toIsoDate } from "../promise";
 import { useMay, useWorkspace } from "../workspace/context";
-import { CurrencyToggle, errorText, FieldError } from "../workspace/parts";
+import { CurrencyToggle, errorText, FieldError } from "../ui";
 import { stockQtyText } from "../workspace/StockNotes";
 import { readBarcode, type ScanHost } from "./barcode";
 import {

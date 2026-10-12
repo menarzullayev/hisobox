@@ -8,7 +8,7 @@ import { useLoad, useSubmit } from "../hooks";
 import { type Column, useDesktop } from "../layout";
 import { parseWholeUzs } from "../money";
 import { useWorkspace } from "../workspace/context";
-import { Empty, errorText, Failure, FieldError, formatInstant, Loading } from "../workspace/parts";
+import { Empty, errorText, Failure, FieldError, formatInstant, Loading } from "../ui";
 import "./messages";
 import { MAX_AMOUNT, MAX_MONTHS, MAX_WAITING, MIN_AMOUNT, type OwnReceipt, parseMonths, type ReceiptsApi, receiptsOf } from "./receiptsApi";
 
