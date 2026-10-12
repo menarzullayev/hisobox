@@ -108,6 +108,19 @@ const CHEVRON_DOWN_1_STROKE = "currentColor";
 const CHEVRON_DOWN_1_STROKE_LINECAP = "round";
 const CHEVRON_DOWN_1_STROKE_LINEJOIN = "round";
 const CHEVRON_DOWN_1_D = "m6 9l6 6l6-6";
+const ROCKET_1_D = "M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09";
+const ROCKET_2_D = "M9 12a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.4 22.4 0 0 1-4 2z";
+const ROCKET_3_D = "M9 12H4s.55-3.03 2-4c1.62-1.08 5 .05 5 .05";
+const TRENDING_UP_1_D = "M16 7h6v6";
+const TRENDING_UP_2_D = "m22 7l-8.5 8.5l-5-5L2 17";
+const CIRCLE_HELP_2_D = "M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3m.08 4h.01";
+const ARROW_RIGHT_1_FILL = "none";
+const ARROW_RIGHT_1_STROKE = "currentColor";
+const ARROW_RIGHT_1_STROKE_LINECAP = "round";
+const ARROW_RIGHT_1_STROKE_LINEJOIN = "round";
+const ARROW_RIGHT_1_D = "M5 12h14m-7-7l7 7l-7 7";
+const STORE_1_D = "M15 21v-5a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v5m8.774-10.69a1.12 1.12 0 0 0-1.549 0a2.5 2.5 0 0 1-3.451 0a1.12 1.12 0 0 0-1.548 0a2.5 2.5 0 0 1-3.452 0a1.12 1.12 0 0 0-1.549 0a2.5 2.5 0 0 1-3.77-3.248l2.889-4.184A2 2 0 0 1 7 2h10a2 2 0 0 1 1.653.873l2.895 4.192a2.5 2.5 0 0 1-3.774 3.244";
+const STORE_2_D = "M4 10.95V19a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8.05";
 
 export function HomeIcon() {
   return (
@@ -351,6 +364,46 @@ export function ChevronDownIcon() {
   return (
     <Icon>
       <path fill={CHEVRON_DOWN_1_FILL} stroke={CHEVRON_DOWN_1_STROKE} strokeLinecap={CHEVRON_DOWN_1_STROKE_LINECAP} strokeLinejoin={CHEVRON_DOWN_1_STROKE_LINEJOIN} strokeWidth="2" d={CHEVRON_DOWN_1_D} />
+    </Icon>
+  );
+}
+export function RocketIcon() {
+  return (
+    <Icon>
+      <path d={ROCKET_1_D} />
+      <path d={ROCKET_2_D} />
+      <path d={ROCKET_3_D} />
+    </Icon>
+  );
+}
+export function TrendingUpIcon() {
+  return (
+    <Icon>
+      <path d={TRENDING_UP_1_D} />
+      <path d={TRENDING_UP_2_D} />
+    </Icon>
+  );
+}
+export function CircleHelpIcon() {
+  return (
+    <Icon>
+      <circle cx="12" cy="12" r="10" />
+      <path d={CIRCLE_HELP_2_D} />
+    </Icon>
+  );
+}
+export function ArrowRightIcon() {
+  return (
+    <Icon>
+      <path fill={ARROW_RIGHT_1_FILL} stroke={ARROW_RIGHT_1_STROKE} strokeLinecap={ARROW_RIGHT_1_STROKE_LINECAP} strokeLinejoin={ARROW_RIGHT_1_STROKE_LINEJOIN} strokeWidth="2" d={ARROW_RIGHT_1_D} />
+    </Icon>
+  );
+}
+export function StoreIcon() {
+  return (
+    <Icon>
+      <path d={STORE_1_D} />
+      <path d={STORE_2_D} />
     </Icon>
   );
 }

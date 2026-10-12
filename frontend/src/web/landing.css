@@ -1124,3 +1124,69 @@ a {
   width: 1rem;
   height: 1rem;
 }
+
+/* The header's way around the page, each link with its section's mark. */
+.hdr__link .icon {
+  width: 0.9375rem;
+  height: 0.9375rem;
+  color: var(--hb-faint);
+}
+
+.hdr__link:hover .icon,
+.hdr__link:focus-visible .icon {
+  color: var(--hb-accent);
+}
+
+/* The section label's own mark, inside the pill. */
+.eyebrow .icon {
+  width: 0.875rem;
+  height: 0.875rem;
+  margin-right: var(--hb-space-2);
+  color: var(--hb-accent);
+}
+
+/* A step's mark, beside its title rather than inside the number's circle. */
+.step__title {
+  display: flex;
+  align-items: center;
+  gap: var(--hb-space-2);
+}
+
+.step__title .icon {
+  width: 1.125rem;
+  height: 1.125rem;
+  color: var(--hb-accent);
+}
+
+/* The way in: the arrow points the way, and the landing moves nothing on its own. */
+.btn .icon {
+  width: 1rem;
+  height: 1rem;
+}
+
+/* A section's own mark, oversized and faint, behind the content. Decoration only: it carries no
+   meaning a reader needs, so it is hidden from a screen reader and set below every child. */
+.band {
+  position: relative;
+}
+
+.band > :not(.band__watermark) {
+  position: relative;
+  z-index: 1;
+}
+
+.band__watermark {
+  position: absolute;
+  top: var(--hb-space-8);
+  right: var(--hb-space-5);
+  z-index: 0;
+  color: var(--hb-accent);
+  opacity: 0.07;
+  pointer-events: none;
+}
+
+.band__watermark .icon {
+  width: 13rem;
+  height: 13rem;
+  stroke-width: 0.6;
+}

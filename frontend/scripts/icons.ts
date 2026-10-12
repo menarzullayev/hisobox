@@ -52,6 +52,12 @@ const ICONS: [string, string][] = [
   ["LockIcon", "lock"],
   ["CloudIcon", "cloud"],
   ["ChevronDownIcon", "chevron-down"],
+  // The landing's navigation, its section labels, its steps and its buttons.
+  ["RocketIcon", "rocket"],
+  ["TrendingUpIcon", "trending-up"],
+  ["CircleHelpIcon", "circle-help"],
+  ["ArrowRightIcon", "arrow-right"],
+  ["StoreIcon", "store"],
 ];
 
 type Definition = { body?: string; parent?: string };

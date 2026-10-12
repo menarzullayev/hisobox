@@ -24,8 +24,10 @@ import illustrationLedger from "../assets/brand/illustration-ledger.png";
 import mascotCalculator from "../assets/brand/mascot-calculator.png";
 import { BOT_USERNAME } from "../shared/settings";
 import {
+  ArrowRightIcon,
   BoxIcon,
   ChartIcon,
+  CircleHelpIcon,
   CheckIcon,
   ClockIcon,
   CloudIcon,
@@ -37,9 +39,13 @@ import {
   LightbulbIcon,
   ListIcon,
   LockIcon,
+  MonitorIcon,
+  RocketIcon,
   SendIcon,
   ShieldIcon,
+  StoreIcon,
   TrendingDownIcon,
+  TrendingUpIcon,
   UserIcon,
   UsersIcon,
   WalletIcon,
@@ -77,10 +83,10 @@ const SCREENS = [
 ] as const satisfies readonly { id: string; label: MessageKey; icon: () => ReactNode }[];
 
 const STEPS = [
-  { id: "1", title: "landing.how.1.title", text: "landing.how.1.text" },
-  { id: "2", title: "landing.how.2.title", text: "landing.how.2.text" },
-  { id: "3", title: "landing.how.3.title", text: "landing.how.3.text" },
-] as const satisfies readonly { id: string; title: MessageKey; text: MessageKey }[];
+  { id: "1", title: "landing.how.1.title", text: "landing.how.1.text", icon: SendIcon },
+  { id: "2", title: "landing.how.2.title", text: "landing.how.2.text", icon: StoreIcon },
+  { id: "3", title: "landing.how.3.title", text: "landing.how.3.text", icon: TrendingUpIcon },
+] as const satisfies readonly { id: string; title: MessageKey; text: MessageKey; icon: () => ReactNode }[];
 
 const BENEFITS = [
   { id: "control", title: "landing.benefit.control", text: "landing.benefit.control.text", icon: EyeIcon },
@@ -126,18 +132,24 @@ const QUESTIONS = [
 
 /** The sections the header links to and the page reports as read. */
 const SECTIONS = [
-  { id: "funksiyalar", label: "landing.nav.features" },
-  { id: "mahsulot", label: "landing.nav.showcase" },
-  { id: "qanday", label: "landing.nav.how" },
-  { id: "foydalar", label: "landing.nav.benefits" },
-  { id: "ishonch", label: "landing.nav.trust" },
-  { id: "tariflar", label: "landing.nav.pricing" },
-  { id: "savollar", label: "landing.nav.faq" },
-] as const satisfies readonly { id: string; label: MessageKey }[];
+  { id: "funksiyalar", label: "landing.nav.features", icon: ListIcon },
+  { id: "mahsulot", label: "landing.nav.showcase", icon: MonitorIcon },
+  { id: "qanday", label: "landing.nav.how", icon: RocketIcon },
+  { id: "foydalar", label: "landing.nav.benefits", icon: TrendingUpIcon },
+  { id: "ishonch", label: "landing.nav.trust", icon: ShieldIcon },
+  { id: "tariflar", label: "landing.nav.pricing", icon: WalletIcon },
+  { id: "savollar", label: "landing.nav.faq", icon: CircleHelpIcon },
+] as const satisfies readonly { id: string; label: MessageKey; icon: () => ReactNode }[];
 
-/** A small pill above a section's title, the page's repeated rhythm. */
-function Eyebrow({ text }: { text: string }) {
-  return <p className="eyebrow">{text}</p>;
+/** A small pill above a section's title, the page's repeated rhythm, with the section's own mark. */
+function Eyebrow({ text, icon }: { text: string; icon: () => ReactNode }) {
+  const EyebrowIcon = icon;
+  return (
+    <p className="eyebrow">
+      <EyebrowIcon />
+      {text}
+    </p>
+  );
 }
 
 /** The way into the product. One link, used in five places, so it is written once. */
@@ -155,6 +167,7 @@ function StartLink({ id, className, children }: { id: string; className: string;
       }}
     >
       {children}
+      <ArrowRightIcon />
     </a>
   );
 }
@@ -319,11 +332,15 @@ function Header() {
           aria-label={t("landing.nav.label")}
           data-open={open ? "true" : undefined}
         >
-          {SECTIONS.map((section) => (
-            <a key={section.id} className="hdr__link" href={`#${section.id}`} onClick={() => setOpen(false)}>
-              {t(section.label)}
-            </a>
-          ))}
+          {SECTIONS.map((section) => {
+            const SectionIcon = section.icon;
+            return (
+              <a key={section.id} className="hdr__link" href={`#${section.id}`} onClick={() => setOpen(false)}>
+                <SectionIcon />
+                {t(section.label)}
+              </a>
+            );
+          })}
         </nav>
 
         <div className="hdr__tools">
@@ -403,7 +420,7 @@ export function Landing() {
         {/* 1 — the hero: the promise on the left, the product itself on the right. */}
         <section className="hero" id="bosh">
           <div className="hero__copy">
-            <Eyebrow text={t("landing.hero.eyebrow")} />
+            <Eyebrow icon={RocketIcon} text={t("landing.hero.eyebrow")} />
             <h1 className="hero__title">
               <span className="hero__line">{t("landing.hero.title1")}</span>
               <span className="hero__line hero__line--accent">{t("landing.hero.title2")}</span>
@@ -445,7 +462,7 @@ export function Landing() {
         {/* 2 — the notebook and the phone it became, side by side. */}
         <section className="band" id="daftar" data-section="daftar" aria-labelledby="daftar-title">
           <div className="band__head">
-            <Eyebrow text={t("landing.paper.before")} />
+            <Eyebrow icon={ListIcon} text={t("landing.paper.before")} />
             <h2 id="daftar-title">{t("landing.paper.title")}</h2>
             <p className="band__lead">{t("landing.paper.lead")}</p>
           </div>
@@ -467,7 +484,7 @@ export function Landing() {
         {/* 3 — what the product does, one card per area. */}
         <section className="band" id="funksiyalar" data-section="funksiyalar" aria-labelledby="funksiyalar-title">
           <div className="band__head">
-            <Eyebrow text={t("landing.nav.features")} />
+            <Eyebrow icon={ListIcon} text={t("landing.nav.features")} />
             <h2 id="funksiyalar-title">{t("landing.features.title")}</h2>
             <p className="band__lead">{t("landing.features.lead")}</p>
           </div>
@@ -490,7 +507,7 @@ export function Landing() {
         {/* 4 — the product itself: the workspace the whole thing lives in, then its screens one by one. */}
         <section className="band" id="mahsulot" data-section="mahsulot" aria-labelledby="mahsulot-title">
           <div className="band__head">
-            <Eyebrow text={t("landing.nav.showcase")} />
+            <Eyebrow icon={MonitorIcon} text={t("landing.nav.showcase")} />
             <h2 id="mahsulot-title">{t("landing.showcase.title")}</h2>
             <p className="band__lead">{t("landing.showcase.lead")}</p>
           </div>
@@ -504,21 +521,30 @@ export function Landing() {
 
         {/* 5 — how it is started. */}
         <section className="band" id="qanday" data-section="qanday" aria-labelledby="qanday-title">
+          <span className="band__watermark" aria-hidden="true">
+            <RocketIcon />
+          </span>
           <div className="band__head">
-            <Eyebrow text={t("landing.nav.how")} />
+            <Eyebrow icon={RocketIcon} text={t("landing.nav.how")} />
             <h2 id="qanday-title">{t("landing.how.title")}</h2>
             <p className="band__lead">{t("landing.how.lead")}</p>
           </div>
           <ol className="steps">
-            {STEPS.map((step, index) => (
-              <li className="step" key={step.id}>
-                <span className="step__num" aria-hidden="true">
-                  {index + 1}
-                </span>
-                <h3 className="step__title">{t(step.title)}</h3>
-                <p className="step__text">{t(step.text)}</p>
-              </li>
-            ))}
+            {STEPS.map((step, index) => {
+              const StepIcon = step.icon;
+              return (
+                <li className="step" key={step.id}>
+                  <span className="step__num" aria-hidden="true">
+                    {index + 1}
+                  </span>
+                  <h3 className="step__title">
+                    <StepIcon />
+                    {t(step.title)}
+                  </h3>
+                  <p className="step__text">{t(step.text)}</p>
+                </li>
+              );
+            })}
           </ol>
           <figure className="band__figure band__figure--mascot">
             <img
@@ -536,7 +562,7 @@ export function Landing() {
         {/* 6 — what it is worth to the business. */}
         <section className="band" id="foydalar" data-section="foydalar" aria-labelledby="foydalar-title">
           <div className="band__head">
-            <Eyebrow text={t("landing.nav.benefits")} />
+            <Eyebrow icon={TrendingUpIcon} text={t("landing.nav.benefits")} />
             <h2 id="foydalar-title">{t("landing.benefits.title")}</h2>
             <p className="band__lead">{t("landing.benefits.lead")}</p>
           </div>
@@ -558,8 +584,11 @@ export function Landing() {
 
         {/* 7 — how the data is kept. */}
         <section className="band band--deep" id="ishonch" data-section="ishonch" aria-labelledby="ishonch-title">
+          <span className="band__watermark" aria-hidden="true">
+            <ShieldIcon />
+          </span>
           <div className="band__head">
-            <Eyebrow text={t("landing.nav.trust")} />
+            <Eyebrow icon={ShieldIcon} text={t("landing.nav.trust")} />
             <h2 id="ishonch-title">{t("landing.trust.title")}</h2>
             <p className="band__lead">{t("landing.trust.lead")}</p>
           </div>
@@ -581,8 +610,11 @@ export function Landing() {
 
         {/* 8 — what it costs. The numbers come from the product's own definitions, never from this page. */}
         <section className="band" id="tariflar" data-section="tariflar" aria-labelledby="tariflar-title">
+          <span className="band__watermark" aria-hidden="true">
+            <WalletIcon />
+          </span>
           <div className="band__head">
-            <Eyebrow text={t("landing.nav.pricing")} />
+            <Eyebrow icon={WalletIcon} text={t("landing.nav.pricing")} />
             <h2 id="tariflar-title">{t("landing.pricing.title")}</h2>
             <p className="band__lead">{t("landing.pricing.lead", PRICING)}</p>
           </div>
@@ -627,7 +659,7 @@ export function Landing() {
         {/* 9 — the questions people ask. Native disclosures: they work without a line of script. */}
         <section className="band" id="savollar" data-section="savollar" aria-labelledby="savollar-title">
           <div className="band__head">
-            <Eyebrow text={t("landing.nav.faq")} />
+            <Eyebrow icon={CircleHelpIcon} text={t("landing.nav.faq")} />
             <h2 id="savollar-title">{t("landing.faq.title")}</h2>
           </div>
           <div className="faq">
