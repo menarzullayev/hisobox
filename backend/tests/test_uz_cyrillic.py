@@ -69,7 +69,7 @@ def test_the_tables_are_the_shared_ones() -> None:
         "/obuna",
         "/start",
         "https://t.me/hiso_box_bot?start=abc",
-        "yordam@hiso_box.uz",
+        "yordam@hiso-box.uz",
         "@hiso_box_bot",
         brand.NAME,
         "Telegram",

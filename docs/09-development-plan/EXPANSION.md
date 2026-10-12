@@ -188,7 +188,7 @@ What has happened since:
 
 - **Production was deployed on 2026-10-09 at migration 0049** (it had run `2c638ba`, migration 0037). Every
   switch of the expansion stayed off.
-- **The public host moved to `hiso_box.bugvector.uz`**; `qarz.bugvector.uz` answers with a 302 to it.
+- **The public host moved to `hisobox.bugvector.uz`**; `qarz.bugvector.uz` answers with a 302 to it.
 - **#110 is merged:** the local stack's teardown (`deploy/production/scripts/local.sh down`) removes only
   the images of its own release, so it no longer takes the images production runs, or its rollback
   images, with it (item 2 of the list below).
@@ -209,7 +209,7 @@ In this order, one agent at a time, each told not to start helpers:
    production; every switch stays off.
 2. **`e2e/stack.sh down` removes every tag of the images production uses** (the rollback images too) when
    run on the production machine. Make it remove only what it built. Small; before the next local e2e run.
-3. **The new bot and address:** `@hisoboxbot`, `hiso_box.bugvector.uz` (the old address redirects), the two
+3. **The new bot and address:** `@hisoboxbot`, `hisobox.bugvector.uz` (the old address redirects), the two
    Telegram groups renamed. The founder has yet to say who creates the bot.
 4. **Village shops** (switch `village_on`): family members under a customer with "who took it" on an entry,
    no limit per member; reminders to the head of the household naming the member; a shop's own list of

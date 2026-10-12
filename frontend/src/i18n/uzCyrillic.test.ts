@@ -64,7 +64,7 @@ describe("what is never touched", () => {
     ["/obuna", "a bot command"],
     ["/start", "a bot command"],
     ["https://t.me/hiso_box_bot?start=abc", "a link"],
-    ["yordam@hiso_box.uz", "an e-mail address"],
+    ["yordam@hiso-box.uz", "an e-mail address"],
     ["@hiso_box_bot", "a Telegram name"],
     [BRAND_NAME, "the product's name"],
     ["Telegram", "a brand"],
