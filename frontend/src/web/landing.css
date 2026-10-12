@@ -1126,6 +1126,10 @@ a {
 }
 
 /* The header's way around the page, each link with its section's mark. */
+.hdr__link {
+  gap: var(--hb-space-2);
+}
+
 .hdr__link .icon {
   width: 0.9375rem;
   height: 0.9375rem;
