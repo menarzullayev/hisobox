@@ -461,6 +461,60 @@ def _territories(owner: psycopg.Connection, world: World) -> None:
     )
 
 
+def _contact_id(world: World) -> uuid.UUID:
+    return uuid.uuid5(uuid.NAMESPACE_URL, f"suite-contact:{world.shop_a}")
+
+
+def _folder_id(world: World) -> uuid.UUID:
+    return uuid.uuid5(uuid.NAMESPACE_URL, f"suite-folder:{world.shop_a}")
+
+
+def _payable_entry_id(world: World) -> uuid.UUID:
+    return uuid.uuid5(uuid.NAMESPACE_URL, f"suite-payable-entry:{world.shop_a}")
+
+
+def _payables(owner: psycopg.Connection, world: World) -> None:
+    """In shop A what the payables' and the folders' calls need: a contact with one credit on its
+    account (30 000 the shop undertook to pay a week from now), and a folder. No platform switch here:
+    what the shop owes is a ported core feature, not an expansion module."""
+    owner.execute(
+        "INSERT INTO contact (id, shop_id, name, name_norm, phone) VALUES (%s, %s, 'Ulgurji dokon', "
+        "'ulgurji dokon', '+998901112233')",
+        (_contact_id(world), world.shop_a),
+    )
+    owner.execute(
+        "INSERT INTO folder (id, shop_id, name, name_norm) VALUES (%s, %s, 'Doimiy', 'doimiy')",
+        (_folder_id(world), world.shop_a),
+    )
+    owner.execute(
+        "INSERT INTO payable_entry (id, shop_id, contact_id, seq, kind, amount, promised_date, author_id) "
+        "VALUES (%s, %s, %s, 1, 'credit', 30000, %s, %s)",
+        (
+            _payable_entry_id(world),
+            world.shop_a,
+            _contact_id(world),
+            tashkent_date(datetime.now(UTC)) + timedelta(days=7),
+            world.manager_a_membership,
+        ),
+    )
+
+
+def _payables_settled_contact(owner: psycopg.Connection, world: World) -> None:
+    """The contact owes nothing: its credit is met by a payment of the same amount (archiving needs that)."""
+    _payables(owner, world)
+    owner.execute(
+        "INSERT INTO payable_entry (id, shop_id, contact_id, seq, kind, amount, author_id) "
+        "VALUES (gen_random_uuid(), %s, %s, 2, 'payment', 30000, %s)",
+        (world.shop_a, _contact_id(world), world.manager_a_membership),
+    )
+
+
+def _payables_archived_contact(owner: psycopg.Connection, world: World) -> None:
+    """The settled contact, archived (unarchiving needs that)."""
+    _payables_settled_contact(owner, world)
+    owner.execute("UPDATE contact SET status = 'archived' WHERE id = %s", (_contact_id(world),))
+
+
 def _stock_archived_supplier(owner: psycopg.Connection, world: World) -> None:
     _stock(owner, world)
     owner.execute("UPDATE supplier SET status = 'archived' WHERE id = %s", (_supplier_id(world),))
@@ -828,6 +882,75 @@ CALLS: dict[str, Call] = {
         {"reason": "Suite uchun"},
         True,
         prepare=_stock,
+    ),
+    # The debt core's other side: what the shop owes. The contacts and their accounts, and the folders
+    # customers sit in. No platform switch: a ported core feature (migration 0054).
+    "contacts.list": Call("GET", lambda w, shop: f"/api/v1/shops/{shop}/contacts", prepare=_payables),
+    "contacts.read": Call("GET", lambda w, shop: f"/api/v1/shops/{shop}/contacts/{_contact_id(w)}", prepare=_payables),
+    "contacts.create": Call(
+        "POST",
+        lambda w, shop: f"/api/v1/shops/{shop}/contacts",
+        {"name": "Yangi kontakt", "phone": "+998901112244"},
+        True,
+        201,
+        prepare=_payables,
+    ),
+    "contacts.update": Call(
+        "PUT",
+        lambda w, shop: f"/api/v1/shops/{shop}/contacts/{_contact_id(w)}",
+        {"name": "Ulgurji dokon", "phone": "+998901112233", "note": "Suite uchun"},
+        True,
+        prepare=_payables,
+    ),
+    "contacts.archive": Call(
+        "POST",
+        lambda w, shop: f"/api/v1/shops/{shop}/contacts/{_contact_id(w)}/archive",
+        None,
+        True,
+        prepare=_payables_settled_contact,
+    ),
+    "contacts.unarchive": Call(
+        "POST",
+        lambda w, shop: f"/api/v1/shops/{shop}/contacts/{_contact_id(w)}/unarchive",
+        None,
+        True,
+        prepare=_payables_archived_contact,
+    ),
+    "payables.record": Call(
+        "POST",
+        lambda w, shop: f"/api/v1/shops/{shop}/contacts/{_contact_id(w)}/entries",
+        None,  # the body is a debt with the date the shop undertook to pay by; filled in by _body
+        True,
+        201,
+        prepare=_payables,
+    ),
+    "payables.reverse": Call(
+        "POST",
+        lambda w, shop: f"/api/v1/shops/{shop}/contacts/{_contact_id(w)}/entries/{_payable_entry_id(w)}/cancel",
+        {"reason": "Xato yozilgan"},
+        True,
+        201,
+        prepare=_payables,
+    ),
+    "payables.summary": Call("GET", lambda w, shop: f"/api/v1/shops/{shop}/payables/summary", prepare=_payables),
+    "folders.list": Call("GET", lambda w, shop: f"/api/v1/shops/{shop}/folders", prepare=_payables),
+    "folders.create": Call(
+        "POST",
+        lambda w, shop: f"/api/v1/shops/{shop}/folders",
+        {"name": "Yangi papka"},
+        True,
+        201,
+        prepare=_payables,
+    ),
+    "folders.update": Call(
+        "PATCH",
+        lambda w, shop: f"/api/v1/shops/{shop}/folders/{_folder_id(w)}",
+        {"name": "Doimiy mijozlar"},
+        True,
+        prepare=_payables,
+    ),
+    "folders.delete": Call(
+        "DELETE", lambda w, shop: f"/api/v1/shops/{shop}/folders/{_folder_id(w)}", None, True, prepare=_payables
     ),
     "permissions.catalogue": Call("GET", lambda w, shop: f"/api/v1/shops/{shop}/permissions", prepare=_permissions_on),
     "permissions.mine": Call("GET", lambda w, shop: f"/api/v1/shops/{shop}/permissions/mine", prepare=_permissions_on),
@@ -1426,6 +1549,23 @@ ALLOWED_ROLES: dict[str, set[Role]] = {
     "suppliers.unarchive": {Role.MANAGER, Role.OWNER},
     "suppliers.entries.create": {Role.MANAGER, Role.OWNER},
     "suppliers.entries.cancel": {Role.MANAGER, Role.OWNER},
+    # What the shop owes is its money: contacts, their accounts and the summary are read and written by
+    # managers and the owner (qarz.application.payables). The folders a shop groups its customers into
+    # are seen by every member -- a seller assigns them -- but named and deleted by a manager
+    # (qarz.application.folders).
+    "contacts.list": {Role.MANAGER, Role.OWNER},
+    "contacts.read": {Role.MANAGER, Role.OWNER},
+    "contacts.create": {Role.MANAGER, Role.OWNER},
+    "contacts.update": {Role.MANAGER, Role.OWNER},
+    "contacts.archive": {Role.MANAGER, Role.OWNER},
+    "contacts.unarchive": {Role.MANAGER, Role.OWNER},
+    "payables.record": {Role.MANAGER, Role.OWNER},
+    "payables.reverse": {Role.MANAGER, Role.OWNER},
+    "payables.summary": {Role.MANAGER, Role.OWNER},
+    "folders.list": {Role.SELLER, Role.MANAGER, Role.OWNER},
+    "folders.create": {Role.MANAGER, Role.OWNER},
+    "folders.update": {Role.MANAGER, Role.OWNER},
+    "folders.delete": {Role.MANAGER, Role.OWNER},
 }
 
 SELF_CALLS: dict[str, PlainCall] = {
@@ -1538,6 +1678,14 @@ def _body(world: World, op_name: str, call: Call) -> dict[str, Any] | None:
         return {"link_id": str(_net_id(world, "link-buys")), "amount": 10000}
     if op_name == "cash.entry.create":
         return {"direction": "expense", "method": "cash", "amount": 50000, "category_id": str(_cash_category_id(world))}
+    if op_name == "payables.record":
+        # A debt of 15 000 the shop has undertaken to pay in three days.
+        return {
+            "kind": "credit",
+            "amount": 15000,
+            "currency": "UZS",
+            "promised_date": (datetime.now(UTC).date() + timedelta(days=3)).isoformat(),
+        }
     return call.json
 
 
@@ -1590,8 +1738,8 @@ def _snapshot(owner: psycopg.Connection, shop: uuid.UUID, *, shared: bool = True
             (shop,),
         ).fetchall(),
         owner.execute(
-            "SELECT id, display_name, name_norm, phone, status, reminders_off, credit_limit FROM customer "
-            "WHERE shop_id = %s ORDER BY id",
+            "SELECT id, display_name, name_norm, phone, status, reminders_off, credit_limit, folder_id "
+            "FROM customer WHERE shop_id = %s ORDER BY id",
             (shop,),
         ).fetchall(),
         owner.execute(
@@ -1692,6 +1840,17 @@ def _snapshot(owner: psycopg.Connection, shop: uuid.UUID, *, shared: bool = True
             "SELECT id, supplier_id, seq, kind, amount, reverses_id FROM supplier_entry WHERE shop_id = %s ORDER BY id",
             (shop,),
         ).fetchall(),
+        # The payables and the folders: what the shop owes, and the groups its customers sit in
+        # (migration 0054).
+        owner.execute(
+            "SELECT id, name, name_norm, phone, note, status FROM contact WHERE shop_id = %s ORDER BY id", (shop,)
+        ).fetchall(),
+        owner.execute(
+            "SELECT id, contact_id, seq, kind, amount, currency, note, reverses_id, promised_date, author_id "
+            "FROM payable_entry WHERE shop_id = %s ORDER BY id",
+            (shop,),
+        ).fetchall(),
+        owner.execute("SELECT id, name, name_norm FROM folder WHERE shop_id = %s ORDER BY id", (shop,)).fetchall(),
         owner.execute(
             "SELECT id, kind, number, status, total, paid, draft::text FROM stock_document "
             "WHERE shop_id = %s ORDER BY id",
@@ -1839,6 +1998,9 @@ def test_a_member_of_one_shop_cannot_reach_another(
         _supplier_id(world),
         _stock_document_id(world),
         _supplier_entry_id(world),
+        _contact_id(world),
+        _folder_id(world),
+        _payable_entry_id(world),
         _cash_category_id(world),
         _cash_spare_category_id(world),
         _cash_entry_id(world),

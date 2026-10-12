@@ -150,6 +150,11 @@ services:
       dockerfile: deploy/production/nginx/Dockerfile
       args:
         VITE_BOT_USERNAME: ${VITE_BOT_USERNAME:-}
+        # The site's own address, as the public landing page's canonical link, its sharing card and its
+        # sitemap are made from it (frontend/src/web/seo.ts). A deployment sets it to the same name as
+        # DEPLOY_PUBLIC_HOST; empty, the page carries no canonical link and no sitemap, and the build
+        # says so rather than guessing a host.
+        VITE_PUBLIC_ORIGIN: ${VITE_PUBLIC_ORIGIN:-}
     restart: unless-stopped
     depends_on:
       api:

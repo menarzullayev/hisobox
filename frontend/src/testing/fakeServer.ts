@@ -87,6 +87,8 @@ export function customerBody(overrides: Record<string, unknown> = {}) {
     reminders_off: false,
     credit_limit: null,
     balance: 120000,
+    // The folder the customer sits in, or None while unfiled (Phase 1 of the qarzapp port).
+    folder: null,
   };
   return { ...body, ...overrides };
 }

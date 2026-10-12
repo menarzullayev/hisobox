@@ -3,11 +3,13 @@ import { readFileSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
 
 import react from "@vitejs/plugin-react";
-import type { Plugin } from "vite";
+import { loadEnv, type Plugin, type ResolvedConfig } from "vite";
 import { defineConfig } from "vitest/config";
 
 import { collectInitialAssets } from "./scripts/size.ts";
 import { BRAND_NAME, BRAND_PLACEHOLDER, BRAND_SOURCE, BRAND_TAGLINE } from "./src/shared/brand.ts";
+import { SEO_MARKER, publicOrigin, robotsTxt, seoHead, sitemapXml } from "./src/web/seo.ts";
+import { PRICE_RANGE, PRICE_UZS_DEFAULT } from "./src/web/tariff.ts";
 
 /** Where the web panel's service worker is built to: a name that never changes, beside the panel's page. */
 export const WORKER_FILE = "panel/sw.js";
@@ -97,12 +99,71 @@ function brandPages(): Plugin {
   };
 }
 
+/**
+ * The build-time settings the public page's search-engine files are made from: the `.env` files of this
+ * directory, and the process environment (a deployment passes `VITE_*` as build arguments).
+ */
+function buildEnv(config: ResolvedConfig): Record<string, string | undefined> {
+  return { ...loadEnv(config.mode, config.root, "VITE_"), ...process.env };
+}
+
+/** The price the structured data states, held to the same range and default the page uses (pricing.ts). */
+function priceOf(env: Record<string, string | undefined>): number {
+  const raw = env["VITE_PRICE_UZS"];
+  if (typeof raw !== "string" || raw.trim() === "") {
+    return PRICE_UZS_DEFAULT;
+  }
+  const value = Number(raw.trim());
+  return Number.isSafeInteger(value) && value >= PRICE_RANGE.low && value <= PRICE_RANGE.high ? value : PRICE_UZS_DEFAULT;
+}
+
+/**
+ * The public page's search-engine files (see src/web/seo.ts): the canonical link, the sharing card's
+ * address and the structured data go into its head at the marker, and `robots.txt` and `sitemap.xml`
+ * are written beside the built entries. The site's own address is never guessed: with no
+ * `VITE_PUBLIC_ORIGIN` the canonical link, the sharing image and the sitemap are left out, and the
+ * build says so, because a canonical pointing at the wrong host is worse than none.
+ */
+function webSeo(): Plugin {
+  let outDir = "dist";
+  let origin: string | null = null;
+  let price = PRICE_UZS_DEFAULT;
+  return {
+    name: "qd-web-seo",
+    apply: "build",
+    configResolved(config) {
+      outDir = resolve(config.root, config.build.outDir);
+      const env = buildEnv(config);
+      origin = publicOrigin(env["VITE_PUBLIC_ORIGIN"]);
+      price = priceOf(env);
+      if (origin === null) {
+        config.logger.warn(
+          "qd-web-seo: VITE_PUBLIC_ORIGIN is not set, so the landing page carries no canonical link, no sharing image and no sitemap. Set it to the site's own address (for example https://qarz.example.uz) for a production build.",
+        );
+      }
+    },
+    transformIndexHtml: {
+      order: "post",
+      handler(html) {
+        return html.includes(SEO_MARKER) ? html.replace(SEO_MARKER, () => seoHead(origin, price)) : html;
+      },
+    },
+    closeBundle() {
+      writeFileSync(resolve(outDir, "robots.txt"), robotsTxt(origin));
+      const sitemap = sitemapXml(origin, new Date().toISOString().slice(0, 10));
+      if (sitemap !== null) {
+        writeFileSync(resolve(outDir, "sitemap.xml"), sitemap);
+      }
+    },
+  };
+}
+
 // One application, four pages and a worker (ADR-011): the staff workspace served to the Telegram Mini
 // App, the web panel for desktop, the administration panel, and the page behind a customer's read-only
 // link, which shares nothing with the others but the design tokens. The web panel alone can be
 // installed; its service worker is built to /panel/sw.js.
 export default defineConfig({
-  plugins: [react(), brandPages(), panelWorker()],
+  plugins: [react(), brandPages(), panelWorker(), webSeo()],
   // The brand's definition is the one file the pages read from outside this directory; the development
   // server serves nothing else from there.
   server: { fs: { allow: [import.meta.dirname, resolve(import.meta.dirname, "..", BRAND_SOURCE)] } },
@@ -113,6 +174,7 @@ export default defineConfig({
         panel: resolve(import.meta.dirname, "panel/index.html"),
         admin: resolve(import.meta.dirname, "admin/index.html"),
         k: resolve(import.meta.dirname, "k/index.html"),
+        web: resolve(import.meta.dirname, "web/index.html"),
         [WORKER_ENTRY]: resolve(import.meta.dirname, "src/panel/pwa/sw.ts"),
       },
       output: {

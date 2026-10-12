@@ -11,6 +11,7 @@ from uuid import UUID
 from qarz.application.admin_sign_in_ports import AdminPasskeySession, AdminSignInSession
 from qarz.application.cash_ports import CashSession
 from qarz.application.network_ports import NetworkSession
+from qarz.application.payables_ports import PayablesSession
 from qarz.application.shared_catalog_ports import SharedCatalogAdminSession, SharedCatalogSession
 from qarz.application.stock_ports import StockSession
 from qarz.application.territories_ports import TerritoryAdminSession, TerritorySession
@@ -98,6 +99,8 @@ class CustomerRecord:
     reminders_off: bool
     credit_limit: int | None = None  # whole so'm
     credit_limit_usd: int | None = None  # whole cents; a limit of its own (BR-8)
+    # The folder the customer sits in, or None when unfiled (Phase 1 of the qarzapp port).
+    folder_id: UUID | None = None
 
 
 @dataclass(frozen=True)
@@ -718,7 +721,15 @@ class OutboxMessage:
     created_at: datetime
 
 
-class TenantSession(CashSession, StockSession, NetworkSession, SharedCatalogSession, TerritorySession, Protocol):
+class TenantSession(
+    CashSession,
+    PayablesSession,
+    StockSession,
+    NetworkSession,
+    SharedCatalogSession,
+    TerritorySession,
+    Protocol,
+):
     """One database transaction scoped to one shop. Nothing outside that shop is visible through it."""
 
     async def active_membership(self, user_id: UUID) -> Membership | None: ...
@@ -880,6 +891,8 @@ class TenantSession(CashSession, StockSession, NetworkSession, SharedCatalogSess
         credit_limit: int | None = None,
         set_limit_usd: bool = False,
         credit_limit_usd: int | None = None,
+        set_folder: bool = False,
+        folder_id: UUID | None = None,
     ) -> CustomerRecord: ...
 
     async def set_customer_status(self, customer_id: UUID, status: str) -> CustomerRecord: ...
@@ -892,6 +905,15 @@ class TenantSession(CashSession, StockSession, NetworkSession, SharedCatalogSess
         status: str,
         after: tuple[str, UUID] | None,
         limit: int,
+        # The folder the customers are listed from, or None for every folder including the unfiled.
+        folder_id: UUID | None = None,
+        # "debtors", "overdue", "inCredit" or "noDebt": which of the balances a page may hold. None is
+        # every customer, whatever they owe (Phase 1 of the qarzapp port).
+        debt_status: str | None = None,
+        # The smallest balance a listed customer may have, in the currency the figures are read in.
+        min_balance: int | None = None,
+        # The calendar day an overdue figure is read for: the shop's own (Tashkent's).
+        today: date | None = None,
     ) -> list[tuple[CustomerRecord, int, str]]:
         """Customers in name order with their balance and normalized name (the paging position)."""
         ...

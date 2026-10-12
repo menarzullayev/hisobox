@@ -33,6 +33,7 @@ from qarz.application.disputes import DisputeService
 from qarz.application.errors import AppError, Unauthenticated
 from qarz.application.exports import ExportService
 from qarz.application.files import FileService
+from qarz.application.folders import FolderService
 from qarz.application.imports import ImportService
 from qarz.application.ledger_service import LedgerService
 from qarz.application.links import LinkService
@@ -41,6 +42,7 @@ from qarz.application.network_orders import NoteService, OrderService
 from qarz.application.network_payments import PaymentService
 from qarz.application.online_payment import OnlinePaymentService, PaymentKeys
 from qarz.application.ownership import OwnershipService
+from qarz.application.payables import ContactService
 from qarz.application.payment_notices import PaymentNoticeService
 from qarz.application.permissions import PermissionService
 from qarz.application.ports import FileStore, Storage, TelegramChatMembers, TelegramFiles
@@ -80,6 +82,7 @@ from qarz.interface.me_api import add_me_routes
 from qarz.interface.network_api import add_network_routes
 from qarz.interface.observability import ADMIN_SECOND_FACTOR_OFF, Metrics, Observe
 from qarz.interface.online_payment_api import add_online_order_routes, add_provider_routes
+from qarz.interface.payables_api import add_payables_routes
 from qarz.interface.payment_notices_api import RECEIPT_UPLOAD, add_file_route, add_payment_notice_routes
 from qarz.interface.permissions_api import add_permission_routes
 from qarz.interface.rate_limit import RateLimiter, RateLimits
@@ -287,6 +290,7 @@ def create_app(
         add_date_request_routes(app, DateRequestService(storage, now), current_user)
         add_import_routes(app, ImportService(storage, files, now), current_user)
         add_customer_routes(app, CustomerService(storage, now), LedgerService(storage, now), current_user)
+        add_payables_routes(app, ContactService(storage, now), FolderService(storage, now), current_user)
         add_catalog_routes(app, CatalogService(storage, now), current_user)
         add_shared_catalog_routes(app, shared_catalog, current_user)
         add_territory_routes(app, TerritoryService(storage, now), current_user)

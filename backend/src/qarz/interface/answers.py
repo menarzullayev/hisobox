@@ -63,6 +63,8 @@ class Customer(Answer):
     # Whole UZS the customer owes. Below zero when the customer is in credit: they have paid that much
     # more than they owe, and the shop holds it as their advance (only in a shop that accepts advances).
     balance: int
+    # The folder the customer sits in, or None while unfiled (Phase 1 of the qarzapp port).
+    folder: str | None
     # Only in a shop that works in dollars.
     usd: CustomerDollars | None = None
 

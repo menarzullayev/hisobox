@@ -48,6 +48,11 @@ EXPECTED: dict[str, tuple[set[Role], bool]] = {
     "suppliers.view": ({M, OWN}, False),
     "suppliers.manage": ({M, OWN}, False),
     "suppliers.pay": ({M, OWN}, False),
+    "payables.view": ({M, OWN}, False),
+    "payables.manage": ({M, OWN}, False),
+    "payables.pay": ({M, OWN}, False),
+    "folders.view": ({S, M, OWN}, False),
+    "folders.manage": ({M, OWN}, False),
     "network.view": ({M, OWN}, False),
     "network.manage": ({OWN}, False),
     "network.order": ({M, OWN}, False),
@@ -181,6 +186,10 @@ def test_the_operations_opened_by_more_than_one_permission() -> None:
         # (tests/api/test_suppliers.py).
         "suppliers.entries.create",
         "suppliers.entries.cancel",
+        # The same two on the payables side: recording what the shop owes is one decision, paying a
+        # contact back another (tests/api/test_payables.py).
+        "payables.record",
+        "payables.reverse",
     }, "a service must ask for the one the request needs"
 
 

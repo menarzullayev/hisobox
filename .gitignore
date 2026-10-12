@@ -43,5 +43,12 @@ deploy/production/.local-single/
 # Graphify code graph: generated locally, ~30 MB, rebuilt on demand
 graphify-out/
 
+# The browser tool's own logs and page snapshots, written beside the repository when a page is driven
+.playwright-mcp/
+
+# `uv`'s lock file. The backend installs from requirements.lock (see backend/Dockerfile): it is the one
+# lock file the images are built from, and a second one beside it says something that is not true.
+backend/uv.lock
+
 # Agent working memory and session artifacts (not project source)
 .workbuddy-ai/
