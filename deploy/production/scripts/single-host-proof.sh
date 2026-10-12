@@ -72,6 +72,7 @@ DEPLOY_R2_ACCESS_KEY_ID=proof$(openssl rand -hex 6)
 DEPLOY_R2_SECRET_ACCESS_KEY=$(openssl rand -hex 20)
 DEPLOY_BACKUP_PASSPHRASE=$(openssl rand -hex 32)
 VITE_BOT_USERNAME=qd_local_proof_bot
+VITE_PUBLIC_ORIGIN=https://qarz.proof.test
 QD_MIGRATION_URL=postgresql://postgres:$(openssl rand -hex 24)@db:5432/qarz
 QD_DATABASE_URL=postgresql://qd_app:$(openssl rand -hex 24)@db:5432/qarz
 QD_ADMIN_DATABASE_URL=postgresql://qd_admin:$(openssl rand -hex 24)@db:5432/qarz

@@ -76,6 +76,7 @@ ensure_images() {
       -t "$backend" "$(native_path "$source/backend")"
     docker build --quiet --label "org.opencontainers.image.revision=$commit" \
       --build-arg "VITE_BOT_USERNAME=$(env_value VITE_BOT_USERNAME)" \
+      --build-arg "VITE_PUBLIC_ORIGIN=$(env_value VITE_PUBLIC_ORIGIN)" \
       -f "$(native_path "$source/deploy/production/nginx/Dockerfile")" \
       -t "$proxy" "$(native_path "$source")"
   )

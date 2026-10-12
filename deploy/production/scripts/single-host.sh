@@ -117,6 +117,10 @@ DEPLOY_R2_BUCKET=
 DEPLOY_R2_ACCESS_KEY_ID=
 DEPLOY_R2_SECRET_ACCESS_KEY=
 VITE_BOT_USERNAME=
+# The public landing page's own address: https:// plus DEPLOY_PUBLIC_HOST, with no trailing slash. Its
+# canonical link, its sharing card and its sitemap are made from it. Empty: the page carries no canonical
+# link and no sitemap (a canonical pointing at the wrong host is worse than none).
+VITE_PUBLIC_ORIGIN=
 QD_BOT_TOKEN=
 QD_ADMIN_TG_IDS=
 # The administrators' second factor: required, or off (no code is asked for anywhere; SINGLE-HOST.md).
