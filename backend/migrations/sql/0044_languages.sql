@@ -2,7 +2,7 @@
 -- Karakalpak and English beside Uzbek and Russian.
 --
 -- A language is stored as its BCP 47 tag, the same six the application accepts
--- (qarz.domain.languages.LANGUAGES; backend/tests/db/test_languages_db.py holds the two lists together):
+-- (hiso_box.domain.languages.LANGUAGES; backend/tests/db/test_languages_db.py holds the two lists together):
 --
 --   uz  uz-Cyrl  ru  tg  kaa  en
 --

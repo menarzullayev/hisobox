@@ -1,6 +1,6 @@
 import type { MessageKey } from "../i18n/types";
 
-/** The catalogue's categories, in the order they are offered (backend/src/qarz/domain/shared_catalog.py). */
+/** The catalogue's categories, in the order they are offered (backend/src/hiso_box/domain/shared_catalog.py). */
 export const SHARED_CATEGORIES = [
   "drinks",
   "sweets",

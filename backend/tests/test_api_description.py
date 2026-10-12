@@ -10,9 +10,9 @@ from fastapi import FastAPI
 from fastapi.routing import APIRoute
 from pydantic import BaseModel, ConfigDict
 
-from qarz.interface.answers import Answer, Customer
-from qarz.interface.api_description import DEFAULT_PATH, describe, described_settings, is_current, main, render
-from qarz.interface.asgi import build
+from hiso_box.interface.answers import Answer, Customer
+from hiso_box.interface.api_description import DEFAULT_PATH, describe, described_settings, is_current, main, render
+from hiso_box.interface.asgi import build
 
 
 @pytest.fixture(scope="module")
@@ -40,7 +40,7 @@ def _is_typed(operation: dict[str, Any]) -> bool:
 
 def test_the_committed_file_is_the_description_of_this_code(document: dict[str, Any]) -> None:
     assert is_current(DEFAULT_PATH, render(document)), (
-        "backend/openapi.json is out of date: run `python -m qarz.interface.api_description` in backend/ "
+        "backend/openapi.json is out of date: run `python -m hiso_box.interface.api_description` in backend/ "
         "and `npm run api:types` in frontend/"
     )
     assert main(["--check"]) == 0

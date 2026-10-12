@@ -93,7 +93,7 @@ function backend({ auth, extra = () => null }: Options = {}) {
 
 let loaded: { server: ReturnType<typeof backend>; botUsername: string | null } | null = null;
 
-function start(server: ReturnType<typeof backend>, botUsername: string | null = "qarz_daftari_bot", loginReturn: LoginReturn = NO_RETURN) {
+function start(server: ReturnType<typeof backend>, botUsername: string | null = "hiso_box_daftari_bot", loginReturn: LoginReturn = NO_RETURN) {
   loaded = { server, botUsername };
   return render(
     <AdminRoot initialLanguage="uz" fetch={server.fetch} botUsername={botUsername} LoginWidget={StubWidget} loginReturn={loginReturn} now={() => NOW} />,

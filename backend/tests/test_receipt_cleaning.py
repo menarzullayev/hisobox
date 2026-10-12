@@ -6,7 +6,7 @@ anything after the end of the image. A file that is not whole and well formed fo
 
 import pytest
 
-from qarz.domain.files import MAX_FILE_BYTES, FileRefusal, clean_receipt, sniff
+from hiso_box.domain.files import MAX_FILE_BYTES, FileRefusal, clean_receipt, sniff
 
 from . import receipt_samples as S
 

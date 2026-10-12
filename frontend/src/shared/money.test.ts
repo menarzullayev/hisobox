@@ -56,7 +56,7 @@ describe("parseUzs", () => {
 });
 
 /**
- * The chat parser (backend/src/qarz/domain/chat_entry.py) is the authority on how an amount is written.
+ * The chat parser (backend/src/hiso_box/domain/chat_entry.py) is the authority on how an amount is written.
  * Every row below is an input on which this module used to answer differently from it. The expected
  * value is what the chat parser gives for "Ali <input>" (see backend/tests/test_chat_entry.py); the last
  * column is what this module answered before the fix.

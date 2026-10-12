@@ -4,7 +4,7 @@ from typing import Any
 
 import pytest
 
-from qarz.domain.platform_settings import (
+from hiso_box.domain.platform_settings import (
     MAX_CARD_LABEL,
     MAX_CARDS,
     SETTINGS,

@@ -43,13 +43,13 @@ def test_a_client_learns_that_the_stock_is_on_from_a_header_and_only_then(
     client: TestClient, world: World, owner: psycopg.Connection
 ) -> None:
     before = client.get("/api/v1/me/shops", headers=as_user(world.seller_a))
-    assert "x-qarz-stock" not in before.headers
+    assert "x-shop-stock" not in before.headers
     switch(owner)
     after = client.get("/api/v1/me/shops", headers=as_user(world.seller_a))
-    assert after.headers["x-qarz-stock"] == "on"
+    assert after.headers["x-shop-stock"] == "on"
     assert after.json() == before.json(), "the body is the one it always was"
     switch(owner, "false")
-    assert "x-qarz-stock" not in client.get("/api/v1/me/shops", headers=as_user(world.seller_a)).headers
+    assert "x-shop-stock" not in client.get("/api/v1/me/shops", headers=as_user(world.seller_a)).headers
 
 
 def test_with_the_cash_book_off_a_payment_is_in_the_suppliers_account_alone(

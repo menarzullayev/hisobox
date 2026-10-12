@@ -83,4 +83,4 @@ END $$;
 -- Replacing a function keeps its owner and who may execute it; said again so that this file can be read
 -- alone.
 REVOKE ALL ON FUNCTION link_customer(bytea, uuid, smallint, text) FROM PUBLIC;
-GRANT EXECUTE ON FUNCTION link_customer(bytea, uuid, smallint, text) TO qd_app;
+GRANT EXECUTE ON FUNCTION link_customer(bytea, uuid, smallint, text) TO hb_app;

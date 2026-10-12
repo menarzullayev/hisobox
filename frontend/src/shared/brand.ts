@@ -1,6 +1,6 @@
 /**
  * The product's name: read from the one file where it is written, the same file the server reads
- * (`backend/src/qarz/domain/brand.py`). Nothing else in the front end writes the name out; a text says
+ * (`backend/src/hiso_box/domain/brand.py`). Nothing else in the front end writes the name out; a text says
  * `{brand}` and the catalog fills it in (`i18n/catalog.ts`), the pages' titles and descriptions and the
  * installed panel's manifest and icons are made from it (`vite.config.ts`, `scripts/pwaIcons.ts`), and
  * `src/brand.test.ts` fails when the name is found anywhere else.
@@ -8,10 +8,10 @@
  * Read with an import attribute and by its default export, so that the scripts Node runs without a
  * build (`scripts/*.ts`) read it the same way the build does.
  */
-import definition from "../../../backend/src/qarz/domain/brand.json" with { type: "json" };
+import definition from "../../../backend/src/hiso_box/domain/brand.json" with { type: "json" };
 
 /** Where the definition is, from the repository's root. */
-export const BRAND_SOURCE = "backend/src/qarz/domain/brand.json";
+export const BRAND_SOURCE = "backend/src/hiso_box/domain/brand.json";
 
 /** The name as people read it. */
 export const BRAND_NAME: string = definition.name;

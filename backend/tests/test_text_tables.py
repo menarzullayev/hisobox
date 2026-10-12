@@ -16,12 +16,12 @@ from pathlib import Path
 
 import pytest
 
-from qarz.application import cash_feed, chat_texts, export_texts
-from qarz.application.chat_texts import say
-from qarz.application.export_texts import in_every_language, word
-from qarz.application.stock import settings_body
-from qarz.domain import cash, languages, network, stock
-from qarz.domain.names import normalize_name
+from hiso_box.application import cash_feed, chat_texts, export_texts
+from hiso_box.application.chat_texts import say
+from hiso_box.application.export_texts import in_every_language, word
+from hiso_box.application.stock import settings_body
+from hiso_box.domain import cash, languages, network, stock
+from hiso_box.domain.names import normalize_name
 
 SOURCE = Path(__file__).resolve().parent.parent / "src" / "qarz"
 WRITTEN = ("uz", "ru", "tg", "kaa", "en")  # Uzbek Cyrillic is made from Uzbek

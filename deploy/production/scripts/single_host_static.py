@@ -63,10 +63,10 @@ def the_proxy_believes_the_tunnel_and_nobody_else(c: Composition) -> str | None:
     all_services = services(c)
     proxy, tunnel = all_services["proxy"], all_services["cloudflared"]
     address = ((tunnel.get("networks") or {}).get("tunnel") or {}).get("ipv4_address")
-    peer = (proxy.get("environment") or {}).get("QD_TUNNEL_PEER")
+    peer = (proxy.get("environment") or {}).get("HB_TUNNEL_PEER")
     if not address or address != peer:
         return f"the proxy believes {peer}, the tunnel is at {address}"
-    if proxy.get("command") != ["/usr/local/bin/qd-single-host-proxy"]:
+    if proxy.get("command") != ["/usr/local/bin/hb-single-host-proxy"]:
         return "the proxy is not started in its form behind the tunnel"
     on_tunnel = sorted(name for name, s in all_services.items() if "tunnel" in (s.get("networks") or {}))
     if on_tunnel != ["cloudflared", "proxy"]:
@@ -162,7 +162,7 @@ def images_are_pinned(c: Composition) -> str | None:
 
 def backups_are_encrypted_and_scheduled(c: Composition) -> str | None:
     for name in ("db", "backup", "files-backup"):
-        if not (services(c)[name].get("environment") or {}).get("QD_BACKUP_PASSPHRASE"):
+        if not (services(c)[name].get("environment") or {}).get("HB_BACKUP_PASSPHRASE"):
             return f"{name} is not handed the backup passphrase"
     if services(c)["backup"].get("command") != ["scheduler"]:
         return "the backup service does not run the schedule"
@@ -186,20 +186,20 @@ def the_watch_reads_figures_and_nothing_else(c: Composition) -> str | None:
             return f"the worker mounts {source}"
     environment = worker.get("environment") or {}
     for name in environment:
-        if name.startswith("QD_R2_") or name == "QD_BACKUP_PASSPHRASE":
+        if name.startswith("HB_R2_") or name == "HB_BACKUP_PASSPHRASE":
             return f"the worker is handed {name}"
     for name in (
-        "QD_ALERT_API_URL",
-        "QD_ALERT_BACKUP_FIGURES_DIR",
-        "QD_ALERT_FILES_FIGURES_DIR",
-        "QD_ALERT_DISK_PATHS",
+        "HB_ALERT_API_URL",
+        "HB_ALERT_BACKUP_FIGURES_DIR",
+        "HB_ALERT_FILES_FIGURES_DIR",
+        "HB_ALERT_DISK_PATHS",
     ):
         if not environment.get(name):
             return f"the worker is not told {name}"
     targets = {volume.get("source"): volume.get("target") for volume in worker.get("volumes") or []}
-    if environment["QD_ALERT_BACKUP_FIGURES_DIR"] != targets["backup-figures"]:
+    if environment["HB_ALERT_BACKUP_FIGURES_DIR"] != targets["backup-figures"]:
         return "the worker looks for the backups' figures where they are not mounted"
-    if environment["QD_ALERT_FILES_FIGURES_DIR"] != targets["files-state"]:
+    if environment["HB_ALERT_FILES_FIGURES_DIR"] != targets["files-state"]:
         return "the worker looks for the files' figures where they are not mounted"
     written = [
         v.get("target") for v in services(c)["backup"].get("volumes") or [] if v.get("source") == "backup-figures"
@@ -259,7 +259,7 @@ CHECKS: list[tuple[str, Check, Callable[[Composition], None]]] = [
     (
         "the proxy believes the tunnel's address and shares its network with nobody else",
         the_proxy_believes_the_tunnel_and_nobody_else,
-        break_by(lambda s: s["proxy"]["environment"].update(QD_TUNNEL_PEER="10.99.240.9")),
+        break_by(lambda s: s["proxy"]["environment"].update(HB_TUNNEL_PEER="10.99.240.9")),
     ),
     (
         "the tunnel's address cannot be handed to another container",
@@ -285,7 +285,7 @@ CHECKS: list[tuple[str, Check, Callable[[Composition], None]]] = [
     (
         "nothing of the host's file system is mounted",
         only_named_volumes,
-        break_by(lambda s: s["proxy"].update(volumes=[{"type": "bind", "source": "/etc/qarz/tls"}])),
+        break_by(lambda s: s["proxy"].update(volumes=[{"type": "bind", "source": "/etc/hiso_box/tls"}])),
     ),
     (
         "the live data volume is writable by the database alone (and by a restore into an empty one)",
@@ -305,17 +305,17 @@ CHECKS: list[tuple[str, Check, Callable[[Composition], None]]] = [
     (
         "the worker's watch is not handed the bucket's passphrase",
         the_watch_reads_figures_and_nothing_else,
-        break_by(lambda s: s["worker"]["environment"].update(QD_BACKUP_PASSPHRASE="x")),
+        break_by(lambda s: s["worker"]["environment"].update(HB_BACKUP_PASSPHRASE="x")),
     ),
     (
         "every image is pinned by a tag",
         images_are_pinned,
-        break_by(lambda s: s["db"].update(image="qarz-daftari/pgbackup")),
+        break_by(lambda s: s["db"].update(image="hiso_box/pgbackup")),
     ),
     (
         "the backups are encrypted and on a schedule",
         backups_are_encrypted_and_scheduled,
-        break_by(lambda s: s["db"]["environment"].pop("QD_BACKUP_PASSPHRASE")),
+        break_by(lambda s: s["db"]["environment"].pop("HB_BACKUP_PASSPHRASE")),
     ),
 ]
 

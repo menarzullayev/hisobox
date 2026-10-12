@@ -16,4 +16,4 @@ ALTER TABLE catalog_item ADD CONSTRAINT catalog_item_merged_into_fkey
 ALTER TABLE catalog_item ADD CONSTRAINT catalog_item_alias_is_hidden
   CHECK (merged_into IS NULL OR (status = 'hidden' AND NOT learned AND merged_into <> id));
 
--- No new grant or policy: the table-level grants to qd_app and the tenant policy of 0001 cover the column.
+-- No new grant or policy: the table-level grants to hb_app and the tenant policy of 0001 cover the column.

@@ -5,8 +5,8 @@ from itertools import pairwise
 
 import pytest
 
-from qarz.domain.promise import tashkent_date
-from qarz.domain.reports import (
+from hiso_box.domain.promise import tashkent_date
+from hiso_box.domain.reports import (
     AGE_BANDS,
     MAX_PERIOD_DAYS,
     AgeBand,

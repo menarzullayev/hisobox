@@ -5,7 +5,7 @@
 # The run is destructive by design: it kills the primary and promotes the
 # standby. Start again with scripts/down.sh and scripts/up.sh.
 #
-#   QD_WRITER_SECONDS   how long the one-row-a-second writer runs before the
+#   HB_WRITER_SECONDS   how long the one-row-a-second writer runs before the
 #                       primary is killed (default 75, so that at least one
 #                       archive_timeout of 60 s has passed)
 #
@@ -14,7 +14,7 @@ set -euo pipefail
 . "$(dirname "${BASH_SOURCE[0]}")/lib.sh"
 
 RUN_ID="$(date -u +%Y%m%dT%H%M%SZ)"
-WRITER_SECONDS="${QD_WRITER_SECONDS:-75}"
+WRITER_SECONDS="${HB_WRITER_SECONDS:-75}"
 LAG_SAMPLES=5
 mkdir -p "$OUT_DIR"
 LOG_FILE="$OUT_DIR/verify-$RUN_ID.log"
@@ -194,7 +194,7 @@ SQL
 
     # ------------------------------------------------------------------
     section "2. Failover: from kill to the standby accepting a write"
-    if QD_KILL_EPOCH="$kill_epoch" bash "$SCRIPTS_DIR/failover.sh" > "$OUT_DIR/failover.txt" 2>&1; then
+    if HB_KILL_EPOCH="$kill_epoch" bash "$SCRIPTS_DIR/failover.sh" > "$OUT_DIR/failover.txt" 2>&1; then
         pass "standby promoted and accepted a write"
         measure "failover_script_seconds $(sed -n 's/^FAILOVER_ELAPSED_SECONDS=//p' "$OUT_DIR/failover.txt") (probing the dead primary $(sed -n 's/^FAILOVER_PROBE_SECONDS=//p' "$OUT_DIR/failover.txt"), replay, fence, promote and first write $(sed -n 's/^FAILOVER_PROMOTE_SECONDS=//p' "$OUT_DIR/failover.txt"))"
         measure "promoted_standby_timeline $(sed -n 's/.*now writing timeline \([0-9A-F]*\).*/\1/p' "$OUT_DIR/failover.txt")"
@@ -260,11 +260,11 @@ SQL
 
     # ------------------------------------------------------------------
     section "5. File store: put, get, and anonymous access refused"
-    s3_url="http://127.0.0.1:${QD_PORT_FILESTORE:-55900}/qd-files/rehearsal/$RUN_ID.txt"
+    s3_url="http://127.0.0.1:${HB_PORT_FILESTORE:-55900}/hb-files/rehearsal/$RUN_ID.txt"
     echo "rehearsal object $RUN_ID" > "$OUT_DIR/object.txt"
     put="$(curl -sS -o "$OUT_DIR/s3-put.txt" -w '%{http_code}' -X PUT --data-binary "@$OUT_DIR/object.txt" \
-        --aws-sigv4 "aws:amz:garage:s3" --user "$QD_FILESTORE_KEY_ID:$QD_FILESTORE_KEY_SECRET" "$s3_url" || true)"
-    got="$(curl -sS --aws-sigv4 "aws:amz:garage:s3" --user "$QD_FILESTORE_KEY_ID:$QD_FILESTORE_KEY_SECRET" "$s3_url" || true)"
+        --aws-sigv4 "aws:amz:garage:s3" --user "$HB_FILESTORE_KEY_ID:$HB_FILESTORE_KEY_SECRET" "$s3_url" || true)"
+    got="$(curl -sS --aws-sigv4 "aws:amz:garage:s3" --user "$HB_FILESTORE_KEY_ID:$HB_FILESTORE_KEY_SECRET" "$s3_url" || true)"
     anon="$(curl -sS -o "$OUT_DIR/s3-anon.txt" -w '%{http_code}' "$s3_url" || true)"
     if [ "$put" = 200 ] && [ "$got" = "rehearsal object $RUN_ID" ]; then
         pass "object stored and read back through the S3 API"

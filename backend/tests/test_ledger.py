@@ -7,7 +7,7 @@ from uuid import UUID
 
 import pytest
 
-from qarz.domain.ledger import (
+from hiso_box.domain.ledger import (
     MAX_AMOUNT,
     Allocation,
     Entry,
@@ -23,7 +23,7 @@ from qarz.domain.ledger import (
     payment_history,
     validate_new_entry,
 )
-from qarz.domain.promise import TASHKENT, tashkent_date
+from hiso_box.domain.promise import TASHKENT, tashkent_date
 
 D = date
 CREDIT, OPENING, PAYMENT, REVERSAL = EntryKind.CREDIT, EntryKind.OPENING, EntryKind.PAYMENT, EntryKind.REVERSAL

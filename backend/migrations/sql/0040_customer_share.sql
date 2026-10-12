@@ -28,16 +28,16 @@ CREATE INDEX customer_share_shop ON customer_share (shop_id);
 ALTER TABLE customer_share ENABLE ROW LEVEL SECURITY;
 ALTER TABLE customer_share FORCE ROW LEVEL SECURITY;
 CREATE POLICY tenant ON customer_share
-  USING (shop_id = nullif(current_setting('qd.shop_id', true), '')::uuid)
-  WITH CHECK (shop_id = nullif(current_setting('qd.shop_id', true), '')::uuid);
+  USING (shop_id = nullif(current_setting('hb.shop_id', true), '')::uuid)
+  WITH CHECK (shop_id = nullif(current_setting('hb.shop_id', true), '')::uuid);
 
 -- The ordinary application makes a link, ends it, and notes that it was opened; it never deletes one and
 -- never rewrites whose it is, its token or its expiry. The worker ends a customer's links when it
 -- completes the removal of their data (undoing an import can settle the debt that removal waited for),
 -- and for that it needs to find the rows by customer. The administrators' side has nothing to do here.
-GRANT SELECT, INSERT ON customer_share TO qd_app;
-GRANT UPDATE (revoked_at, last_opened_at, opened_on) ON customer_share TO qd_app;
-GRANT SELECT (customer_id, revoked_at), UPDATE (revoked_at) ON customer_share TO qd_worker;
+GRANT SELECT, INSERT ON customer_share TO hb_app;
+GRANT UPDATE (revoked_at, last_opened_at, opened_on) ON customer_share TO hb_app;
+GRANT SELECT (customer_id, revoked_at), UPDATE (revoked_at) ON customer_share TO hb_worker;
 
 -- The phone a shop wants its customers to call, shown on the page behind a link. A shop had no phone of
 -- its own until now. Null: the page shows none.
@@ -74,7 +74,7 @@ AS $$
 $$;
 
 REVOKE ALL ON FUNCTION customer_share_lookup(bytea, timestamptz) FROM PUBLIC;
-GRANT EXECUTE ON FUNCTION customer_share_lookup(bytea, timestamptz) TO qd_app;
+GRANT EXECUTE ON FUNCTION customer_share_lookup(bytea, timestamptz) TO hb_app;
 
 -- Erasing a shop erases its links and the phone: the function of 0026 with one more table and one more
 -- column of the tombstone.

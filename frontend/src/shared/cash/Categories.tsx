@@ -8,7 +8,7 @@ import { useMay, useWorkspace } from "../workspace/context";
 import { Badge, Confirm, errorText, FieldError } from "../workspace/parts";
 import { type CashApi, type CashCategory, type Direction, DIRECTIONS } from "./cashApi";
 
-/** The longest name of a category (backend/src/qarz/domain/cash.py, `MAX_CATEGORY_NAME`). */
+/** The longest name of a category (backend/src/hiso_box/domain/cash.py, `MAX_CATEGORY_NAME`). */
 export const MAX_CATEGORY_NAME = 60;
 
 /** A name as it is sent: trimmed, single spaces; null when it is empty or too long. */

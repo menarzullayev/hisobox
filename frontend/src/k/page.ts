@@ -20,7 +20,7 @@ import {
  * the address, is ever parsed as markup.
  */
 
-export const LANGUAGE_STORAGE_KEY = "qd.language";
+export const LANGUAGE_STORAGE_KEY = "hb.language";
 
 type Storage = Pick<globalThis.Storage, "getItem" | "setItem">;
 

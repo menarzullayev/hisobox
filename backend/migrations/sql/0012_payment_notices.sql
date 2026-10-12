@@ -34,7 +34,7 @@ CREATE UNIQUE INDEX payment_notice_file ON payment_notice (file_id) WHERE file_i
 CREATE INDEX stored_file_due ON stored_file (shop_id, delete_after) WHERE delete_after IS NOT NULL;
 -- Whether the same receipt was sent to the shop before (duplicate detection by hash).
 CREATE INDEX stored_file_hash ON stored_file (shop_id, sha256);
--- No new grant or policy: the table-level grants to qd_app and the tenant policies of 0001 cover both tables.
+-- No new grant or policy: the table-level grants to hb_app and the tenant policies of 0001 cover both tables.
 
 -- Which shops have notices to mark as expired or receipts whose retention has run out. The worker has no
 -- tenant of its own, so this is the one cross-shop read the hourly job needs; it returns identifiers only.
@@ -52,4 +52,4 @@ AS $$
 $$;
 
 REVOKE ALL ON FUNCTION shops_with_receipt_work(timestamptz, timestamptz) FROM PUBLIC;
-GRANT EXECUTE ON FUNCTION shops_with_receipt_work(timestamptz, timestamptz) TO qd_app;
+GRANT EXECUTE ON FUNCTION shops_with_receipt_work(timestamptz, timestamptz) TO hb_app;

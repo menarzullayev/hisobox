@@ -1,8 +1,8 @@
 """Create a throwaway database and fill it with generated shops.
 
-    python -m loadtest.load --database qd_load_full --profile full --seed 1
+    python -m loadtest.load --database hb_load_full --profile full --seed 1
 
-The database is created on the server named by QD_LOAD_ADMIN_URL (a superuser connection string), built
+The database is created on the server named by HB_LOAD_ADMIN_URL (a superuser connection string), built
 by the real migrations, and filled with COPY as the migration owner, a few hundred shops per transaction.
 Every constraint, foreign key and trigger of the schema checks the rows as they go in, with one exception:
 
@@ -12,7 +12,7 @@ switched on again afterwards. The rules it guards are checked on the loaded data
 (`loadtest.invariants.database_problems`), together with the ledger rules the schema leaves to the
 application; the load fails if any of them is broken.
 
-Safety: the database name must start with `qd_load_`, so this cannot be pointed at a real database by a
+Safety: the database name must start with `hb_load_`, so this cannot be pointed at a real database by a
 typing mistake. Generated staff sessions have predictable tokens; such a database is for load tests only.
 """
 
@@ -36,11 +36,11 @@ from loadtest.dataset import COLUMNS, PROFILES, TABLES, Profile, ShopData, gener
 from loadtest.invariants import database_problems
 
 BACKEND = Path(__file__).resolve().parents[1]
-DATABASE_PREFIX = "qd_load_"
-ADMIN_URL_VARIABLE = "QD_LOAD_ADMIN_URL"
-# `qd_app` is one role for the whole server. Where the test suite uses the same server, both must set the
+DATABASE_PREFIX = "hb_load_"
+ADMIN_URL_VARIABLE = "HB_LOAD_ADMIN_URL"
+# `hb_app` is one role for the whole server. Where the test suite uses the same server, both must set the
 # same password or they lock each other out (see tests/conftest.py).
-APP_PASSWORD = os.environ.get("QD_TEST_APP_PASSWORD", "test-only-qd-app-password")
+APP_PASSWORD = os.environ.get("HB_TEST_APP_PASSWORD", "test-only-hb-app-password")
 SHOPS_PER_TRANSACTION = 200
 
 
@@ -60,7 +60,7 @@ def app_url(admin_url: str, name: str) -> str:
     """Connection string of the restricted application role for this database."""
     require_throwaway(name)
     parts = urlsplit(admin_url)
-    netloc = f"qd_app:{APP_PASSWORD}@{parts.hostname or '127.0.0.1'}:{parts.port or 5432}"
+    netloc = f"hb_app:{APP_PASSWORD}@{parts.hostname or '127.0.0.1'}:{parts.port or 5432}"
     return urlunsplit((parts.scheme, netloc, "/" + name, "", ""))
 
 
@@ -72,19 +72,19 @@ def create_database(admin_url: str, name: str, *, drop_existing: bool) -> str:
             admin.execute(sql.SQL("DROP DATABASE IF EXISTS {} WITH (FORCE)").format(sql.Identifier(name)))
         admin.execute(sql.SQL("CREATE DATABASE {}").format(sql.Identifier(name)))
     url = database_url(admin_url, name)
-    previous = os.environ.get("QD_MIGRATION_URL")
-    os.environ["QD_MIGRATION_URL"] = url
+    previous = os.environ.get("HB_MIGRATION_URL")
+    os.environ["HB_MIGRATION_URL"] = url
     try:
         config = Config(str(BACKEND / "alembic.ini"))
         config.set_main_option("script_location", str(BACKEND / "migrations"))
         command.upgrade(config, "head")
     finally:
         if previous is None:
-            os.environ.pop("QD_MIGRATION_URL", None)
+            os.environ.pop("HB_MIGRATION_URL", None)
         else:
-            os.environ["QD_MIGRATION_URL"] = previous
+            os.environ["HB_MIGRATION_URL"] = previous
     with psycopg.connect(url, autocommit=True) as conn:
-        conn.execute(sql.SQL("ALTER ROLE qd_app LOGIN PASSWORD {}").format(sql.Literal(APP_PASSWORD)))
+        conn.execute(sql.SQL("ALTER ROLE hb_app LOGIN PASSWORD {}").format(sql.Literal(APP_PASSWORD)))
     return url
 
 

@@ -7,8 +7,8 @@ import psycopg
 import pytest
 from fastapi.testclient import TestClient
 
-from qarz.application.chat_texts import money, say
-from qarz.domain.credit import LimitOutcome, check_limit, effective_limit, valid_limit
+from hiso_box.application.chat_texts import money, say
+from hiso_box.domain.credit import LimitOutcome, check_limit, effective_limit, valid_limit
 
 from .conftest import World, as_user
 from .test_chat import chat_of

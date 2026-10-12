@@ -23,7 +23,7 @@
   inset: 0;
   width: 100%;
   height: 100%;
-  color: var(--qd-accent-ink);
+  color: var(--hb-accent-ink);
   opacity: 0.55;
   pointer-events: none;
 }
@@ -58,71 +58,71 @@
   margin: auto;
   width: min(21rem, 74%);
   height: 12.5rem;
-  padding: var(--qd-space-3);
+  padding: var(--hb-space-3);
   display: flex;
   flex-direction: column;
-  gap: var(--qd-space-3);
-  border: 1px solid var(--qd-line);
-  border-radius: var(--qd-radius-xl);
-  background: var(--qd-surface);
-  box-shadow: var(--qd-shadow-lg);
+  gap: var(--hb-space-3);
+  border: 1px solid var(--hb-line);
+  border-radius: var(--hb-radius-xl);
+  background: var(--hb-surface);
+  box-shadow: var(--hb-shadow-lg);
 }
 
 .ws__bar {
   display: flex;
   align-items: center;
-  gap: var(--qd-space-2);
+  gap: var(--hb-space-2);
 }
 
 .ws__dot {
   width: 0.5rem;
   height: 0.5rem;
-  border-radius: var(--qd-radius-pill);
-  background: var(--qd-surface-2);
+  border-radius: var(--hb-radius-pill);
+  background: var(--hb-surface-2);
 }
 
 .ws__board-name {
-  margin-left: var(--qd-space-2);
-  font: var(--qd-type-caption);
-  letter-spacing: var(--qd-tracking-label);
+  margin-left: var(--hb-space-2);
+  font: var(--hb-type-caption);
+  letter-spacing: var(--hb-tracking-label);
   text-transform: uppercase;
-  color: var(--qd-faint);
+  color: var(--hb-faint);
 }
 
 .ws__figure {
   display: flex;
   flex-direction: column;
-  gap: var(--qd-space-2);
-  padding: var(--qd-space-3);
-  border-radius: var(--qd-radius-lg);
-  background: var(--qd-accent-soft);
+  gap: var(--hb-space-2);
+  padding: var(--hb-space-3);
+  border-radius: var(--hb-radius-lg);
+  background: var(--hb-accent-soft);
 }
 
 .ws__figure-value {
   width: 62%;
   height: 1.125rem;
-  border-radius: var(--qd-radius-sm);
-  background: var(--qd-accent);
+  border-radius: var(--hb-radius-sm);
+  background: var(--hb-accent);
 }
 
 .ws__figure-label {
   width: 38%;
   height: 0.5rem;
-  border-radius: var(--qd-radius-pill);
-  background: var(--qd-accent-ink);
+  border-radius: var(--hb-radius-pill);
+  background: var(--hb-accent-ink);
   opacity: 0.55;
 }
 
 .ws__rows {
   display: flex;
   flex-direction: column;
-  gap: var(--qd-space-2);
+  gap: var(--hb-space-2);
 }
 
 .ws__row {
   height: 0.5rem;
-  border-radius: var(--qd-radius-pill);
-  background: var(--qd-surface-2);
+  border-radius: var(--hb-radius-pill);
+  background: var(--hb-surface-2);
 }
 
 /* Each row a little shorter than the one above, so the block reads as a list of figures. */
@@ -150,37 +150,37 @@
   margin: auto;
   width: 10.5rem;
   height: 5.25rem;
-  padding: var(--qd-space-3);
+  padding: var(--hb-space-3);
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  gap: var(--qd-space-2);
+  gap: var(--hb-space-2);
   text-align: left;
-  border: 1px solid var(--qd-line);
-  border-radius: var(--qd-radius-lg);
-  background: var(--qd-surface);
-  box-shadow: var(--qd-shadow-md);
-  color: var(--qd-text);
+  border: 1px solid var(--hb-line);
+  border-radius: var(--hb-radius-lg);
+  background: var(--hb-surface);
+  box-shadow: var(--hb-shadow-md);
+  color: var(--hb-text);
   cursor: pointer;
 }
 
 .ws__panel-title {
-  font: var(--qd-type-label);
-  letter-spacing: var(--qd-tracking-label);
+  font: var(--hb-type-label);
+  letter-spacing: var(--hb-tracking-label);
   text-transform: uppercase;
-  color: var(--qd-muted);
+  color: var(--hb-muted);
 }
 
 .ws__panel-lines {
   display: flex;
   flex-direction: column;
-  gap: var(--qd-space-2);
+  gap: var(--hb-space-2);
 }
 
 .ws__line {
   height: 0.5rem;
-  border-radius: var(--qd-radius-pill);
-  background: var(--qd-surface-2);
+  border-radius: var(--hb-radius-pill);
+  background: var(--hb-surface-2);
 }
 
 .ws__line--short {
@@ -193,13 +193,13 @@
 }
 
 .ws__panel[aria-pressed="true"] {
-  border-color: var(--qd-accent);
-  background: var(--qd-surface);
-  box-shadow: var(--qd-shadow-lg);
+  border-color: var(--hb-accent);
+  background: var(--hb-surface);
+  box-shadow: var(--hb-shadow-lg);
 }
 
 .ws__panel[aria-pressed="true"] .ws__panel-title {
-  color: var(--qd-accent-ink);
+  color: var(--hb-accent-ink);
 }
 
 /* --- the hint --------------------------------------------------------------------------------------- */
@@ -209,13 +209,13 @@
   left: 50%;
   bottom: 0;
   transform: translateX(-50%);
-  padding: var(--qd-space-2) var(--qd-space-4);
-  border: 1px solid var(--qd-line);
-  border-radius: var(--qd-radius-pill);
-  background: var(--qd-chrome);
-  box-shadow: var(--qd-shadow-sm);
-  color: var(--qd-muted);
-  font: var(--qd-type-small);
+  padding: var(--hb-space-2) var(--hb-space-4);
+  border: 1px solid var(--hb-line);
+  border-radius: var(--hb-radius-pill);
+  background: var(--hb-chrome);
+  box-shadow: var(--hb-shadow-sm);
+  color: var(--hb-muted);
+  font: var(--hb-type-small);
   cursor: pointer;
 }
 
@@ -227,29 +227,29 @@
 
 @media (prefers-reduced-motion: no-preference) {
   .ws__stage {
-    transition: transform var(--qd-dur-slow) var(--qd-ease-out);
+    transition: transform var(--hb-dur-slow) var(--hb-ease-out);
   }
 
   .ws__panel {
     transition:
-      transform var(--qd-dur-slow) var(--qd-ease-out),
-      border-color var(--qd-dur-base) var(--qd-ease-out),
-      box-shadow var(--qd-dur-base) var(--qd-ease-out),
-      opacity var(--qd-dur-base) var(--qd-ease-out);
+      transform var(--hb-dur-slow) var(--hb-ease-out),
+      border-color var(--hb-dur-base) var(--hb-ease-out),
+      box-shadow var(--hb-dur-base) var(--hb-ease-out),
+      opacity var(--hb-dur-base) var(--hb-ease-out);
   }
 
   /* Until the reader touches it, the composition breathes: the screens settle in, then drift slowly.
      The `translate` property is used rather than `transform`, because `transform` already holds each
      screen's place in the three-dimensional group. */
   .ws:not([data-moved]) .ws__panel {
-    animation: qd-ws-float 9s var(--qd-ease-in-out) infinite alternate;
+    animation: hb-ws-float 9s var(--hb-ease-in-out) infinite alternate;
   }
 
   .ws__hint {
-    animation: qd-ws-hint 2.6s var(--qd-ease-in-out) infinite;
+    animation: hb-ws-hint 2.6s var(--hb-ease-in-out) infinite;
   }
 
-  @keyframes qd-ws-float {
+  @keyframes hb-ws-float {
     from {
       translate: 0 -0.25rem;
     }
@@ -258,7 +258,7 @@
     }
   }
 
-  @keyframes qd-ws-hint {
+  @keyframes hb-ws-hint {
     0%,
     100% {
       opacity: 1;

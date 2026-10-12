@@ -83,8 +83,8 @@ describe("inside Telegram", () => {
     expect(launch).toEqual({ insideTelegram: true, initData: webApp.initData, languageCode: "ru" });
     expect(webApp.ready).toHaveBeenCalledOnce();
     expect(webApp.expand).toHaveBeenCalledOnce();
-    expect(target.values.get("--qd-bg")).toBe("#17212b");
-    expect(target.values.get("--qd-text")).toBe("#f5f5f5");
+    expect(target.values.get("--hb-bg")).toBe("#17212b");
+    expect(target.values.get("--hb-text")).toBe("#f5f5f5");
   });
 
   it("follows a theme change", () => {
@@ -94,7 +94,7 @@ describe("inside Telegram", () => {
     initTelegram(webApp, target);
     webApp.themeParams = { bg_color: "#ffffff", text_color: "#000000" };
     onThemeChanged?.();
-    expect(target.values.get("--qd-bg")).toBe("#ffffff");
+    expect(target.values.get("--hb-bg")).toBe("#ffffff");
   });
 
   it("still opens when the Telegram client throws", () => {
@@ -163,7 +163,7 @@ describe("the tokens Telegram has no color for", () => {
     const values = new Map<string, string>();
     const bare = { style: { setProperty: (name: string, value: string | null) => void values.set(name, value ?? "") } };
     expect(() => initTelegram(fakeWebApp({ colorScheme: "dark" }), bare)).not.toThrow();
-    expect(values.get("--qd-bg")).toBe("#17212b");
+    expect(values.get("--hb-bg")).toBe("#17212b");
   });
 });
 
@@ -180,15 +180,15 @@ describe("themeToCssVariables", () => {
         button_text_color: "#ffffff",
       }),
     ).toEqual({
-      "--qd-bg": "#17212b",
-      "--qd-surface": "#232e3c",
-      "--qd-text": "#f5f5f5",
-      "--qd-muted": "#708499",
-      "--qd-link": "#6ab3f3",
-      "--qd-border": "#708499",
-      "--qd-focus": "#6ab3f3",
-      "--qd-accent": "#5288c1",
-      "--qd-on-accent": "#ffffff",
+      "--hb-bg": "#17212b",
+      "--hb-surface": "#232e3c",
+      "--hb-text": "#f5f5f5",
+      "--hb-muted": "#708499",
+      "--hb-link": "#6ab3f3",
+      "--hb-border": "#708499",
+      "--hb-focus": "#6ab3f3",
+      "--hb-accent": "#5288c1",
+      "--hb-on-accent": "#ffffff",
     });
   });
 
@@ -201,15 +201,15 @@ describe("themeToCssVariables", () => {
 
   it("falls back to the text and background pair when a color is missing", () => {
     const variables = themeToCssVariables({ bg_color: "#17212b", text_color: "#f5f5f5", button_color: "#5288c1" });
-    expect(variables["--qd-accent"]).toBe("#f5f5f5");
-    expect(variables["--qd-on-accent"]).toBe("#17212b");
-    expect(variables["--qd-muted"]).toBe("#f5f5f5");
+    expect(variables["--hb-accent"]).toBe("#f5f5f5");
+    expect(variables["--hb-on-accent"]).toBe("#17212b");
+    expect(variables["--hb-muted"]).toBe("#f5f5f5");
   });
 
   it("ignores values that are not six-digit hex colors", () => {
     expect(themeToCssVariables({ bg_color: "red; background: url(x)", text_color: "#f5f5f5" })).toEqual({});
     expect(themeToCssVariables({ bg_color: "#fff", text_color: "#000" })).toEqual({});
     const variables = themeToCssVariables({ bg_color: "#17212b", text_color: "#f5f5f5", link_color: "javascript:1" });
-    expect(variables["--qd-link"]).toBe("#f5f5f5");
+    expect(variables["--hb-link"]).toBe("#f5f5f5");
   });
 });

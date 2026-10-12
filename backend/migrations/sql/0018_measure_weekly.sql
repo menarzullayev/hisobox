@@ -8,4 +8,4 @@ CREATE TABLE measure.weekly (
   PRIMARY KEY (week_start, metric),
   CHECK (extract(isodow FROM week_start) = 1)
 );
-GRANT SELECT, INSERT, UPDATE ON measure.weekly TO qd_app;
+GRANT SELECT, INSERT, UPDATE ON measure.weekly TO hb_app;

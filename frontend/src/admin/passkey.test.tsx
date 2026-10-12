@@ -89,7 +89,7 @@ describe("signing in with a passkey", () => {
       <AdminRoot
         initialLanguage="uz"
         fetch={server.fetch}
-        botUsername="qarz_daftari_bot"
+        botUsername="hiso_box_daftari_bot"
         LoginWidget={StubWidget}
         passkeys={device}
         loginReturn={{ status: "none" }}

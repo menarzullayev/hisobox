@@ -1,4 +1,4 @@
-"""API fixtures: the real application wired to the real database as the restricted role qd_app.
+"""API fixtures: the real application wired to the real database as the restricted role hb_app.
 
 Only authentication is replaced: until story S2.1 delivers Telegram sign-in, a test authenticator reads
 the caller's user identifier from a header. It exists only in the test suite.
@@ -18,24 +18,24 @@ import pytest
 from fastapi import FastAPI, Request
 from fastapi.testclient import TestClient
 
-from qarz.application.admin_access import AdminAccess
-from qarz.application.admin_passkeys import PasskeySite, challenge_key
-from qarz.application.auth import AuthService
-from qarz.domain import totp
-from qarz.domain.promise import tashkent_date
-from qarz.infrastructure import passkey_signature
-from qarz.infrastructure.db import Database
-from qarz.infrastructure.file_store import FilesystemFileStore
-from qarz.infrastructure.secret_box import SecretBox
-from qarz.interface.http import create_app
-from qarz.interface.observability import Metrics
+from hiso_box.application.admin_access import AdminAccess
+from hiso_box.application.admin_passkeys import PasskeySite, challenge_key
+from hiso_box.application.auth import AuthService
+from hiso_box.domain import totp
+from hiso_box.domain.promise import tashkent_date
+from hiso_box.infrastructure import passkey_signature
+from hiso_box.infrastructure.db import Database
+from hiso_box.infrastructure.file_store import FilesystemFileStore
+from hiso_box.infrastructure.secret_box import SecretBox
+from hiso_box.interface.http import create_app
+from hiso_box.interface.observability import Metrics
 
 TEST_USER_HEADER = "X-Test-User"
 WEBHOOK_SECRET = "test-webhook-secret-0123456789"
 TEST_BOT_TOKEN = "1234567890:TEST-ONLY-token-not-a-real-bot"
 TEST_SECRETS_KEY = "test-only-server-secret-0123456789"
 ADMIN_API = "/api/admin/v1"
-ADMIN_COOKIE = "qd_admin"
+ADMIN_COOKIE = "hb_admin"
 
 
 class HeaderAuthenticator:
@@ -49,7 +49,7 @@ class HeaderAuthenticator:
             return None
 
 
-# Where the test application's passkeys are for: a deployment with QD_PASSKEY_HOST set.
+# Where the test application's passkeys are for: a deployment with HB_PASSKEY_HOST set.
 TEST_PASSKEY_HOST = "admin.shop.test"
 TEST_PASSKEY_SITE = PasskeySite(
     host=TEST_PASSKEY_HOST,
@@ -290,7 +290,7 @@ def build_app(stage: Stage) -> FastAPI:
     """The application as the `client` fixture always built it, around the stand-ins of the stage."""
     if not stage.empty():
         raise RuntimeError("the application is built with nothing behind the stand-ins")
-    # As deployed: the ordinary side connects as qd_app and the administrators' side as qd_admin.
+    # As deployed: the ordinary side connects as hb_app and the administrators' side as hb_admin.
     auth = AuthService(stage.database, TEST_BOT_TOKEN)
     admin = AdminAccess(stage.admin_database, allowed_tg_ids=stage.allowed, cipher=stage.cipher, now=stage.now)
     return create_app(

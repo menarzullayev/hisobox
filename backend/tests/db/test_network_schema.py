@@ -627,7 +627,7 @@ def test_each_step_belongs_to_one_side_and_one_state(
 
 
 def tenant(conn: psycopg.Connection) -> str:
-    row = conn.execute("SELECT current_setting('qd.shop_id', true)").fetchone()
+    row = conn.execute("SELECT current_setting('hb.shop_id', true)").fetchone()
     assert row is not None
     return str(row[0])
 

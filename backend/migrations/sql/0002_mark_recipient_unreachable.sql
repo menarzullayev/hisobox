@@ -1,7 +1,7 @@
 -- Cross-tenant function for the outbox dispatcher (technical specification, "Cross-tenant functions").
 --
 -- When Telegram reports that a person blocked the bot, every active customer link of that account must
--- become unreachable, in whichever shops they are. The dispatcher runs as qd_app with no tenant set and
+-- become unreachable, in whichever shops they are. The dispatcher runs as hb_app with no tenant set and
 -- therefore sees no rows of customer_link; this narrow function does that one update on its behalf.
 --
 -- It runs with its owner's rights. The owner (the migration role) must be able to bypass row-level
@@ -25,4 +25,4 @@ AS $$
 $$;
 
 REVOKE ALL ON FUNCTION mark_recipient_unreachable(bigint) FROM PUBLIC;
-GRANT EXECUTE ON FUNCTION mark_recipient_unreachable(bigint) TO qd_app;
+GRANT EXECUTE ON FUNCTION mark_recipient_unreachable(bigint) TO hb_app;

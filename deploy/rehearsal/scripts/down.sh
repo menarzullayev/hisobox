@@ -6,15 +6,15 @@
 #   scripts/down.sh          keep the result logs in deploy/rehearsal/.out
 #   scripts/down.sh --all    remove the result logs too
 #
-# Only resources of the Compose project "qd-rehearsal" are touched.
+# Only resources of the Compose project "hb-rehearsal" are touched.
 set -euo pipefail
 . "$(dirname "${BASH_SOURCE[0]}")/lib.sh"
 
 # Compose refuses to parse the file without these; the values do not matter for "down".
-: "${QD_POSTGRES_PASSWORD:=unused}" "${QD_REPL_PASSWORD:=unused}" "${QD_BACKUP_CIPHER_PASS:=unused}"
-: "${QD_FILESTORE_RPC_SECRET:=unused}" "${QD_FILESTORE_ADMIN_TOKEN:=unused}"
-export QD_POSTGRES_PASSWORD QD_REPL_PASSWORD QD_BACKUP_CIPHER_PASS
-export QD_FILESTORE_RPC_SECRET QD_FILESTORE_ADMIN_TOKEN
+: "${HB_POSTGRES_PASSWORD:=unused}" "${HB_REPL_PASSWORD:=unused}" "${HB_BACKUP_CIPHER_PASS:=unused}"
+: "${HB_FILESTORE_RPC_SECRET:=unused}" "${HB_FILESTORE_ADMIN_TOKEN:=unused}"
+export HB_POSTGRES_PASSWORD HB_REPL_PASSWORD HB_BACKUP_CIPHER_PASS
+export HB_FILESTORE_RPC_SECRET HB_FILESTORE_ADMIN_TOKEN
 
 log "removing containers, volumes, network and local images of project $PROJECT"
 dc --profile pitr down --volumes --remove-orphans --rmi local --timeout 5

@@ -2,7 +2,7 @@ import type { Role } from "./navigation";
 
 /**
  * What a member of a shop may do, one permission at a time (the server's catalogue:
- * backend/src/qarz/domain/permissions.py). The interface uses this only to decide what to offer; the
+ * backend/src/hiso_box/domain/permissions.py). The interface uses this only to decide what to offer; the
  * server checks every call and is the authority.
  *
  * While the platform's permission switch is on, the server says what the signed-in member holds

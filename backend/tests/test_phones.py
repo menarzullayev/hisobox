@@ -1,6 +1,6 @@
 import pytest
 
-from qarz.domain.phones import normalize_phone
+from hiso_box.domain.phones import normalize_phone
 
 
 @pytest.mark.parametrize(

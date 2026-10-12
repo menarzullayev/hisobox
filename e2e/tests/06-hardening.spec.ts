@@ -104,7 +104,7 @@ test("what Telegram sent the browser back with is left nowhere: not in the addre
   expect(kept).not.toContain(signature);
   expect(kept).toBe('[{},{},""]');
   expect((await page.context().cookies()).map((cookie) => [cookie.name, cookie.httpOnly, cookie.secure, cookie.sameSite, cookie.path])).toEqual([
-    ["qd_session", true, true, "Lax", "/api"],
+    ["hb_session", true, true, "Lax", "/api"],
   ]);
 
   // One step back is the sign-in page as it was before Telegram: no entry of the history has the fields.

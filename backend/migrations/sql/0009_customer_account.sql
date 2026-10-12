@@ -74,6 +74,6 @@ CREATE UNIQUE INDEX one_waiting_removal_per_customer ON removal_request (custome
 REVOKE ALL ON FUNCTION my_accounts(uuid) FROM PUBLIC;
 REVOKE ALL ON FUNCTION my_link(uuid, uuid) FROM PUBLIC;
 REVOKE ALL ON FUNCTION forget_user_if_unused(uuid) FROM PUBLIC;
-GRANT EXECUTE ON FUNCTION my_accounts(uuid) TO qd_app;
-GRANT EXECUTE ON FUNCTION my_link(uuid, uuid) TO qd_app;
-GRANT EXECUTE ON FUNCTION forget_user_if_unused(uuid) TO qd_app;
+GRANT EXECUTE ON FUNCTION my_accounts(uuid) TO hb_app;
+GRANT EXECUTE ON FUNCTION my_link(uuid, uuid) TO hb_app;
+GRANT EXECUTE ON FUNCTION forget_user_if_unused(uuid) TO hb_app;

@@ -11,12 +11,12 @@ from typing import Any
 
 import pytest
 
-from qarz.application import ledger_service
-from qarz.application.imports import template
-from qarz.application.xlsx import Workbook
-from qarz.domain import imports, money
-from qarz.domain.files import MAX_FILE_BYTES
-from qarz.domain.imports import (
+from hiso_box.application import ledger_service
+from hiso_box.application.imports import template
+from hiso_box.application.xlsx import Workbook
+from hiso_box.domain import imports, money
+from hiso_box.domain.files import MAX_FILE_BYTES
+from hiso_box.domain.imports import (
     Candidate,
     FileProblem,
     ImportRow,
@@ -30,9 +30,9 @@ from qarz.domain.imports import (
     plan_token,
     read_xlsx,
 )
-from qarz.domain.languages import LANGUAGES
-from qarz.domain.money import Currency
-from qarz.domain.names import normalize_name
+from hiso_box.domain.languages import LANGUAGES
+from hiso_box.domain.money import Currency
+from hiso_box.domain.names import normalize_name
 
 TODAY = date(2026, 10, 7)
 HEAD = ["Ism", "Telefon", "Qarz summasi", "To'lash muddati", "Izoh"]
@@ -111,7 +111,7 @@ def test_the_template_has_the_five_columns_and_no_rows() -> None:
 
 
 def test_what_the_shared_workbook_writer_writes_is_read_back() -> None:
-    """The template and the exports are written by `qarz.application.xlsx`; this reader must read them."""
+    """The template and the exports are written by `hiso_box.application.xlsx`; this reader must read them."""
     rows = [['Ali & <Vali> "aka"', "", "45000"], ["", "", ""], ["Ғани", "+998901234567", 1200000]]
     assert read_xlsx(write_xlsx(rows)) == [
         (1, ['Ali & <Vali> "aka"', "", "45000"]),

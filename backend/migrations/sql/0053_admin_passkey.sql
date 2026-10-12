@@ -20,5 +20,5 @@ CREATE TABLE admin_passkey (
 CREATE INDEX admin_passkey_user ON admin_passkey (user_id) WHERE revoked_at IS NULL;
 
 -- A passkey is ended, never deleted: the audit names it by its identifier.
-GRANT SELECT, INSERT ON admin_passkey TO qd_admin;
-GRANT UPDATE (sign_count, last_used_at, revoked_at) ON admin_passkey TO qd_admin;
+GRANT SELECT, INSERT ON admin_passkey TO hb_admin;
+GRANT UPDATE (sign_count, last_used_at, revoked_at) ON admin_passkey TO hb_admin;

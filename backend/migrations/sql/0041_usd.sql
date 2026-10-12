@@ -2,7 +2,7 @@
 --
 -- Every row that holds an amount of a customer's debt says which currency it is in. The default is so'm,
 -- so every row written before this migration, and every statement that does not name a currency, means
--- what it meant before. Dollars are whole cents in the same bigint columns (qarz.domain.money): nothing
+-- what it meant before. Dollars are whole cents in the same bigint columns (hiso_box.domain.money): nothing
 -- is a fraction, and no statement ever adds a so'm amount to a dollar one.
 --
 -- A customer's so'm and dollars are two books in one account: one sequence of entries, and within it
@@ -166,7 +166,7 @@ AS $$
    ORDER BY l.created_at, l.id;
 $$;
 REVOKE ALL ON FUNCTION my_accounts(uuid) FROM PUBLIC;
-GRANT EXECUTE ON FUNCTION my_accounts(uuid) TO qd_app;
+GRANT EXECUTE ON FUNCTION my_accounts(uuid) TO hb_app;
 
 -- Erasing a shop leaves a tombstone with nothing of the shop in it: the function of 0040 with the two
 -- new settings cleared as well.

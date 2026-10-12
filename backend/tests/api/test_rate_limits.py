@@ -7,10 +7,10 @@ import psycopg
 import pytest
 from fastapi.testclient import TestClient
 
-from qarz.application.auth import AuthService
-from qarz.infrastructure.db import Database
-from qarz.interface.http import create_app
-from qarz.interface.rate_limit import Limit, RateLimits
+from hiso_box.application.auth import AuthService
+from hiso_box.infrastructure.db import Database
+from hiso_box.interface.http import create_app
+from hiso_box.interface.rate_limit import Limit, RateLimits
 
 from .conftest import TEST_BOT_TOKEN, HeaderAuthenticator, World, as_user
 

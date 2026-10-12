@@ -6,7 +6,7 @@ import { isRole, type Role } from "../shared/navigation";
  * The owner's back office of a shop: staff, invitations, ownership transfer, the activity log, shop
  * deletion, and the totals of every shop a person owns. These calls are the web panel's and are built
  * here, on the shop API's `send`, so they are not part of the Mini App's first load. Shapes follow
- * backend/src/qarz/interface/staff_api.py, account_api.py, shop_deletion_api.py and me_api.py.
+ * backend/src/hiso_box/interface/staff_api.py, account_api.py, shop_deletion_api.py and me_api.py.
  */
 
 const { record, text, textOrNull, whole, list } = reading;

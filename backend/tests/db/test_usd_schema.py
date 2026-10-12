@@ -13,9 +13,9 @@ import psycopg
 import pytest
 from psycopg import errors
 
-from qarz.domain import ledger
-from qarz.domain.ledger import Entry, EntryKind
-from qarz.domain.money import Currency
+from hiso_box.domain import ledger
+from hiso_box.domain.ledger import Entry, EntryKind
+from hiso_box.domain.money import Currency
 
 from ..conftest import AppSession, Shop, add_entry, refused
 
@@ -159,7 +159,7 @@ def test_generated_accounts_in_two_currencies_agree_with_the_domain_book_by_book
     owner: psycopg.Connection, shop_a: Shop
 ) -> None:
     """Random sales, payments and reversals in both currencies: after every entry the stored rows are what
-    `qarz.domain.ledger.allocate` leaves uncovered in each book."""
+    `hiso_box.domain.ledger.allocate` leaves uncovered in each book."""
     rng = random.Random(20261009)  # noqa: S311  (a fixed seed for a repeatable test)
     for _account in range(10):
         customer = uuid.uuid4()

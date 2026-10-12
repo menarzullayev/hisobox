@@ -283,10 +283,10 @@ describe("responses", () => {
   it("learns from a header, and only from it, that the server keeps permissions per member", async () => {
     const auth = { kind: "bearer", token: "t" } as const;
     const body = { items: [], active_shop: null };
-    const on = fakeServer(() => ({ status: 200, body, headers: { "X-Qarz-Permissions": "on" } }));
+    const on = fakeServer(() => ({ status: 200, body, headers: { "X-Shop-Permissions": "on" } }));
     expect((await createApi({ fetch: on.fetch, auth }).myShops()).permissionsOn).toBe(true);
     for (const value of ["off", "true", ""]) {
-      const other = fakeServer(() => ({ status: 200, body, headers: { "X-Qarz-Permissions": value } }));
+      const other = fakeServer(() => ({ status: 200, body, headers: { "X-Shop-Permissions": value } }));
       expect((await createApi({ fetch: other.fetch, auth }).myShops()).permissionsOn).toBe(false);
     }
   });
@@ -294,9 +294,9 @@ describe("responses", () => {
   it("learns from a header, and from nothing else, that the cash book is switched on", async () => {
     const auth = { kind: "bearer", token: "t" } as const;
     const body = { items: [], active_shop: null };
-    const on = fakeServer(() => ({ status: 200, body, headers: { "X-Qarz-Cash-Book": "on" } }));
+    const on = fakeServer(() => ({ status: 200, body, headers: { "X-Shop-Cash-Book": "on" } }));
     expect(await createApi({ fetch: on.fetch, auth }).myShops()).toMatchObject({ cashBookOn: true, permissionsOn: false });
-    for (const headers of [{}, { "X-Qarz-Cash-Book": "off" }, { "X-Qarz-Cash-Book": "true" }, { "X-Qarz-Permissions": "on" }]) {
+    for (const headers of [{}, { "X-Shop-Cash-Book": "off" }, { "X-Shop-Cash-Book": "true" }, { "X-Shop-Permissions": "on" }]) {
       const other = fakeServer(() => ({ status: 200, body, headers }));
       expect((await createApi({ fetch: other.fetch, auth }).myShops()).cashBookOn).toBe(false);
     }

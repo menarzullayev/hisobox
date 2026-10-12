@@ -4,7 +4,7 @@ import { may, type Viewer } from "../permissions";
 
 /*
  * Credit limits as the interface needs them (REQ-044). The rules are the server's, which is the
- * authority: backend/src/qarz/domain/credit.py (`effective_limit`, `check_limit`). Keep the two in step.
+ * authority: backend/src/hiso_box/domain/credit.py (`effective_limit`, `check_limit`). Keep the two in step.
  */
 
 /** The customer's own limit if one is set, else the shop's default, else none. */

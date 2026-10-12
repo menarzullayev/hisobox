@@ -3,7 +3,7 @@ import { type AmountResult, MAX_AMOUNT, MIN_AMOUNT, parseWholeUzs } from "./mone
 import { addDays, compareDays } from "./promise";
 
 /**
- * Arithmetic for goods lines (BR-7, REQ-N06). A port of backend/src/qarz/domain/rounding.py, which is
+ * Arithmetic for goods lines (BR-7, REQ-N06). A port of backend/src/hiso_box/domain/rounding.py, which is
  * the authority: the server computes every line total again.
  *
  * A quantity has at most three decimals, so it is held as a whole number of thousandths and every
@@ -17,7 +17,7 @@ const QTY_DECIMALS = 3;
 export const MAX_QTY_THOUSANDTHS = 999_999_999;
 const MAX_QTY_WHOLE_DIGITS = 6;
 
-/** Bounds of a unit price (backend/src/qarz/domain/catalog.py). */
+/** Bounds of a unit price (backend/src/hiso_box/domain/catalog.py). */
 export const MIN_PRICE = 1;
 export const MAX_PRICE = 100_000_000;
 

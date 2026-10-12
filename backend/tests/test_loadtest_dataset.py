@@ -1,6 +1,6 @@
 """The load test's generated data (S19.1, REQ-N13): it must be data the application could have recorded.
 
-A small set is generated in memory and checked against the ledger rules of `qarz.domain.ledger` and the
+A small set is generated in memory and checked against the ledger rules of `hiso_box.domain.ledger` and the
 rules the schema enforces. Each rule the checker knows is then broken on purpose, to show that the
 checker would have noticed.
 """
@@ -231,7 +231,7 @@ def test_the_checker_notices_a_broken_rule(breakage: Callable[[ShopData], None])
 
 
 @pytest.mark.parametrize(
-    "name", ["qarz", "postgres", "qd_test_abc", "qd_load_", 'qd_load_x"; DROP', "QD_LOAD_X", "qd_load_a b"]
+    "name", ["qarz", "postgres", "hb_test_abc", "hb_load_", 'hb_load_x"; DROP', "HB_LOAD_X", "hb_load_a b"]
 )
 def test_only_a_load_test_database_name_is_accepted(name: str) -> None:
     with pytest.raises(ValueError):
@@ -239,7 +239,7 @@ def test_only_a_load_test_database_name_is_accepted(name: str) -> None:
 
 
 def test_a_load_test_database_name_is_accepted() -> None:
-    require_throwaway("qd_load_full_1")
+    require_throwaway("hb_load_full_1")
 
 
 # --- reading the measurements ---------------------------------------------------------------------------

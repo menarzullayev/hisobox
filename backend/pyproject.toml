@@ -3,9 +3,9 @@ requires = ["setuptools>=68"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "qarz-daftari-backend"
+name = "hiso-box-backend"
 version = "0.1.0"
-description = "Backend of the product named in src/qarz/domain/brand.json: API and worker"
+description = "Backend of the product named in src/hiso_box/domain/brand.json: API and worker"
 requires-python = ">=3.12"
 dependencies = [
   "fastapi>=0.115,<1",
@@ -34,12 +34,12 @@ where = ["src"]
 
 # The product's name is data of the package: an installed copy reads it like a checkout does.
 [tool.setuptools.package-data]
-"qarz.domain" = ["brand.json"]
+"hiso_box.domain" = ["brand.json"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 addopts = "-ra --strict-markers"
-markers = ["db: needs a PostgreSQL server (QD_TEST_ADMIN_URL)"]
+markers = ["db: needs a PostgreSQL server (HB_TEST_ADMIN_URL)"]
 
 [tool.ruff]
 line-length = 120
@@ -57,15 +57,15 @@ ignore = [
 "tests/**" = ["S105", "S106", "S608"]  # fixed test identifiers and SQL built from constants
 # SQL here is composed only from module-level constants, with every value bound as a parameter.
 # tests/test_sql_composition.py fails if anything else is interpolated.
-"src/qarz/infrastructure/db.py" = ["S608"]
-"src/qarz/infrastructure/db_payables.py" = ["S608"]
-"src/qarz/infrastructure/db_stock.py" = ["S608"]
-"src/qarz/infrastructure/db_cash.py" = ["S608"]
-"src/qarz/infrastructure/db_network.py" = ["S608"]
-"src/qarz/infrastructure/db_shared_catalog.py" = ["S608"]
-"src/qarz/infrastructure/db_territories.py" = ["S608"]
+"src/hiso_box/infrastructure/db.py" = ["S608"]
+"src/hiso_box/infrastructure/db_payables.py" = ["S608"]
+"src/hiso_box/infrastructure/db_stock.py" = ["S608"]
+"src/hiso_box/infrastructure/db_cash.py" = ["S608"]
+"src/hiso_box/infrastructure/db_network.py" = ["S608"]
+"src/hiso_box/infrastructure/db_shared_catalog.py" = ["S608"]
+"src/hiso_box/infrastructure/db_territories.py" = ["S608"]
 # The transliterator's comments name the Cyrillic letters they are about.
-"src/qarz/domain/uz_cyrillic.py" = ["RUF002", "RUF003"]
+"src/hiso_box/domain/uz_cyrillic.py" = ["RUF002", "RUF003"]
 "tests/test_uz_cyrillic.py" = ["S105", "S106", "S608", "RUF002", "RUF003"]
 
 [tool.mypy]
@@ -75,21 +75,21 @@ files = ["src"]
 
 # Layering from docs/06-architecture: dependencies point inward, the domain depends on nothing.
 [tool.importlinter]
-root_package = "qarz"
+root_package = "hiso_box"
 include_external_packages = true
 
 [[tool.importlinter.contracts]]
 name = "Layers: interface > infrastructure > application > domain"
 type = "layers"
 layers = [
-  "qarz.interface",
-  "qarz.infrastructure",
-  "qarz.application",
-  "qarz.domain",
+  "hiso_box.interface",
+  "hiso_box.infrastructure",
+  "hiso_box.application",
+  "hiso_box.domain",
 ]
 
 [[tool.importlinter.contracts]]
 name = "The domain layer uses no framework"
 type = "forbidden"
-source_modules = ["qarz.domain"]
+source_modules = ["hiso_box.domain"]
 forbidden_modules = ["fastapi", "aiogram", "sqlalchemy", "asyncpg", "psycopg", "pydantic_settings"]

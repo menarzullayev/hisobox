@@ -33,7 +33,7 @@ a real certificate, a real bot or a real database host. See "Not proven" at the 
 |---|---|
 | `backend/Dockerfile` | Python 3.12 slim, two stages. Installs the runtime part of `requirements.lock` with `--require-hashes` (selected by `backend/scripts/runtime_requirements.py`); no pip, compiler, tests or development tools in the final image; runs as user 10001. Default command is the API, with a health check on `/healthz`. |
 | `nginx/Dockerfile` | Builds the three entries with `npm ci` and `npm run build`, then copies them and the configuration into `nginx:1.30-alpine`. `nginx -t` runs during the build. Runs as user 101 on ports 8080 and 8443. Build context is the repository root. |
-| `nginx/nginx.conf`, `nginx/conf.d/qarz.conf` | The form that ends TLS itself: certificate, redirect from port 80. |
+| `nginx/nginx.conf`, `nginx/conf.d/hiso-box.conf` | The form that ends TLS itself: certificate, redirect from port 80. |
 | `nginx/snippets/` | Shared by both forms: the limits by address (`limit-zones.conf`), the routes, body limits and error answers (`app-server.conf`), the headers, the access log (`http-common.conf`). |
 | `nginx/nginx.single-host.conf`, `nginx/single-host.d/`, `nginx/single-host-entrypoint.sh` | The form behind a Cloudflare Tunnel ([SINGLE-HOST.md](SINGLE-HOST.md)). In the image, unused unless `compose.single-host.yml` starts it. |
 | `compose.yml` | `proxy`, `api`, `worker`, `migrate`. Only the proxy publishes ports. |
@@ -44,8 +44,8 @@ a real certificate, a real bot or a real database host. See "Not proven" at the 
 | `scripts/deploy.sh`, `rollback.sh`, `smoke.sh` | See below. `local.sh` runs the local proof; `lib.sh` is shared. |
 
 PostgreSQL and the file store are **not** in `compose.yml`. They live on the database hosts (ADR-014,
-ADR-015, ADR-020) and are reached through `QD_DATABASE_URL`, `QD_ADMIN_DATABASE_URL`,
-`QD_WORKER_DATABASE_URL`, `QD_MIGRATION_URL` and `QD_S3_*`.
+ADR-015, ADR-020) and are reached through `HB_DATABASE_URL`, `HB_ADMIN_DATABASE_URL`,
+`HB_WORKER_DATABASE_URL`, `HB_MIGRATION_URL` and `HB_S3_*`.
 
 ## Prerequisites
 
@@ -60,25 +60,25 @@ ADR-015, ADR-020) and are reached through `QD_DATABASE_URL`, `QD_ADMIN_DATABASE_
 
 ## One-time setup
 
-1. **Env file.** `sudo install -d -m 700 /etc/qarz && sudo install -m 600 deploy/production/.env.example
-   /etc/qarz/production.env`, then fill it in. The root `.env.example` says what each name means and how
+1. **Env file.** `sudo install -d -m 700 /etc/hiso_box && sudo install -m 600 deploy/production/.env.example
+   /etc/hiso_box/production.env`, then fill it in. The root `.env.example` says what each name means and how
    to generate each secret. Give the file to the user who deploys; it is never committed and never
    printed by the scripts. A value that contains `$` goes in single quotes.
 2. **Certificate.** The proxy reads `fullchain.pem` and `privkey.pem` from `DEPLOY_TLS_DIR` (default
-   `/etc/qarz/tls`), mounted read-only, as user 101. With certbot and the HTTP-01 challenge, which the
-   proxy serves from `DEPLOY_ACME_DIR` (default `/var/lib/qarz/acme`) on port 80:
+   `/etc/hiso_box/tls`), mounted read-only, as user 101. With certbot and the HTTP-01 challenge, which the
+   proxy serves from `DEPLOY_ACME_DIR` (default `/var/lib/hiso_box/acme`) on port 80:
 
    ```sh
-   sudo install -d /var/lib/qarz/acme /etc/qarz/tls
+   sudo install -d /var/lib/hiso_box/acme /etc/hiso_box/tls
    # first issue: the proxy cannot start without a certificate, so use certbot's own listener once
    sudo certbot certonly --standalone -d qarz.example.uz
    # every renewal after that goes through the running proxy
-   sudo certbot renew --webroot -w /var/lib/qarz/acme --deploy-hook /etc/qarz/install-cert.sh
+   sudo certbot renew --webroot -w /var/lib/hiso_box/acme --deploy-hook /etc/hiso_box/install-cert.sh
    ```
 
-   where `/etc/qarz/install-cert.sh` copies the two files out of `/etc/letsencrypt/live/<name>/` into
-   `/etc/qarz/tls`, makes them readable by user 101 only (`chown 101 … && chmod 400 …`), and reloads the
-   proxy (`docker compose -p qarz exec proxy nginx -s reload`). This hook is described, not written, and
+   where `/etc/hiso_box/install-cert.sh` copies the two files out of `/etc/letsencrypt/live/<name>/` into
+   `/etc/hiso_box/tls`, makes them readable by user 101 only (`chown 101 … && chmod 400 …`), and reloads the
+   proxy (`docker compose -p hisobox exec proxy nginx -s reload`). This hook is described, not written, and
    no certificate has been requested from any authority.
 3. **Database roles.** Each part of the application connects as a role of its own, and the migrations
    create all three without a login, so the very first `deploy.sh` runs the migrations and then stops:
@@ -87,29 +87,29 @@ ADR-015, ADR-020) and are reached through `QD_DATABASE_URL`, `QD_ADMIN_DATABASE_
 
    | Role | Who connects as it | Setting | Statement |
    |---|---|---|---|
-   | `qd_app` | the API: shop members, customers, sign-in, the bot's chat | `QD_DATABASE_URL` | `ALTER ROLE qd_app LOGIN PASSWORD '…'` |
-   | `qd_admin` | the API's administrators' side, and `rotate_secrets` | `QD_ADMIN_DATABASE_URL` | `ALTER ROLE qd_admin LOGIN PASSWORD '…'` |
-   | `qd_worker` | the worker, and `measure_export` | `QD_WORKER_DATABASE_URL` | `ALTER ROLE qd_worker LOGIN PASSWORD '…'` |
+   | `hb_app` | the API: shop members, customers, sign-in, the bot's chat | `HB_DATABASE_URL` | `ALTER ROLE hb_app LOGIN PASSWORD '…'` |
+   | `hb_admin` | the API's administrators' side, and `rotate_secrets` | `HB_ADMIN_DATABASE_URL` | `ALTER ROLE hb_admin LOGIN PASSWORD '…'` |
+   | `hb_worker` | the worker, and `measure_export` | `HB_WORKER_DATABASE_URL` | `ALTER ROLE hb_worker LOGIN PASSWORD '…'` |
 
    Three different passwords: the roles exist so that one part cannot act as another (security review,
    finding 11), and a shared password would undo that. `compose.yml` hands the worker only the worker's
-   connection and the API only the other two. The API refuses to start when `QD_ADMIN_TG_IDS` names
-   somebody and `QD_ADMIN_DATABASE_URL` is empty; the worker refuses to start without
-   `QD_WORKER_DATABASE_URL`.
+   connection and the API only the other two. The API refuses to start when `HB_ADMIN_TG_IDS` names
+   somebody and `HB_ADMIN_DATABASE_URL` is empty; the worker refuses to start without
+   `HB_WORKER_DATABASE_URL`.
    The two commands run in the service that holds their connection:
-   `docker compose run --rm api python -m qarz.interface.rotate_secrets` and
-   `docker compose run --rm worker python -m qarz.interface.measure_export`.
+   `docker compose run --rm api python -m hiso_box.interface.rotate_secrets` and
+   `docker compose run --rm worker python -m hiso_box.interface.measure_export`.
 
-   **A database that was created before migration `0031`.** That migration creates `qd_admin` and
-   `qd_worker` and takes from `qd_app` what only they need. The release that brings it needs the two
+   **A database that was created before migration `0031`.** That migration creates `hb_admin` and
+   `hb_worker` and takes from `hb_app` what only they need. The release that brings it needs the two
    new settings in the env file and the two new roles able to log in. Create them, as the owner, before
-   deploying: `CREATE ROLE qd_admin LOGIN PASSWORD '…'; CREATE ROLE qd_worker LOGIN PASSWORD '…';`
+   deploying: `CREATE ROLE hb_admin LOGIN PASSWORD '…'; CREATE ROLE hb_worker LOGIN PASSWORD '…';`
    (plain roles, with no other attribute). The migration leaves a role that exists as it finds it and
    grants it its rights, so one `deploy.sh` is then enough. Between the migration and the restart of
    the worker and the API, a few seconds, the release still running has lost its administrators' side
    and its worker: deploy it at a quiet hour. Nothing of this was done on a server; it was proven in
    the tests and in the local stack only.
-4. **State directory.** `sudo install -d -o <deploying user> /var/lib/qarz/deploy`. The scripts keep the
+4. **State directory.** `sudo install -d -o <deploying user> /var/lib/hiso_box/deploy`. The scripts keep the
    current and the previous release there.
 
 ## Deploy
@@ -136,7 +136,7 @@ up the sign-in limit of the address it runs from for about twenty seconds.
 ## Roll back
 
 ```sh
-deploy/production/scripts/rollback.sh <previous-ref>     # the last one: cat /var/lib/qarz/deploy/previous
+deploy/production/scripts/rollback.sh <previous-ref>     # the last one: cat /var/lib/hiso_box/deploy/previous
 ```
 
 Starts the previous images, worker then API then proxy. It never runs a migration and never
@@ -145,16 +145,16 @@ before it, so the previous code runs on the newer schema. It refuses when the im
 not on the host. Damaged data is a point-in-time restore (runbook 3), not a roll back.
 
 One migration is an exception to "the previous code runs on the newer schema": `0031`, which splits the
-database roles. A release from before it connects every part as `qd_app`, which after `0031` may no
+database roles. A release from before it connects every part as `hb_app`, which after `0031` may no
 longer do what the administrators' side and the worker do. To roll back across it, first run, as the
-owner, `GRANT qd_admin, qd_worker TO qd_app;`, which gives the old role back everything the old release
-used. When the newer release is deployed again, take it back: `REVOKE qd_admin, qd_worker FROM qd_app;`.
+owner, `GRANT hb_admin, hb_worker TO hb_app;`, which gives the old role back everything the old release
+used. When the newer release is deployed again, take it back: `REVOKE hb_admin, hb_worker FROM hb_app;`.
 While the grant is in place the three roles are one again.
 
 ## Logs
 
 Every service writes JSON lines to its standard streams; Docker keeps them on the host with the
-`json-file` driver, at most ten files of 20 MB a service (`docker compose -p qarz logs <service>`).
+`json-file` driver, at most ten files of 20 MB a service (`docker compose -p hisobox logs <service>`).
 
 - **proxy:** one line a request: time, `request_id`, client address, scheme, method, path, status, sizes,
   duration, upstream time, whether a limit applied. **No query string**, body, cookie, referrer or user
@@ -190,9 +190,9 @@ three are open.
 | Timeouts | 3 s to connect to the API, 20 s between reads or writes, 15 s for a client's body, 10 s for its headers | The API cancels a statement at 5 s; a request may be several statements or an upload. |
 | Host names | `server_name _`: any host name is answered | The public name is not known yet. Restrict it when it is. |
 | Containers | read-only root, all capabilities dropped, `no-new-privileges`, tmpfs `/tmp`; limits: API 1 CPU / 512 MB, worker 1 CPU / 768 MB, proxy 1 CPU / 192 MB, migration 1 CPU / 256 MB | Starting points, not measured under load. |
-| Worker health | No health check; the restart policy restarts a dead worker | It listens on nothing. A worker that runs but does no work shows in the metrics. The worker watches the rest of the service and tells the operators' Telegram chat (`QD_ALERT_CHAT_IDS`; `deploy/monitoring/README.md`, "The worker's watch"); nothing watches the worker. |
+| Worker health | No health check; the restart policy restarts a dead worker | It listens on nothing. A worker that runs but does no work shows in the metrics. The worker watches the rest of the service and tells the operators' Telegram chat (`HB_ALERT_CHAT_IDS`; `deploy/monitoring/README.md`, "The worker's watch"); nothing watches the worker. |
 | Images | Tagged with the full commit hash; built on the host because there is no registry | `DEPLOY_PULL=1` and the two image names switch to pulling. Base images are pinned by tag, not by digest. |
-| Local ports | 18480 and 18443 on 127.0.0.1, project `qd-deploy-proof` | 80, 443, 8000 and 54329 are taken or reserved on the developer machine. |
+| Local ports | 18480 and 18443 on 127.0.0.1, project `hb-deploy-proof` | 80, 443, 8000 and 54329 are taken or reserved on the developer machine. |
 
 ## Signing in without eval
 
@@ -240,7 +240,7 @@ package of its own, so that `frontend/` installs and bundles nothing of it.
 
 ```sh
 git commit …                       # the images are built from the commit, as for the local proof
-e2e/stack.sh up                    # project qd-e2e on https://127.0.0.1:28443 (http: 28480)
+e2e/stack.sh up                    # project hb-e2e on https://127.0.0.1:28443 (http: 28480)
 cd e2e && npm ci && npx playwright install chromium
 npm test                           # about a minute and a half; npx playwright test tests/04 for one file
 e2e/stack.sh down                  # containers, networks, volumes, images, generated files
@@ -258,7 +258,7 @@ e2e/stack.sh down                  # containers, networks, volumes, images, gene
   answer without `X-Request-Id`.
 - An administrator's second factor is enrolled once, so the stack's allow-list holds eight made-up
   identifiers and each run uses the next one; after eight runs, `down` and `up` again.
-- `down` removes every `qarz-daftari/backend` and `qarz-daftari/proxy` image on the machine, the local
+- `down` removes every `hiso_box/backend` and `hiso_box/proxy` image on the machine, the local
   proof's included. Generated files are in `deploy/production/.local-e2e/`, which git ignores.
 
 ## Not covered here
@@ -279,7 +279,7 @@ its backups, the file store and the way in are covered by `compose.single-host.y
 - Staging, and the automatic deployment of `main` to it that the operations document describes.
 - An image registry and the standby's images.
 - What only the founder can do: registering the Telegram webhook (`setWebhook` with the public address and
-  `QD_WEBHOOK_SECRET`), setting the bot's domain for Telegram Login in BotFather (`/setdomain`) and the
+  `HB_WEBHOOK_SECRET`), setting the bot's domain for Telegram Login in BotFather (`/setdomain`) and the
   Mini App address, renting the servers and the domain.
 
 ## Not proven

@@ -13,9 +13,9 @@ import psycopg
 import pytest
 from fastapi.testclient import TestClient
 
-from qarz.domain import ledger
-from qarz.domain.ledger import Entry, EntryKind
-from qarz.domain.promise import TASHKENT, tashkent_date
+from hiso_box.domain import ledger
+from hiso_box.domain.ledger import Entry, EntryKind
+from hiso_box.domain.promise import TASHKENT, tashkent_date
 
 from .conftest import World, as_user
 from .test_customers_ledger import _random_account, read, seed_customer, shop, today
@@ -433,7 +433,7 @@ def test_the_largest_debtors_at_the_end_of_the_period(
     )
 
 
-# --- generated ledgers: the report against `qarz.domain.ledger` -----------------------------------------
+# --- generated ledgers: the report against `hiso_box.domain.ledger` -----------------------------------------
 
 
 def _instant(day: date) -> datetime:

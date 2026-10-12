@@ -11,7 +11,7 @@ import { NotFoundScreen } from "../screens";
 import { useWorkspace } from "./context";
 import { errorText, Failure, FieldError, Loading } from "./parts";
 
-/** Bounds the server checks (backend/src/qarz/application/shops.py, `ShopUpdate.validate`). */
+/** Bounds the server checks (backend/src/hiso_box/application/shops.py, `ShopUpdate.validate`). */
 export const MAX_SHOP_NAME = 80;
 export const MIN_PROMISE_DAYS = 1;
 export const MAX_PROMISE_DAYS_SETTING = 365;

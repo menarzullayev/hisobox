@@ -20,7 +20,7 @@
 --     (also by an ownership transfer or an administrator's reassignment), when the member is removed, and
 --     when a removed member joins again: a person invited back does not find old grants waiting.
 --
--- The catalogue of keys is the domain layer's (qarz.domain.permissions). A stored key that the catalogue
+-- The catalogue of keys is the domain layer's (hiso_box.domain.permissions). A stored key that the catalogue
 -- does not know, or one that may not be changed, is ignored there; the database only keeps the shape.
 ALTER TABLE membership
   ADD COLUMN permissions_granted text[] NOT NULL DEFAULT '{}',

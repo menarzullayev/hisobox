@@ -15,25 +15,25 @@ FROM postgres:16.15-bookworm
 RUN apt-get update \
     && apt-get install -y --no-install-recommends ca-certificates curl jq openssl pgbackrest rclone \
     && rm -rf /var/lib/apt/lists/* \
-    && install -d -o postgres -g postgres -m 750 /var/lib/qarz-backup \
-    && install -d -o postgres -g postgres -m 755 /var/lib/qarz-backup-figures \
-    && install -d -o 10001 -g 10001 -m 755 /var/lib/qarz /var/lib/qarz/files /var/lib/qarz-files-backup \
+    && install -d -o postgres -g postgres -m 750 /var/lib/hiso-box-backup \
+    && install -d -o postgres -g postgres -m 755 /var/lib/hiso-box-backup-figures \
+    && install -d -o 10001 -g 10001 -m 755 /var/lib/hiso_box /var/lib/hiso_box/files /var/lib/hiso-box-files-backup \
     && rm -f /etc/pgbackrest.conf
 # About the line with 10001 above: the stored files and the state of their copy belong to the
 # application's user, exactly as in the backend image. Docker gives an empty volume the owner and mode
 # of the directory it is mounted over, whichever container mounts it, so the two images must agree.
-# The same holds for /var/lib/qarz-backup-figures (the figures of the backup jobs, which the worker
+# The same holds for /var/lib/hiso-box-backup-figures (the figures of the backup jobs, which the worker
 # reads): postgres owns it here, and the backend image names the same owner by number.
 
 COPY production/single-host/postgres/pgbackrest.conf /etc/pgbackrest/pgbackrest.conf
 # The scripts written for the two-server design, unchanged: a backup, the restore test, expiry, the
 # check and the monthly dump do not care where the repository is.
-COPY --chmod=755 backup/scripts/ /opt/qarz-backup/scripts/
-COPY --chmod=755 production/single-host/scripts/ /opt/qarz-single/
-COPY --chmod=755 production/single-host/postgres/qd-entrypoint.sh /usr/local/bin/qd-entrypoint.sh
+COPY --chmod=755 backup/scripts/ /opt/hiso-box-backup/scripts/
+COPY --chmod=755 production/single-host/scripts/ /opt/hiso-box-single/
+COPY --chmod=755 production/single-host/postgres/hb-entrypoint.sh /usr/local/bin/hb-entrypoint.sh
 
 ENV TZ=Asia/Tashkent
 # Never root: the data directory, the socket directory and the state directory belong to postgres.
 USER postgres
-ENTRYPOINT ["qd-entrypoint.sh"]
+ENTRYPOINT ["hb-entrypoint.sh"]
 CMD ["postgres"]

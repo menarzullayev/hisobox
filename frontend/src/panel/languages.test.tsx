@@ -94,7 +94,7 @@ describe("Telegram's login button", () => {
     await loadLanguage(language);
     const { container } = render(
       <I18nProvider initialLanguage={language}>
-        <TelegramLogin botUsername="qd_test_bot" language={language} />
+        <TelegramLogin botUsername="hb_test_bot" language={language} />
       </I18nProvider>,
     );
     expect(container.querySelector("script")?.getAttribute("data-lang")).toBe(widget);

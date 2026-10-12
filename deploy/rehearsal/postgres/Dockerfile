@@ -9,8 +9,8 @@ RUN apt-get update \
         /var/lib/pgbackrest /var/log/pgbackrest /var/spool/pgbackrest /fence
 
 COPY pgbackrest.conf /etc/pgbackrest/pgbackrest.conf
-COPY --chmod=755 qd-entrypoint.sh /usr/local/bin/qd-entrypoint.sh
+COPY --chmod=755 hb-entrypoint.sh /usr/local/bin/hb-entrypoint.sh
 COPY --chmod=755 10-rehearsal-init.sh /docker-entrypoint-initdb.d/10-rehearsal-init.sh
 
-ENTRYPOINT ["qd-entrypoint.sh"]
+ENTRYPOINT ["hb-entrypoint.sh"]
 CMD ["postgres"]

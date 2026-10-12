@@ -32,7 +32,7 @@ describe("the panel opened without a connection", () => {
   it("draws itself, says there is no connection, asks the server nothing, and offers no sign-in that cannot work", () => {
     connection(false);
     const server = fakeServer(() => "offline");
-    render(<PanelRoot initialLanguage="uz" fetch={server.fetch} botUsername="qarz_daftari_bot" LoginWidget={StubWidget} />);
+    render(<PanelRoot initialLanguage="uz" fetch={server.fetch} botUsername="hiso_box_daftari_bot" LoginWidget={StubWidget} />);
 
     expect(screen.getByRole("heading", { level: 1, name: "Panelga kirish" })).toBeTruthy();
     const notice = screen.getByRole("alert");
@@ -45,7 +45,7 @@ describe("the panel opened without a connection", () => {
   it("offers the sign-in again as soon as the connection is back", () => {
     connection(false);
     const server = fakeServer(() => "offline");
-    render(<PanelRoot initialLanguage="uz" fetch={server.fetch} botUsername="qarz_daftari_bot" LoginWidget={StubWidget} />);
+    render(<PanelRoot initialLanguage="uz" fetch={server.fetch} botUsername="hiso_box_daftari_bot" LoginWidget={StubWidget} />);
     expect(screen.queryByRole("button", { name: "telegram" })).toBeNull();
 
     act(() => connection(true));
@@ -54,7 +54,7 @@ describe("the panel opened without a connection", () => {
   });
 
   it("with a connection the notice is not there at all", () => {
-    render(<PanelRoot initialLanguage="uz" fetch={fakeServer(() => "offline").fetch} botUsername="qarz_daftari_bot" LoginWidget={StubWidget} />);
+    render(<PanelRoot initialLanguage="uz" fetch={fakeServer(() => "offline").fetch} botUsername="hiso_box_daftari_bot" LoginWidget={StubWidget} />);
     expect(screen.queryByRole("alert")).toBeNull();
     expect(screen.getByRole("button", { name: "telegram" })).toBeTruthy();
   });

@@ -4,7 +4,7 @@ from dataclasses import FrozenInstanceError
 
 import pytest
 
-from qarz.domain.chat_entry import (
+from hiso_box.domain.chat_entry import (
     MAX_AMOUNT,
     MAX_INPUT_LENGTH,
     MIN_AMOUNT,
@@ -14,7 +14,7 @@ from qarz.domain.chat_entry import (
     ParseErrorCode,
     parse_entry,
 )
-from qarz.domain.names import normalize_name
+from hiso_box.domain.names import normalize_name
 
 E = ParseErrorCode
 CREDIT = EntryKind.CREDIT

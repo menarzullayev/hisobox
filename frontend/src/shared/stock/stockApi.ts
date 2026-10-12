@@ -6,7 +6,7 @@ import { STOCK_DOCUMENT_KINDS, type StockDocumentKind } from "../workspace/route
 /**
  * The stock, its documents and the suppliers of a shop (the expansion's module I). Built on the shop
  * API's `send` in a module that is loaded apart, so none of it is part of the first load. Shapes follow
- * backend/src/qarz/application/stock.py, stock_documents.py and suppliers.py.
+ * backend/src/hiso_box/application/stock.py, stock_documents.py and suppliers.py.
  *
  * Quantities are the API's decimal strings ("7.5", "-2", up to three decimals) and stay strings here:
  * nothing is ever computed from them as a fraction. Money is a whole number of the currency's minor

@@ -12,7 +12,7 @@
 #                                                  found out now and not at the first backup
 set -euo pipefail
 # shellcheck source-path=SCRIPTDIR source=env.sh
-. /opt/qarz-single/env.sh
+. /opt/hiso-box-single/env.sh
 
 PGDATA="${PGDATA:-/var/lib/postgresql/data}"
 if [ -s "$PGDATA/PG_VERSION" ]; then
@@ -26,7 +26,7 @@ info="$(pgbackrest --log-level-console=warn info --output=json)" || {
 }
 # pgBackRest answers "info" even when it could not read the repository (a wrong passphrase: the files
 # are there and are noise). Only "ok" (0) and "no backup yet" (2) are answers about what is there.
-unreadable="$(jq -r --arg stanza "$QD_STANZA" '
+unreadable="$(jq -r --arg stanza "$HB_STANZA" '
     [.[] | select(.name == $stanza) | .status | select(.code != 0 and .code != 2) | .message | split("\n")[0]]
     | first // empty' <<< "$info")"
 if [ -n "$unreadable" ]; then
@@ -34,7 +34,7 @@ if [ -n "$unreadable" ]; then
     echo "ERROR: pgBackRest said: ${unreadable:0:200}" >&2
     exit 2
 fi
-backups="$(jq --arg stanza "$QD_STANZA" '[.[] | select(.name == $stanza) | .backup | length] | add // 0' <<< "$info")"
+backups="$(jq --arg stanza "$HB_STANZA" '[.[] | select(.name == $stanza) | .backup | length] | add // 0' <<< "$info")"
 if [ "$backups" -gt 0 ]; then
     echo "REFUSED: the data volume is empty and the bucket holds $backups backup(s) of a database." >&2
     echo "REFUSED: on a new machine, restore first (single-host.sh restore). A new, empty database is started only in front of an empty bucket." >&2

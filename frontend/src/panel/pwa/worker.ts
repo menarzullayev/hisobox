@@ -35,7 +35,7 @@ export type WorkerManifest = {
 
 /** The panel's page: what an installed panel opens, and the only page the worker ever answers for. */
 export const SHELL_PAGE = "/panel/";
-export const CACHE_PREFIX = "qd-panel-";
+export const CACHE_PREFIX = "hb-panel-";
 
 /** Paths the worker must leave alone, whatever else is true of the request. */
 export const NEVER_HANDLED = ["/api/", "/k/", "/admin/", "/app/", "/files/", "/pay/", "/tg/", "/metrics", "/healthz"] as const;

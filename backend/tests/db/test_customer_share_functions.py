@@ -237,10 +237,10 @@ def test_the_worker_ends_a_customers_links_and_reads_no_token(
             conn.execute(statement)  # type: ignore[arg-type]
 
 
-@pytest.mark.parametrize("role", ["qd_admin", "qd_worker"])
+@pytest.mark.parametrize("role", ["hb_admin", "hb_worker"])
 def test_only_the_ordinary_application_may_ask_what_a_link_opens(
     request: pytest.FixtureRequest, role: str, switch_on: None
 ) -> None:
-    session: AppSession = request.getfixturevalue("as_admin" if role == "qd_admin" else "as_worker")
+    session: AppSession = request.getfixturevalue("as_admin" if role == "hb_admin" else "as_worker")
     with pytest.raises(errors.InsufficientPrivilege), session(None) as conn:
         conn.execute(LOOKUP, (digest(fresh()),))

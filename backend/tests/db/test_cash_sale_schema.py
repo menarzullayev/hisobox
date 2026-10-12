@@ -13,7 +13,7 @@ import psycopg
 import pytest
 from psycopg import errors
 
-from qarz.infrastructure import db_stock
+from hiso_box.infrastructure import db_stock
 
 from ..conftest import AppSession, Shop
 from .test_cash_book_schema import category
@@ -273,8 +273,8 @@ def test_an_index_that_held_the_sales_would_make_the_list_walk_them(
             conn.execute("DROP INDEX stock_document_by_status")
             conn.execute("DROP INDEX stock_document_by_kind")
             conn.execute("CREATE INDEX stock_document_recent ON stock_document (shop_id, created_at DESC, id DESC)")
-            conn.execute("SET LOCAL ROLE qd_app")
-            conn.execute("SELECT set_config('qd.shop_id', %s, true)", (str(shop_a.shop_id),))
+            conn.execute("SET LOCAL ROLE hb_app")
+            conn.execute("SELECT set_config('hb.shop_id', %s, true)", (str(shop_a.shop_id),))
             plan = _measured(conn, _PAPERS, {"limit": 51})
         finally:
             conn.rollback()

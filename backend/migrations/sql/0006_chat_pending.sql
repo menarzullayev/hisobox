@@ -17,5 +17,5 @@ CREATE TABLE chat_pending (
 CREATE INDEX chat_pending_user ON chat_pending (user_id, kind);
 
 -- Rows are written once and removed; nothing updates them.
-REVOKE ALL ON chat_pending FROM qd_app;
-GRANT SELECT, INSERT, DELETE ON chat_pending TO qd_app;
+REVOKE ALL ON chat_pending FROM hb_app;
+GRANT SELECT, INSERT, DELETE ON chat_pending TO hb_app;

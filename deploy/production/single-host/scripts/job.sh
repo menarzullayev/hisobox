@@ -13,11 +13,11 @@
 # Standard output: the job's own JSON line. Exit code: the job's.
 set -euo pipefail
 # shellcheck source-path=SCRIPTDIR source=env.sh
-. /opt/qarz-single/env.sh
+. /opt/hiso-box-single/env.sh
 
-S=/opt/qarz-backup/scripts
+S=/opt/hiso-box-backup/scripts
 job="${1:-}"
-mkdir -p "$QD_STATE_DIR" "$QD_TEXTFILE_DIR" "$QD_RESTORE_TEST_DIR" "$QD_MONTHLY_DIR"
+mkdir -p "$HB_STATE_DIR" "$HB_TEXTFILE_DIR" "$HB_RESTORE_TEST_DIR" "$HB_MONTHLY_DIR"
 
 # The heartbeat and the check touch nothing another job could be writing, and must not wait behind a
 # backup that takes minutes: they run without the lock.
@@ -34,17 +34,17 @@ check)
     # each writes a file of its own name and renames it over the status. A rename replaces the status
     # whole, so a reader sees one verdict or the other, never half a line. With one name shared by
     # every writer, the second `mv` found its file already moved away and a good check failed.
-    status="$(mktemp "$QD_STATE_DIR/.check.status.XXXXXX")"
+    status="$(mktemp "$HB_STATE_DIR/.check.status.XXXXXX")"
     trap 'rm -f -- "$status"' EXIT
     printf '%s %s\n' "$code" "$(date +%s)" > "$status"
     chmod 644 "$status"
-    mv -f "$status" "$QD_STATE_DIR/check.status"
+    mv -f "$status" "$HB_STATE_DIR/check.status"
     exit "$code"
     ;;
 esac
 
-exec 8> "$QD_STATE_DIR/job.lock"
-flock -w "${QD_JOB_LOCK_WAIT:-1800}" 8 || {
+exec 8> "$HB_STATE_DIR/job.lock"
+flock -w "${HB_JOB_LOCK_WAIT:-1800}" 8 || {
     echo "ERROR: another backup job has been running for too long; this one ($job) did not start" >&2
     exit 75
 }
@@ -53,7 +53,7 @@ case "$job" in
 stanza)
     # Refuses, and changes nothing, when the bucket already holds the stanza of ANOTHER database
     # cluster: a fresh, empty database must never be allowed to write over the backups of the real one.
-    exec pgbackrest --stanza="$QD_STANZA" --log-level-console=warn stanza-create
+    exec pgbackrest --stanza="$HB_STANZA" --log-level-console=warn stanza-create
     ;;
 full | diff)
     exec bash "$S/backup.sh" "$job"
@@ -61,24 +61,24 @@ full | diff)
 restore-test)
     # "The restored copy is the application's database, at the schema this host runs": the live
     # database says which migration that is (the repository's migrations are not in this image).
-    if [ -z "${QD_EXPECTED_MIGRATION_HEAD:-}" ]; then
-        QD_EXPECTED_MIGRATION_HEAD="$(psql -X -qAt -v ON_ERROR_STOP=1 -U "$QD_PGUSER" -d "$QD_DATABASE" \
+    if [ -z "${HB_EXPECTED_MIGRATION_HEAD:-}" ]; then
+        HB_EXPECTED_MIGRATION_HEAD="$(psql -X -qAt -v ON_ERROR_STOP=1 -U "$HB_PGUSER" -d "$HB_DATABASE" \
             -c 'select version_num from alembic_version')" || {
             echo "ERROR: the live database could not be asked for its migration" >&2
             exit 1
         }
-        export QD_EXPECTED_MIGRATION_HEAD
+        export HB_EXPECTED_MIGRATION_HEAD
     fi
     exec bash "$S/restore-test.sh"
     ;;
 expire)
     shift
     bash "$S/expire.sh" "$@"
-    exec bash /opt/qarz-single/monthly.sh prune "$@"
+    exec bash /opt/hiso-box-single/monthly.sh prune "$@"
     ;;
 monthly)
     bash "$S/monthly-archive.sh"
-    exec bash /opt/qarz-single/monthly.sh upload
+    exec bash /opt/hiso-box-single/monthly.sh upload
     ;;
 *)
     echo "usage: job.sh <stanza|full|diff|check|restore-test|expire|monthly|heartbeat>" >&2

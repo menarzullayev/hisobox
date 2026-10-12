@@ -14,7 +14,7 @@
  * for scanning a QR code"); it is not a barcode scanner and is not used here.
  */
 
-/** The longest code the server keeps (backend/src/qarz/domain/stock.py, `MAX_BARCODE_LENGTH`). */
+/** The longest code the server keeps (backend/src/hiso_box/domain/stock.py, `MAX_BARCODE_LENGTH`). */
 export const MAX_BARCODE_LENGTH = 48;
 export const MAX_BARCODES = 10;
 

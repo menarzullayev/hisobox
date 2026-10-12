@@ -11,8 +11,8 @@ import psycopg
 import pytest
 from fastapi.testclient import TestClient
 
-from qarz.application.chat_texts import money, say
-from qarz.domain.files import MAX_FILE_BYTES
+from hiso_box.application.chat_texts import money, say
+from hiso_box.domain.files import MAX_FILE_BYTES
 
 from ..receipt_samples import EXIF, HTML, JPEG, PDF, jpeg
 from .conftest import AdminEnv, FakeTelegramFiles, World, make_admin, stored_objects

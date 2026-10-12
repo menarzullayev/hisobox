@@ -216,7 +216,7 @@ export const SVG_ICON = "icon.svg";
 export const MANIFEST = resolve(FRONTEND, "public", "panel", "manifest.webmanifest");
 
 export function iconColors(): { ground: string; ink: string } {
-  return { ground: lightToken("--qd-accent"), ink: lightToken("--qd-on-accent") };
+  return { ground: lightToken("--hb-accent"), ink: lightToken("--hb-on-accent") };
 }
 
 /**
@@ -225,7 +225,7 @@ export function iconColors(): { ground: string; ink: string } {
  * typed and a changed name cannot leave it behind.
  */
 export function manifestText(): string {
-  const ground = lightToken("--qd-bg");
+  const ground = lightToken("--hb-bg");
   const icons = [
     ...PNG_ICONS.map((icon) => ({ src: `/panel/icons/${icon.file}`, sizes: `${icon.size}x${icon.size}`, type: "image/png", purpose: icon.maskable ? "maskable" : "any" })),
     { src: `/panel/icons/${SVG_ICON}`, sizes: "any", type: "image/svg+xml", purpose: "any" },

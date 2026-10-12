@@ -1,0 +1,18 @@
+# Runs on the primary server. Output goes to the journal: journalctl -u hb-archive-heartbeat.service
+[Unit]
+Description=hiso-box: one small WAL record a minute, so that a quiet archive means a broken one
+After=network-online.target postgresql.service
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=postgres
+Group=postgres
+EnvironmentFile=-/etc/hiso-box-backup/backup.env
+ExecStart=/opt/hiso-box-backup/scripts/archive-heartbeat.sh
+SyslogIdentifier=hb-archive-heartbeat
+StandardOutput=journal
+StandardError=journal
+TimeoutStartSec=30s
+NoNewPrivileges=yes
+ProtectHome=yes

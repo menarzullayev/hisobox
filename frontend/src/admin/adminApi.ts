@@ -2,7 +2,7 @@ import type { NewCredential, PasskeyStart } from "../shared/passkey";
 import { type ApiAuth, type ApiError, call, type Call, type Fetch, type Page, reading, type Transport } from "../shared/api";
 
 /**
- * The administrator's side of the API, under /api/admin/v1 (backend/src/qarz/interface/admin_api.py).
+ * The administrator's side of the API, under /api/admin/v1 (backend/src/hiso_box/interface/admin_api.py).
  *
  * It is reached with the same session as the web panel (the HTTP-only cookie and the CSRF token from
  * Telegram sign-in) and, behind the door, with a second cookie the server sets once a code from the
@@ -75,7 +75,7 @@ export type SubscriptionReceipt = {
 };
 
 /**
- * A subscription receipt as the administrator's queue has it (backend/src/qarz/application/
+ * A subscription receipt as the administrator's queue has it (backend/src/hiso_box/application/
  * admin_receipts.py, `receipt_body`): the shop, what its owner stated, and what was decided. Nothing of
  * a shop's customers is in it.
  */
@@ -162,7 +162,7 @@ export type PlatformSettings = {
 
 /**
  * A support access: one administrator may read one shop for a few hours, for a stated reason
- * (backend/src/qarz/application/support_access.py, `access_body`).
+ * (backend/src/hiso_box/application/support_access.py, `access_body`).
  */
 export type SupportAccess = {
   id: string;

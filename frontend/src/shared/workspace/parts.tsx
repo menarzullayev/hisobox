@@ -2,7 +2,17 @@ import { useState, type FormEvent, type ReactNode } from "react";
 
 import { useI18n, type Translate } from "../../i18n/I18nProvider";
 import type { Language, MessageKey } from "../../i18n/types";
-import { type ApiError, cleanReason, NETWORK_ERROR, NO_ANSWER, type Overdue, REASON_MAX, REASON_MIN, TIMEOUT } from "../api";
+import {
+  type ApiError,
+  cleanReason,
+  NETWORK_ERROR,
+  NO_ANSWER,
+  type Overdue,
+  type PayableBook,
+  REASON_MAX,
+  REASON_MIN,
+  TIMEOUT,
+} from "../api";
 import { formatDateTime, formatMoney } from "../format";
 import { AlertIcon, CheckIcon, ClockIcon, ListIcon } from "../icons";
 import { CURRENCIES, type Currency } from "../money";
@@ -223,6 +233,40 @@ export function Money({
     <>
       <span className="money">{owedText(uzs, language, t, undefined, mine)}</span>{" "}
       <span className="money">{owedText(usd, language, t, "USD", mine)}</span>
+    </>
+  );
+}
+
+/**
+ * What the shop owes a contact ("Men qarzdarman"), book by book: the debt with its label, or the advance
+ * it holds ahead of the contact when the book stands below zero. So'm and dollars are two books and are
+ * never added. Without a label the amount is shown alone (a list's row); an advance is always worded, so
+ * a balance below zero is never a debt with a minus sign.
+ */
+export function PayableMoney({ books, showLabel = false }: { books: readonly PayableBook[]; showLabel?: boolean }) {
+  const { t, language } = useI18n();
+  const owed = books.filter((book) => book.balance !== 0);
+  if (owed.length === 0) {
+    return <>{formatMoney(0, language)}</>;
+  }
+  return (
+    <>
+      {owed.map((book, position) => {
+        const currency = book.currency === "USD" ? ("USD" as Currency) : undefined;
+        const amount = formatMoney(Math.abs(book.balance), language, currency);
+        const words =
+          book.balance < 0
+            ? t("payables.advance", { amount })
+            : showLabel
+              ? t("payables.owed", { amount })
+              : amount;
+        return (
+          <span key={book.currency} className="money">
+            {position > 0 ? " · " : null}
+            {words}
+          </span>
+        );
+      })}
     </>
   );
 }

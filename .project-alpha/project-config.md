@@ -2,7 +2,7 @@
 
 ## Identity
 - Project name: Qarz Daftari
-- Repository: github.com/menarzullayev/qarz-daftari
+- Repository: github.com/menarzullayev/hisobox
 - Framework version: 1.0.0
 - Created at: 2026-10-06T08:42:32+00:00
 

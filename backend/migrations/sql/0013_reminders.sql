@@ -8,8 +8,8 @@ CREATE TABLE job_run (
   finished_at timestamptz NOT NULL DEFAULT now(),
   PRIMARY KEY (job, period)
 );
-REVOKE ALL ON job_run FROM qd_app;
-GRANT SELECT, INSERT ON job_run TO qd_app;
+REVOKE ALL ON job_run FROM hb_app;
+GRANT SELECT, INSERT ON job_run TO hb_app;
 
 -- Which shops send reminders at this hour. The worker has no tenant of its own, so this is the one
 -- cross-shop read it needs; it returns identifiers only.
@@ -31,6 +31,6 @@ AS $$
 $$;
 
 REVOKE ALL ON FUNCTION shops_due_for_reminders(smallint) FROM PUBLIC;
-GRANT EXECUTE ON FUNCTION shops_due_for_reminders(smallint) TO qd_app;
+GRANT EXECUTE ON FUNCTION shops_due_for_reminders(smallint) TO hb_app;
 
 CREATE INDEX reminder_customer_auto ON reminder (customer_id, sent_on DESC) WHERE kind = 'auto';

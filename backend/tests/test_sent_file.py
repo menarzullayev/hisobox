@@ -5,12 +5,12 @@ from typing import Any
 import pytest
 from fastapi.routing import APIRoute
 
-from qarz.application.telegram_updates import _sent_file
-from qarz.domain.files import MAX_FILE_BYTES
-from qarz.infrastructure.settings import Settings
-from qarz.interface.asgi import build
+from hiso_box.application.telegram_updates import _sent_file
+from hiso_box.domain.files import MAX_FILE_BYTES
+from hiso_box.infrastructure.settings import Settings
+from hiso_box.interface.asgi import build
 
-DB = "postgresql://qd_app:unused@127.0.0.1:1/unused"  # never connected to in these tests
+DB = "postgresql://hb_app:unused@127.0.0.1:1/unused"  # never connected to in these tests
 
 
 def test_of_a_photo_the_largest_size_that_fits_is_taken() -> None:
@@ -82,5 +82,5 @@ def test_the_deployed_application_serves_the_notice_routes_with_or_without_a_sto
 
 @pytest.mark.parametrize("extra", [{"file_store": "filesystem"}, {"file_store": "s3"}, {"file_store": "elsewhere"}])
 def test_a_store_that_is_named_but_misconfigured_stops_the_application_from_starting(extra: dict[str, str]) -> None:
-    with pytest.raises(ValueError, match=r"QD_FILE|file store"):
+    with pytest.raises(ValueError, match=r"HB_FILE|file store"):
         build(_settings(**extra))

@@ -1,7 +1,7 @@
 /**
  * Uzbek written in Cyrillic, made from Uzbek written in Latin: the `uz-Cyrl` texts are not typed.
  *
- * One deterministic pass over a text. It is the twin of `backend/src/qarz/domain/uz_cyrillic.py`; both
+ * One deterministic pass over a text. It is the twin of `backend/src/hiso_box/domain/uz_cyrillic.py`; both
  * are held to the same cases and the same tables by `backend/tests/data/uz_cyrillic_cases.json`.
  *
  * What is left exactly as it is:

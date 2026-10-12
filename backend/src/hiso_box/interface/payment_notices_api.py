@@ -1,0 +1,217 @@
+"""HTTP routes for payment notices: the customer sends one, any staff member lists, accepts or declines.
+
+A notice is sent as JSON (`{"amount": 50000}`) or, with a receipt, as `multipart/form-data` with the
+fields `amount` and `receipt`. The body is read with a hard limit and only after the caller's link has
+been checked, so nobody can make the service hold more than one receipt's worth of bytes.
+"""
+
+import json
+import re
+from collections.abc import Awaitable, Callable, Collection
+from datetime import datetime
+from email import policy
+from email.parser import BytesParser
+from typing import Annotated, Any
+from uuid import UUID
+
+from fastapi import Depends, FastAPI, Request, Response
+from fastapi.exceptions import RequestValidationError
+from pydantic import BaseModel, ConfigDict, Field, WithJsonSchema
+
+from hiso_box.application.cash_feed import UNKNOWN_FIELD
+from hiso_box.application.errors import ValidationFailed
+from hiso_box.application.files import FileService
+from hiso_box.application.payment_notices import (
+    ACCEPT_NOTICE,
+    DECLINE_NOTICE,
+    FILE_LINK_PATH,
+    LIST_NOTICES,
+    READ_RECEIPT,
+    SEND_NOTICE,
+    PaymentNoticeService,
+)
+from hiso_box.domain.files import MAX_FILE_BYTES
+from hiso_box.interface.body_limit import Allowance
+from hiso_box.interface.shops_api import IdempotencyKey
+
+CurrentUser = Callable[..., Awaitable[UUID]]
+
+# The receipt plus room for the form's own boundaries and the amount field.
+MAX_BODY_BYTES = MAX_FILE_BYTES + 16 * 1024
+_FIELDS = {"amount", "receipt", "currency"}
+# The one route whose body may exceed the general limit: sending a notice, which may carry a receipt.
+RECEIPT_UPLOAD = Allowance(
+    "POST",
+    re.compile(r"/api/v1/me/accounts/[0-9a-fA-F]{8}(?:-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}/payment-notices"),
+    MAX_BODY_BYTES,
+)
+
+
+class Accept(BaseModel):
+    model_config = ConfigDict(extra="forbid", strict=True)
+
+    # Absent or null records the amount the customer stated; a number corrects it (BR-14).
+    amount: int | None = None
+    # How the money came: "cash", "card" or "transfer". Left out: "card" for a notice with a receipt and
+    # "cash" for one without. Only while the cash book is on; while it is off the field does not exist,
+    # and a request that carries it is refused like any other request with an unknown field. Whatever is
+    # sent is taken as it is and checked by the operation, so that this refusal is the same for any value.
+    method: Annotated[
+        Any, WithJsonSchema({"anyOf": [{"type": "string", "maxLength": 16}, {"type": "null"}], "title": "Method"})
+    ] = None
+
+
+class Decline(BaseModel):
+    model_config = ConfigDict(extra="forbid", strict=True)
+
+    reason: str = Field(max_length=1000)
+
+
+async def read_limited(request: Request, limit: int) -> bytes:
+    """The request body, refused as soon as it is known to be longer than `limit`."""
+    declared = request.headers.get("content-length", "")
+    if declared.isdigit() and int(declared) > limit:
+        raise ValidationFailed({"receipt": "too_large"})
+    chunks: list[bytes] = []
+    size = 0
+    async for chunk in request.stream():
+        size += len(chunk)
+        if size > limit:
+            raise ValidationFailed({"receipt": "too_large"})
+        chunks.append(chunk)
+    return b"".join(chunks)
+
+
+def parse_form(content_type: str, body: bytes, allowed: Collection[str] = _FIELDS) -> dict[str, bytes]:
+    """The parts of a `multipart/form-data` body by field name, each as the bytes that were sent.
+
+    Parsed with the standard library's MIME parser. A part's own file name and content type are ignored:
+    what a file is, is decided from its bytes.
+    """
+    if "\r" in content_type or "\n" in content_type:
+        raise ValidationFailed({"_": "malformed form"})
+    head = f"Content-Type: {content_type}\r\nMIME-Version: 1.0\r\n\r\n".encode("latin-1", "replace")
+    message = BytesParser(policy=policy.HTTP).parsebytes(head + body)
+    if not message.is_multipart() or message.defects:
+        raise ValidationFailed({"_": "malformed form"})
+    fields: dict[str, bytes] = {}
+    for part in message.iter_parts():
+        name = part.get_param("name", header="content-disposition")
+        content = part.get_payload(decode=True)
+        if not isinstance(name, str) or name not in allowed or name in fields or not isinstance(content, bytes):
+            raise ValidationFailed({"_": f"the form has the fields {', '.join(sorted(allowed))}, each at most once"})
+        fields[name] = content
+    return fields
+
+
+def _whole_number(raw: bytes) -> int:
+    # Anything that is not ASCII becomes a replacement character here, so only the digits 0-9 pass below.
+    text = raw.decode("ascii", "replace").strip()
+    # Digits only: no sign, no separators, no exponent. Twelve digits are far above any amount accepted.
+    if not text.isdigit() or len(text) > 12:
+        raise ValidationFailed({"amount": "a whole number of UZS"})
+    return int(text)
+
+
+def parse_notice(content_type: str, body: bytes) -> tuple[Any, bytes | None]:
+    """Amount and receipt of a new notice. The amount's bounds are the application's to check."""
+    kind = content_type.split(";", 1)[0].strip().lower()
+    if kind == "application/json":
+        try:
+            data = json.loads(body)
+        except ValueError:
+            raise ValidationFailed({"_": "malformed JSON"}) from None
+        if not isinstance(data, dict) or set(data) - {"currency"} != {"amount"}:
+            raise ValidationFailed({"amount": "required, and the only field"})
+        return data["amount"], None
+    if kind == "multipart/form-data":
+        fields = parse_form(content_type, body)
+        if "amount" not in fields:
+            raise ValidationFailed({"amount": "required"})
+        return _whole_number(fields["amount"]), fields.get("receipt")
+    raise ValidationFailed({"_": "send application/json or multipart/form-data"})
+
+
+def notice_currency(content_type: str, body: bytes) -> str | None:
+    """The currency a new notice names beside its amount, if any. Whether it may is the application's to say.
+
+    Called after `parse_notice` has accepted the body, so the body is known to be well formed.
+    """
+    if content_type.split(";", 1)[0].strip().lower() == "application/json":
+        named = json.loads(body).get("currency")
+        return named if named is None or isinstance(named, str) else str(named)
+    raw = parse_form(content_type, body).get("currency")
+    return None if raw is None else raw.decode("ascii", "replace").strip()
+
+
+def add_payment_notice_routes(app: FastAPI, service: PaymentNoticeService, current_user: CurrentUser) -> None:
+    user = Annotated[UUID, Depends(current_user)]
+
+    @app.post("/api/v1/me/accounts/{link_id}/payment-notices", name=SEND_NOTICE.name, status_code=201)
+    async def send_notice(
+        link_id: UUID, request: Request, user_id: user, idempotency_key: IdempotencyKey = None
+    ) -> dict[str, Any]:
+        # Whose link it is comes first: for anyone else the account does not exist, whatever they send.
+        await service.require_link(user_id, link_id)
+        body = await read_limited(request, MAX_BODY_BYTES)
+        content_type = request.headers.get("content-type", "")
+        amount, receipt = parse_notice(content_type, body)
+        return await service.send(
+            user_id, link_id, amount, receipt, idempotency_key, currency=notice_currency(content_type, body)
+        )
+
+    @app.get("/api/v1/shops/{shop_id}/payment-notices", name=LIST_NOTICES.name)
+    async def list_notices(shop_id: UUID, user_id: user) -> dict[str, Any]:
+        return await service.list_open(user_id, shop_id)
+
+    @app.post("/api/v1/shops/{shop_id}/payment-notices/{notice_id}/accept", name=ACCEPT_NOTICE.name)
+    async def accept_notice(
+        shop_id: UUID,
+        notice_id: UUID,
+        user_id: user,
+        body: Accept | None = None,
+        idempotency_key: IdempotencyKey = None,
+    ) -> dict[str, Any]:
+        if body is not None and "method" in body.model_fields_set and not await service.cash_book_on():
+            # While the cash book is off the field does not exist: the request is answered exactly as it
+            # was before the field was added, as one that carries a field the API does not know.
+            raise RequestValidationError(
+                [{"type": "extra_forbidden", "loc": ("body", "method"), "msg": UNKNOWN_FIELD, "input": body.method}]
+            )
+        return await service.accept(
+            user_id,
+            shop_id,
+            notice_id,
+            None if body is None else body.amount,
+            idempotency_key,
+            None if body is None else body.method,
+        )
+
+    @app.post("/api/v1/shops/{shop_id}/payment-notices/{notice_id}/decline", name=DECLINE_NOTICE.name)
+    async def decline_notice(
+        shop_id: UUID, notice_id: UUID, body: Decline, user_id: user, idempotency_key: IdempotencyKey = None
+    ) -> dict[str, Any]:
+        return await service.decline(user_id, shop_id, notice_id, body.reason, idempotency_key)
+
+    @app.get("/api/v1/shops/{shop_id}/payment-notices/{notice_id}/receipt", name=READ_RECEIPT.name)
+    async def read_receipt(shop_id: UUID, notice_id: UUID, user_id: user) -> dict[str, Any]:
+        return await service.receipt(user_id, shop_id, notice_id)
+
+
+def add_file_route(app: FastAPI, files: FileService, now: Callable[[], datetime]) -> None:
+    """Where a signed link leads (ADR-020). Not an operation of the API: the link is the authorization,
+    given a moment ago to someone who was allowed to see the file."""
+
+    @app.get(FILE_LINK_PATH + "/{token}", include_in_schema=False)
+    async def serve_file(token: str) -> Response:
+        mime, name, content = await files.serve(token, now())
+        return Response(
+            content,
+            media_type=mime,
+            headers={
+                # Always a download, never rendered in the page that asked: the bytes came from a customer.
+                "Content-Disposition": f'attachment; filename="{name}"',
+                "X-Content-Type-Options": "nosniff",
+                "Cache-Control": "private, no-store",
+            },
+        )

@@ -9,13 +9,13 @@ import psycopg
 import pytest
 from fastapi.testclient import TestClient
 
-from qarz.application.chat_texts import day, say
-from qarz.application.reminders import ReminderService
-from qarz.application.scheduler import Scheduler
-from qarz.application.shop_deletion import ShopDeletionService
-from qarz.domain.promise import tashkent_date
-from qarz.domain.shop_deletion import WAITING_PERIOD, erasure_due, name_confirms
-from qarz.infrastructure.db import Database
+from hiso_box.application.chat_texts import day, say
+from hiso_box.application.reminders import ReminderService
+from hiso_box.application.scheduler import Scheduler
+from hiso_box.application.shop_deletion import ShopDeletionService
+from hiso_box.domain.promise import tashkent_date
+from hiso_box.domain.shop_deletion import WAITING_PERIOD, erasure_due, name_confirms
+from hiso_box.infrastructure.db import Database
 
 from .conftest import World, as_user
 from .test_customers_ledger import key, record, shop

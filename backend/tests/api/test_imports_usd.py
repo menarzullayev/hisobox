@@ -19,11 +19,11 @@ import psycopg
 import pytest
 from fastapi.testclient import TestClient
 
-from qarz.application.chat_texts import both, day, money, say
-from qarz.application.imports import template
-from qarz.domain import imports
-from qarz.domain.money import Currency
-from qarz.infrastructure.db import Database
+from hiso_box.application.chat_texts import both, day, money, say
+from hiso_box.application.imports import template
+from hiso_box.domain import imports
+from hiso_box.domain.money import Currency
+from hiso_box.infrastructure.db import Database
 
 from .conftest import World, as_user
 from .test_customers_ledger import _subscription, key, shop, today, write

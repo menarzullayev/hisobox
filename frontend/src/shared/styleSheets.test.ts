@@ -45,7 +45,7 @@ describe("the style sheets use the design tokens and nothing else", () => {
     const css = readStyleSheet("web", "landing.css");
     expect(styleProblems(css, tokens, { ownsFocusRing: true })).toEqual([]);
     // The same 3px ring, 2px away, that the applications get from shell.css.
-    expect(css).toMatch(/\n:focus-visible \{\s*outline: 3px solid var\(--qd-focus\);\s*outline-offset: 2px;\s*\}/);
+    expect(css).toMatch(/\n:focus-visible \{\s*outline: 3px solid var\(--hb-focus\);\s*outline-offset: 2px;\s*\}/);
     // The only place the ring is moved is the skip link, which is out of sight until it takes focus.
     expect([...css.matchAll(/([^{}]+)\{[^}]*outline:\s*(?:none|0)/g)].map((match) => (match[1] ?? "").trim())).toEqual([]);
   });
@@ -54,7 +54,7 @@ describe("the style sheets use the design tokens and nothing else", () => {
     const css = readStyleSheet("shared", "shell.css");
     expect(styleProblems(css, tokens, { ownsFocusRing: true })).toEqual([]);
     // A 3px ring, 2px away, on everything that takes keyboard focus.
-    expect(css).toMatch(/\n:focus-visible \{\s*outline: 3px solid var\(--qd-focus\);\s*outline-offset: 2px;\s*\}/);
+    expect(css).toMatch(/\n:focus-visible \{\s*outline: 3px solid var\(--hb-focus\);\s*outline-offset: 2px;\s*\}/);
     // The only place a ring is removed is the main region, which is not a control.
     expect([...css.matchAll(/([^{}]+)\{[^}]*outline:\s*(?:none|0)/g)].map((match) => (match[1] ?? "").trim())).toEqual([
       ".shell__main:focus",
@@ -74,8 +74,8 @@ describe("the style sheets use the design tokens and nothing else", () => {
 
   it("stops the skeleton's pulse and the spinner for a person who asked for less motion", () => {
     const css = readStyleSheet("shared", "workspace", "workspace.css");
-    expect(css).toMatch(/\.skeleton \{\s*animation: qd-pulse/);
-    expect(css).toMatch(/\.spinner \{\s*animation: qd-spin/);
+    expect(css).toMatch(/\.skeleton \{\s*animation: hb-pulse/);
+    expect(css).toMatch(/\.spinner \{\s*animation: hb-spin/);
     for (const path of SHEETS) {
       expect(withoutMotionBlocks(readStyleSheet(...path)), path.join("/")).not.toMatch(/animation|transition|@keyframes/);
     }
@@ -83,15 +83,15 @@ describe("the style sheets use the design tokens and nothing else", () => {
 
   it("keeps every control at least 2.75rem tall", () => {
     const css = readStyleSheet("shared", "shell.css") + readStyleSheet("shared", "workspace", "workspace.css");
-    expect(readStyleSheet("shared", "tokens.css")).toMatch(/--qd-control-height: 2\.75rem;/);
+    expect(readStyleSheet("shared", "tokens.css")).toMatch(/--hb-control-height: 2\.75rem;/);
     for (const selector of [".button", ".button--small", ".input", ".row__link", ".pick", ".choice", ".toast__action", ".skip-link"]) {
-      expect(ruleOf(css, selector), selector).toContain("min-height: var(--qd-control-height)");
+      expect(ruleOf(css, selector), selector).toContain("min-height: var(--hb-control-height)");
     }
     expect(ruleOf(css, ".theme-toggle__option,\n.toggle__option")).toContain(
-      "min-height: var(--qd-control-height)",
+      "min-height: var(--hb-control-height)",
     );
     // Would a shorter control be noticed? This is how the check reads a rule.
-    expect(ruleOf(".button {\n  min-height: 2rem;\n}", ".button")).not.toContain("min-height: var(--qd-control-height)");
+    expect(ruleOf(".button {\n  min-height: 2rem;\n}", ".button")).not.toContain("min-height: var(--hb-control-height)");
   });
 });
 
@@ -143,7 +143,7 @@ describe("the phone's tab bar takes the room it needs, at any text size", () => 
   });
 
   it("would be noticed: a bar fixed over the content with a height kept free by a number", () => {
-    const before = ".shell {\n  display: grid;\n  padding-bottom: calc(var(--qd-nav-height) + env(safe-area-inset-bottom, 0px));\n}\n.shell__nav {\n  position: fixed;\n  bottom: 0;\n}";
+    const before = ".shell {\n  display: grid;\n  padding-bottom: calc(var(--hb-nav-height) + env(safe-area-inset-bottom, 0px));\n}\n.shell__nav {\n  position: fixed;\n  bottom: 0;\n}";
     expect(tabBarProblems(before)).toEqual([
       "the bar is not held to the bottom edge inside the flow",
       "the bar is out of the flow",
@@ -166,7 +166,7 @@ describe("the guard itself", () => {
   });
 
   it("refuses a variable tokens.css does not define", () => {
-    expect(styleProblems(".a { color: var(--qd-brand); }", tokens)).toEqual(["unknown variable: --qd-brand"]);
+    expect(styleProblems(".a { color: var(--hb-brand); }", tokens)).toEqual(["unknown variable: --hb-brand"]);
     expect(styleProblems(".a { color: var(--tg-theme-bg-color, red); }", tokens)).toEqual([
       "unknown variable: --tg-theme-bg-color",
     ]);
@@ -175,11 +175,11 @@ describe("the guard itself", () => {
   it("refuses a rule that touches the focus ring", () => {
     expect(styleProblems(".a { outline: none; }", tokens)).toEqual(["outline changed"]);
     expect(styleProblems(".a { outline-width: 0; }", tokens)).toEqual(["outline changed"]);
-    expect(styleProblems(".a:focus-visible { border-color: var(--qd-focus); }", tokens)).toEqual([":focus rule"]);
+    expect(styleProblems(".a:focus-visible { border-color: var(--hb-focus); }", tokens)).toEqual([":focus rule"]);
     expect(styleProblems(".a { outline: none; }", tokens, { ownsFocusRing: true })).toEqual([]);
   });
 
   it("does not read comments, and passes a rule made of tokens", () => {
-    expect(styleProblems("/* was #fff */ .a { color: var(--qd-text); margin: var(--qd-space-2); }", tokens)).toEqual([]);
+    expect(styleProblems("/* was #fff */ .a { color: var(--hb-text); margin: var(--hb-space-2); }", tokens)).toEqual([]);
   });
 });

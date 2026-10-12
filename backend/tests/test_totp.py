@@ -5,7 +5,7 @@ from urllib.parse import parse_qs, unquote, urlsplit
 
 import pytest
 
-from qarz.domain.totp import (
+from hiso_box.domain.totp import (
     LOCK,
     MAX_FAILURES,
     FactorState,

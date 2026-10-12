@@ -9,7 +9,7 @@
 #
 # Everything generated lives in deploy/production/.local/ (ignored by git). The images are built from the
 # COMMIT, not from the working tree: commit first.
-# Environment: LOCAL_HTTP_PORT (18480), LOCAL_HTTPS_PORT (18443), DEPLOY_PROJECT (qd-deploy-proof),
+# Environment: LOCAL_HTTP_PORT (18480), LOCAL_HTTPS_PORT (18443), DEPLOY_PROJECT (hb-deploy-proof),
 # LOCAL_DIR (where the generated files go), LOCAL_ADMIN_TG_IDS (the administrators' allow-list, default 1), DEPLOY_COMPOSE_OVERLAY_EXTRA (one more compose file; the
 # end-to-end suite adds compose.e2e.yml through it, see e2e/stack.sh).
 set -euo pipefail
@@ -17,7 +17,7 @@ set -euo pipefail
 PROOF_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 LOCAL_DIR="${LOCAL_DIR:-$PROOF_DIR/.local}"
 export DEPLOY_ENV_FILE="$LOCAL_DIR/local.env"
-export DEPLOY_PROJECT="${DEPLOY_PROJECT:-qd-deploy-proof}"
+export DEPLOY_PROJECT="${DEPLOY_PROJECT:-hb-deploy-proof}"
 export DEPLOY_STATE_DIR="$LOCAL_DIR/state"
 export DEPLOY_COMPOSE_OVERLAY="$PROOF_DIR/compose.local.yml"
 # shellcheck source=lib.sh
@@ -48,24 +48,24 @@ DEPLOY_ACME_DIR=$(native_path "$LOCAL_DIR/acme")
 DEPLOY_BIND=127.0.0.1
 DEPLOY_HTTP_PORT=$HTTP_PORT
 DEPLOY_HTTPS_PORT=$HTTPS_PORT
-VITE_BOT_USERNAME=qd_local_proof_bot
+VITE_BOT_USERNAME=hb_local_proof_bot
 VITE_PUBLIC_ORIGIN=https://127.0.0.1:$HTTPS_PORT
 LOCAL_POSTGRES_PASSWORD=$owner
 LOCAL_APP_PASSWORD=$app
 LOCAL_ADMIN_PASSWORD=$admin
 LOCAL_WORKER_PASSWORD=$worker
-QD_MIGRATION_URL=postgresql://postgres:$owner@db:5432/qarz
-QD_DATABASE_URL=postgresql://qd_app:$app@db:5432/qarz
-QD_ADMIN_DATABASE_URL=postgresql://qd_admin:$admin@db:5432/qarz
-QD_WORKER_DATABASE_URL=postgresql://qd_worker:$worker@db:5432/qarz
+HB_MIGRATION_URL=postgresql://postgres:$owner@db:5432/hiso_box
+HB_DATABASE_URL=postgresql://hb_app:$app@db:5432/hiso_box
+HB_ADMIN_DATABASE_URL=postgresql://hb_admin:$admin@db:5432/hiso_box
+HB_WORKER_DATABASE_URL=postgresql://hb_worker:$worker@db:5432/hiso_box
 # Not a bot: a string of the right shape, so that the API serves its routes. Nothing is sent with it.
-QD_BOT_TOKEN=1000000000:$(openssl rand -hex 18)
-QD_WEBHOOK_SECRET=$(openssl rand -hex 24)
-QD_SECRETS_KEY=$(openssl rand -base64 32)
-QD_ADMIN_TG_IDS=${LOCAL_ADMIN_TG_IDS:-1}
-QD_METRICS_TOKEN=$(openssl rand -hex 16)
-QD_FILE_STORE=filesystem
-QD_FILE_ROOT=/var/lib/qarz/files
+HB_BOT_TOKEN=1000000000:$(openssl rand -hex 18)
+HB_WEBHOOK_SECRET=$(openssl rand -hex 24)
+HB_SECRETS_KEY=$(openssl rand -base64 32)
+HB_ADMIN_TG_IDS=${LOCAL_ADMIN_TG_IDS:-1}
+HB_METRICS_TOKEN=$(openssl rand -hex 16)
+HB_FILE_STORE=filesystem
+HB_FILE_ROOT=/var/lib/hiso_box/files
 EOF
     )
   fi
@@ -76,7 +76,7 @@ up() {
   generate
   ensure_images "$RELEASE"
   # What an operator does once on a real database host: the schema, then a password for each of the
-  # three roles (qd_app, qd_admin, qd_worker).
+  # three roles (hb_app, hb_admin, hb_worker).
   say "database: throwaway PostgreSQL, migrations, the three application roles"
   compose up --detach --wait db
   compose run --rm migrate
@@ -103,9 +103,9 @@ smoke() {
   inside "the API logged the proxy's request id" \
     bash -c 'id=$(printf "%s\n" "$1" | grep "\"path\":\"/api/v1/me\"" | tail -n 1 | sed "s/.*\"request_id\":\"\([0-9a-f]*\)\".*/\1/"); [ -n "$id" ] && printf "%s\n" "$2" | grep -q "$id"' \
     _ "$log" "$(compose logs --no-log-prefix --no-color api 2>/dev/null)"
-  metrics="$(compose exec -T api python -c "import os,urllib.request as u; print(u.urlopen(u.Request('http://127.0.0.1:8000/metrics', headers={'Authorization': 'Bearer ' + os.environ['QD_METRICS_TOKEN']}), timeout=5).read().decode()[:4000])" 2>/dev/null || true)"
+  metrics="$(compose exec -T api python -c "import os,urllib.request as u; print(u.urlopen(u.Request('http://127.0.0.1:8000/metrics', headers={'Authorization': 'Bearer ' + os.environ['HB_METRICS_TOKEN']}), timeout=5).read().decode()[:4000])" 2>/dev/null || true)"
   inside "the metrics are served inside the network, with the token" \
-    bash -c 'printf "%s" "$1" | grep -q qd_requests_total' _ "$metrics"
+    bash -c 'printf "%s" "$1" | grep -q hb_requests_total' _ "$metrics"
   inside "the API runs as a non-root user on a read-only file system" \
     bash -c '[ "$1" = "10001 ro" ]' _ "$(compose exec -T api sh -c 'printf "%s " "$(id -u)"; touch /app/x 2>/dev/null && echo rw || echo ro' 2>/dev/null | tr -d '\r')"
   inside "the proxy runs as a non-root user" \
@@ -124,7 +124,7 @@ down() {
   # would take that deployment's earlier releases, which are what a rollback starts from.
   local image
   if [ "$RELEASE" != "none" ]; then
-    for image in "qarz-daftari/backend:$RELEASE" "qarz-daftari/proxy:$RELEASE"; do
+    for image in "hiso_box/backend:$RELEASE" "hiso_box/proxy:$RELEASE"; do
       docker image inspect "$image" >/dev/null 2>&1 || continue
       # Without --force: an image a container of another project still runs is refused, and kept.
       docker image rm "$image" >/dev/null 2>&1 || say "kept $image: something else still uses it"

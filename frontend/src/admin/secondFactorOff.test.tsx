@@ -18,7 +18,7 @@ import { ShopScreen } from "./ShopScreen";
 import { ADMIN, adminApi, authBody, CSRF, LOGIN, NOBODY, NOW, ok, platformBody, refusal, renderAdmin, SHOP_ID, shopBody, shopDetailBody } from "./testing";
 
 /**
- * An installation whose server runs with `QD_ADMIN_SECOND_FACTOR=off`. The server says so (`second_factor`
+ * An installation whose server runs with `HB_ADMIN_SECOND_FACTOR=off`. The server says so (`second_factor`
  * in the door's status and in the settings); the panel asks for no code anywhere and says so on the
  * settings screen. Each case has its counterpart with the default beside it: the panel must not stop
  * asking on its own.
@@ -61,7 +61,7 @@ function enter(status: Record<string, unknown>) {
     <AdminRoot
       initialLanguage="uz"
       fetch={server.fetch}
-      botUsername="qarz_daftari_bot"
+      botUsername="hiso_box_daftari_bot"
       LoginWidget={StubWidget}
       loginReturn={{ status: "returned", data: LOGIN }}
       now={() => NOW}

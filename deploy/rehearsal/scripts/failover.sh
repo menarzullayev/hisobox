@@ -11,7 +11,7 @@
 #
 # Prints FAILOVER_ELAPSED_SECONDS (script start to accepted write), split into
 # FAILOVER_PROBE_SECONDS (step 2) and FAILOVER_PROMOTE_SECONDS (steps 3 to 5). If the
-# caller exports QD_KILL_EPOCH (date +%s.%N taken just before the primary was
+# caller exports HB_KILL_EPOCH (date +%s.%N taken just before the primary was
 # killed) it also prints KILL_TO_WRITE_SECONDS.
 #
 # Exit codes: 0 promoted, 3 primary still answers, 4 already promoted, 1 other failure.
@@ -59,6 +59,6 @@ log "promoted; write accepted (rehearsal_failover_probe id $probe), now writing 
 echo "FAILOVER_PROBE_SECONDS=$(seconds_between "$t_start" "$t_probed")"
 echo "FAILOVER_PROMOTE_SECONDS=$(seconds_between "$t_probed" "$t_done")"
 echo "FAILOVER_ELAPSED_SECONDS=$(seconds_between "$t_start" "$t_done")"
-if [ -n "${QD_KILL_EPOCH:-}" ]; then
-    echo "KILL_TO_WRITE_SECONDS=$(seconds_between "$QD_KILL_EPOCH" "$t_done")"
+if [ -n "${HB_KILL_EPOCH:-}" ]; then
+    echo "KILL_TO_WRITE_SECONDS=$(seconds_between "$HB_KILL_EPOCH" "$t_done")"
 fi

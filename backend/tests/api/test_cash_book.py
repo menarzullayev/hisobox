@@ -14,7 +14,7 @@ import psycopg
 import pytest
 from fastapi.testclient import TestClient
 
-from qarz.domain import cash
+from hiso_box.domain import cash
 
 from .conftest import World, as_user, set_overrides, switch_permissions_on
 from .test_customers_ledger import key, read, shop, today, write
@@ -199,14 +199,14 @@ def test_a_client_learns_that_the_cash_book_is_on_from_a_header_and_only_then(
     client: TestClient, world: World, owner: psycopg.Connection
 ) -> None:
     before = client.get("/api/v1/me/shops", headers=as_user(world.manager_a))
-    assert "x-qarz-cash-book" not in before.headers
+    assert "x-shop-cash-book" not in before.headers
     switch(owner)
     after = client.get("/api/v1/me/shops", headers=as_user(world.manager_a))
-    assert after.headers["x-qarz-cash-book"] == "on"
+    assert after.headers["x-shop-cash-book"] == "on"
     # The body is the one it always was.
     assert after.json() == before.json()
     switch(owner, "false")
-    assert "x-qarz-cash-book" not in client.get("/api/v1/me/shops", headers=as_user(world.manager_a)).headers
+    assert "x-shop-cash-book" not in client.get("/api/v1/me/shops", headers=as_user(world.manager_a)).headers
 
 
 # --- categories ------------------------------------------------------------------------------------------

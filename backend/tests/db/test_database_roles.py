@@ -2,9 +2,9 @@
 
 Three roles connect to the database, one for each part of the application:
 
-- `qd_app`     the ordinary application: shop members, customers, sign-in, the bot's chat;
-- `qd_admin`   the administrators' side;
-- `qd_worker`  the worker.
+- `hb_app`     the ordinary application: shop members, customers, sign-in, the bot's chat;
+- `hb_admin`   the administrators' side;
+- `hb_worker`  the worker.
 
 Two tables in this file say everything each of them may do: `DEFINER_FUNCTIONS` (who may execute each
 function that runs with its owner's rights) and `TABLE_RIGHTS` (what each role holds on each table). The
@@ -25,7 +25,7 @@ from ..conftest import AppSession, Shop, add_entry
 
 pytestmark = pytest.mark.db
 
-APP, ADMIN, WORKER = "qd_app", "qd_admin", "qd_worker"
+APP, ADMIN, WORKER = "hb_app", "hb_admin", "hb_worker"
 ROLES = (APP, ADMIN, WORKER)
 NOBODY: set[str] = set()
 MIGRATION = Path(__file__).resolve().parents[2] / "migrations" / "sql" / "0031_separate_roles.sql"
@@ -142,7 +142,7 @@ DEFINER_FUNCTIONS: dict[str, set[str]] = {
     "supplier_balance_mismatches(uuid)": NOBODY,
 }
 
-# Every table, and what each role holds on it: (qd_app, qd_admin, qd_worker). A right followed by column
+# Every table, and what each role holds on it: (hb_app, hb_admin, hb_worker). A right followed by column
 # names is held on those columns only. An empty string is no right at all. No role holds TRUNCATE,
 # REFERENCES or TRIGGER on anything; the test would show them here if one did.
 TABLE_RIGHTS: dict[str, tuple[str, str, str]] = {
@@ -354,7 +354,7 @@ def test_every_definer_function_is_executable_by_exactly_the_roles_listed(owner:
 def test_the_function_check_catches_a_grant_that_is_too_wide(database_url: str) -> None:
     """The counterpart, four ways. All rolled back, so none of it ever exists."""
     with psycopg.connect(database_url) as conn:
-        conn.execute("GRANT EXECUTE ON FUNCTION erase_shop(uuid) TO qd_app")
+        conn.execute("GRANT EXECUTE ON FUNCTION erase_shop(uuid) TO hb_app")
         assert _function_grants(conn)["erase_shop(uuid)"] == {WORKER, APP}
         conn.rollback()
 
@@ -372,7 +372,7 @@ def test_the_function_check_catches_a_grant_that_is_too_wide(database_url: str) 
             "SET search_path = public, pg_temp AS 'SELECT 1'"
         )
         conn.execute("REVOKE ALL ON FUNCTION review_unlisted() FROM PUBLIC")
-        conn.execute("GRANT EXECUTE ON FUNCTION review_unlisted() TO qd_worker")
+        conn.execute("GRANT EXECUTE ON FUNCTION review_unlisted() TO hb_worker")
         found = _function_grants(conn)
         assert found != DEFINER_FUNCTIONS and found["review_unlisted()"] == {WORKER}
         conn.rollback()
@@ -396,17 +396,17 @@ def test_the_table_check_catches_a_right_granted_carelessly(database_url: str) -
     """The counterpart: a table handed over whole, one more right on an existing table, one more column."""
     with psycopg.connect(database_url) as conn:
         conn.execute("CREATE TABLE review_careless (id integer PRIMARY KEY)")
-        conn.execute("GRANT ALL ON review_careless TO qd_worker")
+        conn.execute("GRANT ALL ON review_careless TO hb_worker")
         found = _table_rights(conn)
         assert found != TABLE_RIGHTS
         assert found["review_careless"] == ("", "", "SELECT; INSERT; UPDATE; DELETE; TRUNCATE; REFERENCES; TRIGGER")
         conn.rollback()
 
-        conn.execute("GRANT SELECT ON admin_account TO qd_app")
+        conn.execute("GRANT SELECT ON admin_account TO hb_app")
         assert _table_rights(conn)["admin_account"][0] == "SELECT"
         conn.rollback()
 
-        conn.execute("GRANT SELECT (payload) ON outbox_message TO qd_app")
+        conn.execute("GRANT SELECT (payload) ON outbox_message TO hb_app")
         assert (
             _table_rights(conn)["outbox_message"][0]
             == "INSERT; SELECT(id, channel, payload, dedupe_key, status, next_try_at)"
@@ -436,17 +436,17 @@ def test_the_roles_cannot_bypass_row_level_security_and_are_members_of_nothing(o
 
 
 def test_the_migration_creates_the_roles_without_a_login_or_a_password() -> None:
-    """Like qd_app (DEC-021): the login and the password are set at deploy, never in the repository. The
+    """Like hb_app (DEC-021): the login and the password are set at deploy, never in the repository. The
     test database gives the roles a login itself, so this reads the migration."""
     text = MIGRATION.read_text(encoding="utf-8")
     statements = re.sub(r"--[^\n]*", "", text)
     created = re.findall(r"CREATE ROLE (\w+) ([^;]*);", statements)
-    assert created == [("qd_admin", "NOLOGIN NOBYPASSRLS"), ("qd_worker", "NOLOGIN NOBYPASSRLS")]
+    assert created == [("hb_admin", "NOLOGIN NOBYPASSRLS"), ("hb_worker", "NOLOGIN NOBYPASSRLS")]
     assert "PASSWORD" not in statements.upper()
     assert not re.search(r"\bLOGIN\b", statements.upper().replace("NOLOGIN", ""))
 
 
-# --- row-level security binds the new roles as it binds qd_app -------------------------------------------
+# --- row-level security binds the new roles as it binds hb_app -------------------------------------------
 
 
 @pytest.mark.parametrize("role", [ADMIN, WORKER])
@@ -528,7 +528,7 @@ def test_connected_as_the_role_everything_it_was_not_granted_is_refused(
     with psycopg.connect(database_url) as conn:
         probes = list(_probes(conn, role))
         conn.execute(psycopg.sql.SQL("SET ROLE {}").format(psycopg.sql.Identifier(role)))
-        conn.execute("SELECT set_config('qd.shop_id', %s, true)", (str(shop_a.shop_id),))
+        conn.execute("SELECT set_config('hb.shop_id', %s, true)", (str(shop_a.shop_id),))
         for what, statement in probes:
             tried += 1
             conn.execute("SAVEPOINT probe")
@@ -554,10 +554,10 @@ def test_the_refusal_check_catches_a_right_the_tables_do_not_know(database_url: 
     """The counterpart: with one function and one table handed to the ordinary role behind the tables'
     back, the same probes find exactly those. Rolled back."""
     with psycopg.connect(database_url) as conn:
-        conn.execute("GRANT EXECUTE ON FUNCTION purge_expired_sign_ins() TO qd_app")
-        conn.execute("GRANT SELECT ON admin_account TO qd_app")
+        conn.execute("GRANT EXECUTE ON FUNCTION purge_expired_sign_ins() TO hb_app")
+        conn.execute("GRANT SELECT ON admin_account TO hb_app")
         probes = list(_probes(conn, APP))
-        conn.execute("SET ROLE qd_app")
+        conn.execute("SET ROLE hb_app")
         allowed: list[str] = []
         for what, statement in probes:
             conn.execute("SAVEPOINT probe")
@@ -771,11 +771,11 @@ def test_the_announcement_function_gives_the_ordinary_role_two_columns_of_confir
 
 
 def test_the_way_back_to_one_role_that_the_runbook_names_really_gives_the_old_rights(database_url: str) -> None:
-    """A release from before migration 0031 connects every part as qd_app. `deploy/production/README.md`
-    says that `GRANT qd_admin, qd_worker TO qd_app` lets such a release run again. Rolled back."""
+    """A release from before migration 0031 connects every part as hb_app. `deploy/production/README.md`
+    says that `GRANT hb_admin, hb_worker TO hb_app` lets such a release run again. Rolled back."""
     with psycopg.connect(database_url) as conn:
-        conn.execute("GRANT qd_admin, qd_worker TO qd_app")
-        conn.execute("SET ROLE qd_app")
+        conn.execute("GRANT hb_admin, hb_worker TO hb_app")
+        conn.execute("SET ROLE hb_app")
         assert conn.execute("SELECT erase_shop(%s)", (uuid.uuid4(),)).fetchone() == (False,)
         assert conn.execute("SELECT count(*) FROM admin_account").fetchone() is not None
         assert conn.execute(
@@ -786,6 +786,6 @@ def test_the_way_back_to_one_role_that_the_runbook_names_really_gives_the_old_ri
         conn.execute("SELECT purge_expired_sign_ins()")
         conn.rollback()
     with psycopg.connect(database_url) as conn:
-        conn.execute("SET ROLE qd_app")
+        conn.execute("SET ROLE hb_app")
         with pytest.raises(psycopg.errors.InsufficientPrivilege):
             conn.execute("SELECT erase_shop(%s)", (uuid.uuid4(),))

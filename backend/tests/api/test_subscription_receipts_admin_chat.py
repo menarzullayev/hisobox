@@ -21,8 +21,8 @@ import psycopg
 import pytest
 from fastapi.testclient import TestClient
 
-from qarz.application.chat_texts import day, money, say
-from qarz.domain.subscription import add_months
+from hiso_box.application.chat_texts import day, money, say
+from hiso_box.domain.subscription import add_months
 
 from .conftest import AdminEnv, World, as_user, elevate, make_admin
 from .test_chat import SECRET, Chat, _update_ids, chat_of

@@ -10,7 +10,7 @@
 export const ACCOUNT_PATH = "/api/v1/customer-share";
 export const TOKEN_HEADER = "X-Share-Token";
 
-// 32 random bytes in the URL-safe alphabet (backend/src/qarz/domain/customer_share.py).
+// 32 random bytes in the URL-safe alphabet (backend/src/hiso_box/domain/customer_share.py).
 const TOKEN_SHAPE = /^[A-Za-z0-9_-]{43}$/;
 
 /** The secret from the address's fragment ("#..."), or null when what is there is not one. */

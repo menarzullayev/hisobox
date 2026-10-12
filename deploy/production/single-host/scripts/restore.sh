@@ -16,7 +16,7 @@
 # to the same repository on a new timeline. Exit codes: 0 restored, 65 refused, 64 wrong usage.
 set -euo pipefail
 # shellcheck source-path=SCRIPTDIR source=env.sh
-. /opt/qarz-single/env.sh
+. /opt/hiso-box-single/env.sh
 
 PGDATA="${PGDATA:-/var/lib/postgresql/data}"
 target=""
@@ -42,7 +42,7 @@ if [ -e "$PGDATA/PG_VERSION" ] || [ -n "$(ls -A "$PGDATA" 2> /dev/null)" ]; then
     exit 65
 fi
 
-args=(--stanza="$QD_STANZA" --pg1-path="$PGDATA" --log-level-console=warn restore)
+args=(--stanza="$HB_STANZA" --pg1-path="$PGDATA" --log-level-console=warn restore)
 if [ -n "$target" ]; then
     args+=(--type=time "--target=$target" --target-action=promote)
 else
@@ -51,7 +51,7 @@ fi
 
 started="$(date +%s)"
 pgbackrest "${args[@]}"
-label="$(pgbackrest --stanza="$QD_STANZA" --log-level-console=warn info --output=json \
+label="$(pgbackrest --stanza="$HB_STANZA" --log-level-console=warn info --output=json \
     | jq -r '.[0].backup | sort_by(.timestamp.stop) | last | .label // ""')"
 jq -cn --arg event restore --arg outcome ok --arg newest_backup "$label" --arg target "${target:-end of archive}" \
     --argjson duration_seconds "$(($(date +%s) - started))" '$ARGS.named'

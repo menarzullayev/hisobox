@@ -19,19 +19,19 @@ import psycopg
 import pytest
 from fastapi.testclient import TestClient
 
-from qarz.application.auth import AuthService
-from qarz.application.chat_texts import money, say
-from qarz.application.files import FileService, FileStoreUnavailable
-from qarz.application.payment_notices import PaymentNoticeService
-from qarz.application.ports import FileStoreError
-from qarz.application.reminders import ReminderService
-from qarz.application.scheduler import Scheduler
-from qarz.application.shop_deletion import ShopDeletionService
-from qarz.domain.files import MAX_FILE_BYTES
-from qarz.infrastructure.db import Database, PgTenantSession
-from qarz.infrastructure.file_store import FilesystemFileStore
-from qarz.interface.http import create_app
-from qarz.interface.payment_notices_api import MAX_BODY_BYTES
+from hiso_box.application.auth import AuthService
+from hiso_box.application.chat_texts import money, say
+from hiso_box.application.files import FileService, FileStoreUnavailable
+from hiso_box.application.payment_notices import PaymentNoticeService
+from hiso_box.application.ports import FileStoreError
+from hiso_box.application.reminders import ReminderService
+from hiso_box.application.scheduler import Scheduler
+from hiso_box.application.shop_deletion import ShopDeletionService
+from hiso_box.domain.files import MAX_FILE_BYTES
+from hiso_box.infrastructure.db import Database, PgTenantSession
+from hiso_box.infrastructure.file_store import FilesystemFileStore
+from hiso_box.interface.http import create_app
+from hiso_box.interface.payment_notices_api import MAX_BODY_BYTES
 
 from ..receipt_samples import COMMENT, EXIF, HTML, JPEG, PDF, PNG, WEBP, jpeg
 from .conftest import TEST_BOT_TOKEN, TEST_SECRETS_KEY, HeaderAuthenticator, World, as_user, stored_objects
@@ -556,7 +556,7 @@ def test_a_link_that_ended_while_the_request_was_on_its_way_sends_nothing(
     async def resolved_a_moment_ago(*_: Any) -> tuple[uuid.UUID, uuid.UUID]:
         return world.shop_a, world.customer_a
 
-    monkeypatch.setattr("qarz.application.payment_notices.resolve_link", resolved_a_moment_ago)
+    monkeypatch.setattr("hiso_box.application.payment_notices.resolve_link", resolved_a_moment_ago)
     response = send(client, world.customer_of_a, link, 20000, JPEG)
     assert (response.status_code, response.json()["error"]["code"]) == (404, "NOT_FOUND")
     assert notices(owner, world.shop_a) == [] and stored_objects(file_root) == []

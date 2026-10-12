@@ -2,7 +2,7 @@ import asyncio
 
 import httpx
 
-from qarz.interface.http import HealthCheck, create_app
+from hiso_box.interface.http import HealthCheck, create_app
 
 
 def _get_healthz(check: HealthCheck) -> httpx.Response:
@@ -34,7 +34,7 @@ def test_healthz_is_down_when_the_database_is_not_reachable() -> None:
 
 def test_healthz_reveals_nothing_when_the_check_raises() -> None:
     async def broken() -> bool:
-        raise RuntimeError("password authentication failed for user qd_app at 10.0.0.5")
+        raise RuntimeError("password authentication failed for user hb_app at 10.0.0.5")
 
     response = _get_healthz(broken)
     assert response.status_code == 503

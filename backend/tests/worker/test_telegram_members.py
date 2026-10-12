@@ -14,8 +14,8 @@ from aiogram.enums import ChatMemberStatus
 from aiogram.exceptions import TelegramBadRequest, TelegramForbiddenError, TelegramNetworkError
 from aiogram.methods import GetChatMember
 
-from qarz.domain.subscription_receipts import decides_in_review_group
-from qarz.infrastructure.telegram_members import REQUEST_TIMEOUT_SECONDS, TelegramMemberReader
+from hiso_box.domain.subscription_receipts import decides_in_review_group
+from hiso_box.infrastructure.telegram_members import REQUEST_TIMEOUT_SECONDS, TelegramMemberReader
 
 GROUP, PERSON = -1001234567890, 7001
 

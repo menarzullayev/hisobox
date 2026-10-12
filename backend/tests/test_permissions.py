@@ -10,15 +10,15 @@ from pathlib import Path
 
 import pytest
 
-from qarz.application import authorization
-from qarz.application.errors import BeyondOwnPermissions, ForbiddenPermission, ForbiddenRole
-from qarz.application.operations import Operation, all_operations
-from qarz.application.ports import Membership, StaffContact
-from qarz.application.staff import _within_own
-from qarz.domain import permissions
-from qarz.domain.access import Capability, Role, allows
-from qarz.domain.permissions import InvalidOverrides, clean_overrides, effective, holds, source
-from qarz.interface.asgi import build  # noqa: F401  (importing the application registers every operation)
+from hiso_box.application import authorization
+from hiso_box.application.errors import BeyondOwnPermissions, ForbiddenPermission, ForbiddenRole
+from hiso_box.application.operations import Operation, all_operations
+from hiso_box.application.ports import Membership, StaffContact
+from hiso_box.application.staff import _within_own
+from hiso_box.domain import permissions
+from hiso_box.domain.access import Capability, Role, allows
+from hiso_box.domain.permissions import InvalidOverrides, clean_overrides, effective, holds, source
+from hiso_box.interface.asgi import build  # noqa: F401  (importing the application registers every operation)
 
 S, M, OWN = Role.SELLER, Role.MANAGER, Role.OWNER
 BACKEND = Path(__file__).resolve().parents[1]
@@ -127,7 +127,7 @@ def without_a_permission(operations: list[Operation]) -> list[str]:
 
 def test_every_shop_operation_has_a_permission() -> None:
     assert without_a_permission(shop_operations()) == [], (
-        "add the new operation to a Permission of qarz.domain.permissions.CATALOGUE"
+        "add the new operation to a Permission of hiso_box.domain.permissions.CATALOGUE"
     )
     assert len(shop_operations()) > 50
 
@@ -149,7 +149,7 @@ def test_the_catalogue_names_only_operations_that_exist() -> None:
 @pytest.mark.parametrize("op", shop_operations(), ids=lambda op: op.name)
 def test_the_defaults_of_an_operations_permissions_are_the_role_table(op: Operation) -> None:
     """With nothing changed for a member, a permission opens an operation to exactly the roles the role
-    table (qarz.domain.access) opens it to. This is what makes "switch off" the behaviour of before."""
+    table (hiso_box.domain.access) opens it to. This is what makes "switch off" the behaviour of before."""
     assert op.capability is not None
     opening = permissions.permissions_of_operation(op.name)
     for permission in opening:

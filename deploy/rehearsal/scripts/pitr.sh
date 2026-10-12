@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Point-in-time restore with pgBackRest into a fresh, separate instance
-# (service pg-pitr, 127.0.0.1:55534 unless QD_PORT_PITR is set). The live databases are not touched.
+# (service pg-pitr, 127.0.0.1:55534 unless HB_PORT_PITR is set). The live databases are not touched.
 #
 #   scripts/pitr.sh '2026-10-06 12:34:56.789+00'    restore to that moment
 #   scripts/pitr.sh --archive-end [--timeline N]    replay every archived segment
@@ -45,7 +45,7 @@ t_start="$(now)"
 # Runs a command in a throwaway container that sees only the backup repository.
 # It works even when both database containers are dead.
 in_repo() {
-    dc --profile pitr run --rm -T --no-deps -u postgres -e QD_T="$target" \
+    dc --profile pitr run --rm -T --no-deps -u postgres -e HB_T="$target" \
         --entrypoint bash pg-pitr -c "$1"
 }
 
@@ -54,7 +54,7 @@ if [ -n "$target" ] && [ "$guard" = 1 ]; then
         set -eu
         first=$(pgbackrest --stanza=qarz --log-level-console=error info --output=json \
             | jq "[.[0].backup[].timestamp.stop] | min")
-        want=$(date -u -d "$QD_T" +%s)
+        want=$(date -u -d "$HB_T" +%s)
         echo "$want $first $(date -u +%s) $(date -u -d "@$first" "+%Y-%m-%d %H:%M:%S+00")"
     ')" || die "could not read the backup repository or parse the target time"
     read -r want first current first_text <<< "$verdict"
@@ -91,7 +91,7 @@ log "removing any previous restore instance"
 dc --profile pitr rm --stop --force --volumes pg-pitr > /dev/null 2>&1 || true
 
 log "restoring into a fresh instance (pg-pitr)"
-QD_PITR_TARGET="$target" QD_PITR_TIMELINE="$timeline" dc --profile pitr up -d pg-pitr
+HB_PITR_TARGET="$target" HB_PITR_TIMELINE="$timeline" dc --profile pitr up -d pg-pitr
 
 waited=0
 while :; do
@@ -110,5 +110,5 @@ while :; do
 done
 t_done="$(now)"
 
-log "restored instance answers on 127.0.0.1:${QD_PORT_PITR:-55534} (service pg-pitr)"
+log "restored instance answers on 127.0.0.1:${HB_PORT_PITR:-55534} (service pg-pitr)"
 echo "PITR_ELAPSED_SECONDS=$(seconds_between "$t_start" "$t_done")"

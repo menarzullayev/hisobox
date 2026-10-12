@@ -24,7 +24,7 @@ its wording as expected.
 ## What there is to review
 
 **The line on what the product is (added 2026-10-10 with the name HisoBox).** It is not in the
-catalogs but in the brand's definition, `backend/src/qarz/domain/brand.json` (`tagline`), and is
+catalogs but in the brand's definition, `backend/src/hiso_box/domain/brand.json` (`tagline`), and is
 read in the bot's greeting and the manifest. The Uzbek and Russian lines are the founder's; the
 English one is his too. **The Tajik and Karakalpak lines were written by a model and are on this
 list for a native speaker:**
@@ -56,7 +56,7 @@ network's among them, were written by a model and no native speaker has read the
 | The network's steps in the activity log (group, 20 actions, 5 subjects) | `frontend/src/i18n/panel/xx.ts`, keys `activity.*.network*` | 26 (counted above) |
 | Administrator's panel | `frontend/src/i18n/admin/xx.ts` | 299 |
 | The customer's page behind a read-only link | `frontend/src/k/xx.ts` | 52 |
-| The bot: replies, notifications, reminders, operations alerts | `backend/src/qarz/application/texts_xx.py`, `CHAT` | 298 |
+| The bot: replies, notifications, reminders, operations alerts | `backend/src/hiso_box/application/texts_xx.py`, `CHAT` | 298 |
 | of which the network: 16 notices to the partner's staff (`net_link_*`, `net_order_*`, `net_note_*`, `net_payment_*`) and 5 texts it writes into a shop's own books (`net_sale_note`, `net_paid_note`, `net_withdrawn_reason`, `net_partner_name`, `net_partner_suffix`) | same | 21 |
 | Export workbook | same file, `EXPORT` | 92 |
 | of which the network's four sheets (`sheet_net_*`, `net_*`) | same | 13 |
@@ -168,9 +168,9 @@ text, a refusal, a reminder) is read by the founder before it is merged.
 |---|---|
 | A Tajik, Karakalpak or English text | The file it is in (table above). Keep `{placeholders}`, bot commands and the product's name as they are |
 | A term, everywhere | The glossary first, then every text that uses it (search the old word in the language's files) |
-| The so'm word of a language | `money.uzs` in `frontend/src/i18n/xx.ts`, `money` in `frontend/src/k/xx.ts`, `currency` in `texts_xx.py`, and `units` in `backend/src/qarz/domain/money.py` |
+| The so'm word of a language | `money.uzs` in `frontend/src/i18n/xx.ts`, `money` in `frontend/src/k/xx.ts`, `currency` in `texts_xx.py`, and `units` in `backend/src/hiso_box/domain/money.py` |
 | A date pattern or a month name | `date.*` and `month.*` in `frontend/src/i18n/xx.ts`; `date` and `month.*` in `frontend/src/k/xx.ts` |
-| An Uzbek Cyrillic word | The tables of the rules, in three places that the tests hold together: `backend/src/qarz/domain/uz_cyrillic.py`, `frontend/src/i18n/uzCyrillic.ts`, `backend/tests/data/uz_cyrillic_cases.json` (add the word as a case too). Then `npm run i18n:k` |
+| An Uzbek Cyrillic word | The tables of the rules, in three places that the tests hold together: `backend/src/hiso_box/domain/uz_cyrillic.py`, `frontend/src/i18n/uzCyrillic.ts`, `backend/tests/data/uz_cyrillic_cases.json` (add the word as a case too). Then `npm run i18n:k` |
 | A whole Uzbek Cyrillic message that must differ from the rule | `frontend/src/i18n/uzCyrlOverrides.ts`, or `UZ_CYRILLIC` in `chat_texts.py` / `export_texts.py` |
 | An Uzbek or Russian text | Not this review: those are the product's source texts and are changed like any other |
 

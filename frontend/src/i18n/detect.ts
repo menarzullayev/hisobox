@@ -1,7 +1,7 @@
 import { LANGUAGES, type Language } from "./types";
 
 export const DEFAULT_LANGUAGE: Language = "uz";
-export const LANGUAGE_STORAGE_KEY = "qd.language";
+export const LANGUAGE_STORAGE_KEY = "hb.language";
 
 /**
  * Maps a language tag to a supported language: "ru", "RU", "ru-RU" and "uz-Latn" by their first part,
@@ -21,7 +21,7 @@ export function normalizeLanguage(code: string | null | undefined): Language | n
 /**
  * The language a person starts in, from the language of their Telegram interface. Telegram reports
  * Kazakh ("kk") but has no Karakalpak: a Kazakh interface starts in Karakalpak, its closest relative
- * here. The same table as the server's (`qarz.domain.languages.from_telegram`). A language with no
+ * here. The same table as the server's (`hiso_box.domain.languages.from_telegram`). A language with no
  * counterpart is not guessed: the caller falls back to Uzbek.
  */
 export function languageFromTelegram(code: string | null | undefined): Language | null {

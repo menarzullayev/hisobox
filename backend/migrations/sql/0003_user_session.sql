@@ -18,4 +18,4 @@ CREATE TABLE user_session (
 );
 CREATE INDEX user_session_user ON user_session (user_id);
 
-GRANT SELECT, INSERT, UPDATE, DELETE ON user_session TO qd_app;
+GRANT SELECT, INSERT, UPDATE, DELETE ON user_session TO hb_app;

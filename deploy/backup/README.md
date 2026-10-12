@@ -13,7 +13,7 @@ monitoring, and the copy of the file store.
 > the day there are two servers.
 >
 > What the single host does use from here, unchanged, inside its database image: `scripts/backup.sh`,
-> `restore-test.sh`, `expire.sh`, `check.sh` (with `QD_REPO_LISTING=pgbackrest`, because its repository
+> `restore-test.sh`, `expire.sh`, `check.sh` (with `HB_REPO_LISTING=pgbackrest`, because its repository
 > is a bucket and not a directory), `monthly-archive.sh`, `archive-heartbeat.sh` and `lib.sh`. The
 > retention figures of `pgbackrest.conf` are the single host's too
 > (`backend/tests/test_single_host_files.py` fails if they drift apart), and the timers' calendars are
@@ -51,20 +51,20 @@ does not matter. Everything runs as the `postgres` user.
 
 | Timer | When | Where | What |
 |---|---|---|---|
-| `qd-backup-full` | Sunday 01:30 | standby | `backup.sh full` |
-| `qd-backup-diff` | Monday to Saturday 01:30 | standby | `backup.sh diff` |
-| `qd-filestore-archive` | Sunday 02:30 | standby | `filestore-sync.sh archive`: the bucket as one encrypted archive beside the repository |
-| `qd-restore-test` | Wednesday 02:30 | standby | `restore-test.sh` |
-| `qd-backup-expire` | daily 03:30 | standby | `expire.sh` |
-| `qd-backup-monthly` | 1st of the month 04:30 | standby | `monthly-archive.sh` |
-| `qd-backup-check` | every minute | standby | `check.sh --quiet`; writes the figures for monitoring |
-| `qd-filestore-sync` | every 5 minutes | standby | `filestore-sync.sh sync` |
-| `qd-archive-heartbeat` | every minute | primary (installed on both) | `archive-heartbeat.sh` |
+| `hb-backup-full` | Sunday 01:30 | standby | `backup.sh full` |
+| `hb-backup-diff` | Monday to Saturday 01:30 | standby | `backup.sh diff` |
+| `hb-filestore-archive` | Sunday 02:30 | standby | `filestore-sync.sh archive`: the bucket as one encrypted archive beside the repository |
+| `hb-restore-test` | Wednesday 02:30 | standby | `restore-test.sh` |
+| `hb-backup-expire` | daily 03:30 | standby | `expire.sh` |
+| `hb-backup-monthly` | 1st of the month 04:30 | standby | `monthly-archive.sh` |
+| `hb-backup-check` | every minute | standby | `check.sh --quiet`; writes the figures for monitoring |
+| `hb-filestore-sync` | every 5 minutes | standby | `filestore-sync.sh sync` |
+| `hb-archive-heartbeat` | every minute | primary (installed on both) | `archive-heartbeat.sh` |
 
 WAL archiving itself is not a timer: PostgreSQL on the primary runs `archive_command` for every finished
 segment, and `archive_timeout = 60` finishes a segment that holds anything after a minute at the latest.
 
-Each job writes exactly one JSON line to the journal when it ends (`journalctl -u qd-backup-full.service -o cat`):
+Each job writes exactly one JSON line to the journal when it ends (`journalctl -u hb-backup-full.service -o cat`):
 event, outcome, start and end, duration, backup label, sizes in bytes. Identifiers and numbers only; no
 names, no passwords. Warnings and errors of the tools go to standard error, which the journal keeps too.
 `check.sh --quiet` and `archive-heartbeat.sh` print nothing when all is well, because they run every minute.
@@ -79,7 +79,7 @@ names, no passwords. Warnings and errors of the tools go to standard error, whic
 | Weekly backups for 8 weeks | `repo1-retention-full-type=time`, `repo1-retention-full=56`: every full of the last 56 days is kept, plus one older (9 at most). Fulls older than the 14-day window restore to their own moment only |
 | Monthly for 12 months | **Not by pgBackRest**, which keeps full backups by one rule per repository. `monthly-archive.sh` writes a logical dump (`pg_dump`, custom format, encrypted with the same passphrase) on the 1st of each month and `expire.sh` keeps twelve. A dump is one moment, restores without WAL, and takes longer to restore than a physical backup |
 | Files included in weekly backup | `files-YYYYMMDD.tar.gz.enc` beside the repository; `expire.sh` keeps the newest 8 and the first of each of the last 12 months |
-| Automated restore test weekly | `qd-restore-test.timer` |
+| Automated restore test weekly | `hb-restore-test.timer` |
 | Full timed rehearsal quarterly | **Not covered.** It needs two servers and a person; `deploy/rehearsal/` is its local form |
 | Location: standby, plus a third location | Standby only. **No third location exists**; until one does, losing both servers loses everything (the document says the same) |
 
@@ -97,49 +97,49 @@ The standby also needs `rclone`, `openssl`, `tar`, `gzip`, and node_exporter wit
    `/etc/pgbackrest/pgbackrest.conf`; replace the two placeholder addresses. On the standby create
    `/etc/pgbackrest/conf.d/cipher.conf` (see "The key"). Then on the standby, as `postgres`:
    `pgbackrest --stanza=qarz stanza-create` and `pgbackrest --stanza=qarz check`.
-4. **Scripts.** Copy `scripts/` to `/opt/qarz-backup/scripts/` on both servers (owner root, mode 0755).
-   Copy `backup.env.example` to `/etc/qarz-backup/backup.env` and set `QD_MIGRATIONS_DIR` to the
-   migrations of the checkout that is deployed. Create `/var/lib/qarz-backup` (owner `postgres`, mode
+4. **Scripts.** Copy `scripts/` to `/opt/hiso-box-backup/scripts/` on both servers (owner root, mode 0755).
+   Copy `backup.env.example` to `/etc/hiso-box-backup/backup.env` and set `HB_MIGRATIONS_DIR` to the
+   migrations of the checkout that is deployed. Create `/var/lib/hiso-box-backup` (owner `postgres`, mode
    0750) on the disk that holds the repository, and the textfile directory, writable by `postgres`.
-5. **File store.** Write `/etc/qarz-backup/rclone.conf` (owner `postgres`, mode 0600) with two S3 remotes,
+5. **File store.** Write `/etc/hiso-box-backup/rclone.conf` (owner `postgres`, mode 0600) with two S3 remotes,
    `primary` and `standby`, each with its endpoint and a key that may read (primary) or write (standby)
-   the bucket `qd-files`.
+   the bucket `hb-files`.
 6. **Units.** Copy `systemd/*` to `/etc/systemd/system/`, `systemctl daemon-reload`, then on the standby
-   `systemctl enable --now` every `qd-*.timer`, and on the primary only `qd-archive-heartbeat.timer`.
+   `systemctl enable --now` every `hb-*.timer`, and on the primary only `hb-archive-heartbeat.timer`.
    (Enabling the heartbeat on the standby too is harmless and makes a promoted standby archive at once.)
 7. **First backup and first test, by hand** (next section), before trusting the timers.
 8. **Monitoring.** Point node_exporter at the textfile directory and load `deploy/monitoring/alerts.yml`.
    Trigger each alert once on purpose (launch criterion 9): stop the heartbeat and archiving for six
-   minutes; run `restore-test.sh` with `QD_EXPECTED_MIGRATION_HEAD=wrong`.
+   minutes; run `restore-test.sh` with `HB_EXPECTED_MIGRATION_HEAD=wrong`.
 
 ## By hand
 
 ```bash
 # as postgres, on the standby
-/opt/qarz-backup/scripts/backup.sh full          # or: diff
-/opt/qarz-backup/scripts/restore-test.sh         # exit 0 and "outcome":"ok", or the name of the failed check
-/opt/qarz-backup/scripts/check.sh                # three lines with ages and limits; exit 1 when something is too old
-/opt/qarz-backup/scripts/expire.sh --dry-run     # what would be removed
+/opt/hiso-box-backup/scripts/backup.sh full          # or: diff
+/opt/hiso-box-backup/scripts/restore-test.sh         # exit 0 and "outcome":"ok", or the name of the failed check
+/opt/hiso-box-backup/scripts/check.sh                # three lines with ages and limits; exit 1 when something is too old
+/opt/hiso-box-backup/scripts/expire.sh --dry-run     # what would be removed
 pgbackrest --stanza=qarz info                    # what the repository holds
 ```
 
-Through systemd, with the journal line: `systemctl start qd-backup-diff.service`, then
-`journalctl -u qd-backup-diff.service -n 5 -o cat`.
+Through systemd, with the journal line: `systemctl start hb-backup-diff.service`, then
+`journalctl -u hb-backup-diff.service -n 5 -o cat`.
 
 A point-in-time restore is runbook 3 (`docs/10-operations/runbooks.md`); it is done by a person, into a
 new instance, and is not one of these scripts.
 
 ## What the restore test checks
 
-It restores the newest backup, whatever its type, into a directory under `QD_RESTORE_TEST_DIR`, starts
+It restores the newest backup, whatever its type, into a directory under `HB_RESTORE_TEST_DIR`, starts
 PostgreSQL there on a Unix socket only (no network, archiving off), and stops at the first failure:
 
 | Check | What fails it |
 |---|---|
 | `restore` | pgBackRest cannot restore (it verifies the checksum of every file), or too little disk |
 | `start`, `consistent` | PostgreSQL does not start, or recovery does not reach a consistent state and end |
-| `migration` | `alembic_version` differs from the head of the migrations in `QD_MIGRATIONS_DIR` |
-| `rows` | A table of `QD_ROWCOUNT_TABLES` is empty in the restored copy and not in the database this host serves |
+| `migration` | `alembic_version` differs from the head of the migrations in `HB_MIGRATIONS_DIR` |
+| `rows` | A table of `HB_ROWCOUNT_TABLES` is empty in the restored copy and not in the database this host serves |
 | `ledger` | `open_debt_mismatches(NULL)` returns rows, or a customer's balance over unreversed entries is negative (INV-3) |
 
 Then it removes the instance and reports the seconds for the restore, the start and the whole test.
@@ -204,11 +204,11 @@ passwords of database roles in the monthly dump (`--no-role-passwords`; the phys
 bash deploy/backup/proof/run.sh all     # up, run, down; about four minutes, plus the image builds the first time
 ```
 
-`up` starts the rehearsal stack under the Compose project `qd-backup-proof` (its own containers,
+`up` starts the rehearsal stack under the Compose project `hb-backup-proof` (its own containers,
 volumes, images and ports 55632, 55633, 55910, 55911), adds a second object store and a tools container,
 and builds the application's schema in the rehearsal primary with the repository's migrations
 (`python -m loadtest.load --profile tiny`, which runs `alembic upgrade head` and loads 4 generated shops).
-It needs a Python with the backend installed (`pip install -e 'backend[dev]'`; `QD_PYTHON` names it).
+It needs a Python with the backend installed (`pip install -e 'backend[dev]'`; `HB_PYTHON` names it).
 
 `run` prints `PASS` and `FAIL` lines. It takes a full and a differential backup, runs the restore test,
 and then proves each refusal: a wrong migration head, a stored open debt that differs from the ledger, a

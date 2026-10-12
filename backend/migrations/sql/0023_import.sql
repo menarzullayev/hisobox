@@ -56,7 +56,7 @@ AS $$
   RETURNING b.id, b.shop_id, b.status, b.attempts;
 $$;
 REVOKE ALL ON FUNCTION claim_import_batch(timestamptz, timestamptz) FROM PUBLIC;
-GRANT EXECUTE ON FUNCTION claim_import_batch(timestamptz, timestamptz) TO qd_app;
+GRANT EXECUTE ON FUNCTION claim_import_batch(timestamptz, timestamptz) TO hb_app;
 
 -- An import file is deleted like a receipt or an export whose retention has run out: the hourly job now
 -- looks for all three. Restated from its text in 0022; only the list of purposes is new.

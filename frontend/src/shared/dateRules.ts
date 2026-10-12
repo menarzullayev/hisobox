@@ -4,7 +4,7 @@ import { addDays, compareDays, MAX_PROMISE_DAYS, parseIsoDate } from "./promise"
 
 /**
  * Moving a promised date (REQ-066, REQ-067): what a customer may ask for and what the shop may set.
- * A port of backend/src/qarz/domain/date_requests.py, which is the authority: the server checks every
+ * A port of backend/src/hiso_box/domain/date_requests.py, which is the authority: the server checks every
  * date again, and these rules only keep a person from sending what it would refuse.
  */
 

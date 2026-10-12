@@ -16,7 +16,7 @@ import psycopg
 import pytest
 from fastapi.testclient import TestClient
 
-from qarz.application.chat_texts import say
+from hiso_box.application.chat_texts import say
 
 from .conftest import ADMIN_API, AdminEnv, World, as_user, elevate, fresh_code, make_admin
 from .test_admin_free_plan import ACTIVE_IN_A, _customers

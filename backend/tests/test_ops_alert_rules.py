@@ -1,4 +1,4 @@
-"""The operations watch's judgement (qarz.domain.ops_alerts): every condition fires when it should and
+"""The operations watch's judgement (hiso_box.domain.ops_alerts): every condition fires when it should and
 not otherwise, an alert moves through "not yet", "firing" and "stopped" as described, and the thresholds
 are those of deploy/monitoring/alerts.yml.
 
@@ -12,9 +12,9 @@ from pathlib import Path
 
 import pytest
 
-from qarz.application.chat_texts import RU, UZ
-from qarz.domain import ops_alerts as rules
-from qarz.domain.ops_alerts import Alert, DatabaseFigures, Figures, Finding
+from hiso_box.application.chat_texts import RU, UZ
+from hiso_box.domain import ops_alerts as rules
+from hiso_box.domain.ops_alerts import Alert, DatabaseFigures, Figures, Finding
 
 REPO = Path(__file__).resolve().parents[2]
 ALERTS_YML = REPO / "deploy" / "monitoring" / "alerts.yml"
@@ -36,14 +36,14 @@ EVERYTHING = frozenset(
 )
 
 HEALTHY_BACKUP = {
-    'qd_backup_last_success_timestamp_seconds{type="full"}': T - 3 * 86400,
-    'qd_backup_last_success_timestamp_seconds{type="diff"}': T - 3600,
-    'qd_backup_last_run_success{type="full"}': 1.0,
-    'qd_backup_last_run_success{type="diff"}': 1.0,
-    "qd_wal_archive_newest_age_seconds": 40.0,
-    "qd_backup_check_timestamp_seconds": T - 100,
-    "qd_backup_restore_test_last_success_timestamp_seconds": T - 86400,
-    "qd_backup_restore_test_last_run_success": 1.0,
+    'hb_backup_last_success_timestamp_seconds{type="full"}': T - 3 * 86400,
+    'hb_backup_last_success_timestamp_seconds{type="diff"}': T - 3600,
+    'hb_backup_last_run_success{type="full"}': 1.0,
+    'hb_backup_last_run_success{type="diff"}': 1.0,
+    "hb_wal_archive_newest_age_seconds": 40.0,
+    "hb_backup_check_timestamp_seconds": T - 100,
+    "hb_backup_restore_test_last_success_timestamp_seconds": T - 86400,
+    "hb_backup_restore_test_last_run_success": 1.0,
 }
 HEALTHY_DATABASE = DatabaseFigures(
     outbox_oldest_due={"telegram": 3.0},
@@ -60,7 +60,7 @@ HEALTHY = Figures(
     configured=EVERYTHING,
     backup=HEALTHY_BACKUP,
     files={"sync.last-success": T - 200},
-    disk_used={"/var/lib/qarz/files": 0.41},
+    disk_used={"/var/lib/hiso_box/files": 0.41},
     database=HEALTHY_DATABASE,
     api_healthy=True,
     metrics_readable=True,
@@ -74,14 +74,14 @@ HEALTHY = Figures(
 def backup(**changed: float | None) -> Figures:
     figures = dict(HEALTHY_BACKUP)
     names = {
-        "full": 'qd_backup_last_success_timestamp_seconds{type="full"}',
-        "diff": 'qd_backup_last_success_timestamp_seconds{type="diff"}',
-        "full_run": 'qd_backup_last_run_success{type="full"}',
-        "diff_run": 'qd_backup_last_run_success{type="diff"}',
-        "wal": "qd_wal_archive_newest_age_seconds",
-        "checked": "qd_backup_check_timestamp_seconds",
-        "restored": "qd_backup_restore_test_last_success_timestamp_seconds",
-        "restore_run": "qd_backup_restore_test_last_run_success",
+        "full": 'hb_backup_last_success_timestamp_seconds{type="full"}',
+        "diff": 'hb_backup_last_success_timestamp_seconds{type="diff"}',
+        "full_run": 'hb_backup_last_run_success{type="full"}',
+        "diff_run": 'hb_backup_last_run_success{type="diff"}',
+        "wal": "hb_wal_archive_newest_age_seconds",
+        "checked": "hb_backup_check_timestamp_seconds",
+        "restored": "hb_backup_restore_test_last_success_timestamp_seconds",
+        "restore_run": "hb_backup_restore_test_last_run_success",
     }
     for short, value in changed.items():
         if value is None:
@@ -149,9 +149,9 @@ CONDITIONS: list[tuple[str, Figures, Figures]] = [
     ),
     ("FilesCopyStale", replace(HEALTHY, files={}), HEALTHY),  # never copied
     (
-        "DiskAlmostFull:/var/lib/qarz/files",
-        replace(HEALTHY, disk_used={"/var/lib/qarz/files": 0.81}),
-        replace(HEALTHY, disk_used={"/var/lib/qarz/files": 0.80}),
+        "DiskAlmostFull:/var/lib/hiso_box/files",
+        replace(HEALTHY, disk_used={"/var/lib/hiso_box/files": 0.81}),
+        replace(HEALTHY, disk_used={"/var/lib/hiso_box/files": 0.80}),
     ),
     (
         "OutboxOld:telegram",
@@ -274,30 +274,30 @@ def test_counters_with_too_few_samples_are_not_judged() -> None:
 
 def test_the_figures_of_the_backup_jobs_are_read_as_written() -> None:
     text = (
-        "# HELP qd_backup_last_success_timestamp_seconds When the newest backup of this type ended.\n"
-        "# TYPE qd_backup_last_success_timestamp_seconds gauge\n"
-        'qd_backup_last_success_timestamp_seconds{type="full"} 1790000000\n'
-        "qd_wal_archive_newest_age_seconds -1\n"
+        "# HELP hb_backup_last_success_timestamp_seconds When the newest backup of this type ended.\n"
+        "# TYPE hb_backup_last_success_timestamp_seconds gauge\n"
+        'hb_backup_last_success_timestamp_seconds{type="full"} 1790000000\n'
+        "hb_wal_archive_newest_age_seconds -1\n"
         "\n"
         "not a figure\n"
-        "qd_backup_last_run_duration_seconds 12.50\n"
+        "hb_backup_last_run_duration_seconds 12.50\n"
     )
     assert rules.parse_figures(text) == {
-        'qd_backup_last_success_timestamp_seconds{type="full"}': 1790000000.0,
-        "qd_wal_archive_newest_age_seconds": -1.0,
-        "qd_backup_last_run_duration_seconds": 12.5,
+        'hb_backup_last_success_timestamp_seconds{type="full"}': 1790000000.0,
+        "hb_wal_archive_newest_age_seconds": -1.0,
+        "hb_backup_last_run_duration_seconds": 12.5,
     }
 
 
 def test_the_apis_counters_are_summed_by_what_the_rules_read() -> None:
     metrics = rules.parse_figures(
-        'qd_requests_total{method="GET",route="/api/v1/me",status="200"} 90\n'
-        'qd_requests_total{method="POST",route="/api/v1/shops/{shop_id}/customers",status="500"} 3\n'
-        'qd_requests_total{method="GET",route="/healthz",status="503"} 2\n'
-        'qd_requests_total{method="GET",route="unmatched",status="404"} 5\n'
-        'qd_request_duration_ms_bucket{method="GET",route="/api/v1/me",le="25"} 80\n'
-        'qd_security_events_total{kind="shop_not_member"} 4\n'
-        'qd_security_events_total{kind="bad_sign_in"} 0\n'
+        'hb_requests_total{method="GET",route="/api/v1/me",status="200"} 90\n'
+        'hb_requests_total{method="POST",route="/api/v1/shops/{shop_id}/customers",status="500"} 3\n'
+        'hb_requests_total{method="GET",route="/healthz",status="503"} 2\n'
+        'hb_requests_total{method="GET",route="unmatched",status="404"} 5\n'
+        'hb_request_duration_ms_bucket{method="GET",route="/api/v1/me",le="25"} 80\n'
+        'hb_security_events_total{kind="shop_not_member"} 4\n'
+        'hb_security_events_total{kind="bad_sign_in"} 0\n'
     )
     assert rules.counter_series(metrics) == {
         rules.REQUESTS_ALL: 100.0,
@@ -334,7 +334,7 @@ def test_a_figure_is_shown_short() -> None:
     assert rules.shown("BackupMissing", 9 * 86400) == "9d"
     assert rules.shown("OutboxOld:telegram", 720) == "12m"
     assert rules.shown("WalArchiveStale", 95) == "95s"
-    assert rules.shown("DiskAlmostFull:/var/lib/qarz/files", 0.874) == "87%"
+    assert rules.shown("DiskAlmostFull:/var/lib/hiso_box/files", 0.874) == "87%"
     assert rules.shown("SmsRefused", 3.0) == "3"
     assert rules.shown("ApiDown", 1.0) == ""  # a rule without a figure
     assert rules.shown("BackupMissing", None) == ""
@@ -351,8 +351,8 @@ def test_a_key_of_an_unknown_rule_is_refused() -> None:
     with pytest.raises(ValueError, match="unknown rule"):
         rules.key_of("ShopNameHere")
     assert rules.key_of("OutboxOld", "telegram") == "OutboxOld:telegram"
-    assert rules.key_of("DiskAlmostFull", "/var/lib/qarz/files") == "DiskAlmostFull:/var/lib/qarz/files"
-    assert rules.label_of("DiskAlmostFull:/var/lib/qarz/files") == "/var/lib/qarz/files"
+    assert rules.key_of("DiskAlmostFull", "/var/lib/hiso_box/files") == "DiskAlmostFull:/var/lib/hiso_box/files"
+    assert rules.label_of("DiskAlmostFull:/var/lib/hiso_box/files") == "/var/lib/hiso_box/files"
     assert rules.label_of("BackupMissing") == ""
 
 
@@ -481,41 +481,41 @@ def yml_rules(text: str) -> dict[str, tuple[str, int]]:
 
 def expected_expressions() -> dict[str, list[str]]:
     """For each rule this watch mirrors: what its expression in alerts.yml must contain, written from the
-    thresholds of qarz.domain.ops_alerts. A figure changed on either side alone no longer matches."""
+    thresholds of hiso_box.domain.ops_alerts. A figure changed on either side alone no longer matches."""
     hours = rules.REMINDER_HOURS_UTC
     expected = {
         "ErrorRateHigh": [
             f"[{rules.ERROR_WINDOW_SECONDS // 60}m]",
             f"{rules.ERROR_RATE_FLOOR}) > {rules.ERROR_SHARE}",
         ],
-        "OutboxOld": [f"qd_outbox_oldest_due_seconds > {rules.OUTBOX_OLD_SECONDS}"],
+        "OutboxOld": [f"hb_outbox_oldest_due_seconds > {rules.OUTBOX_OLD_SECONDS}"],
         "RemindersNotRunning": [
-            f'qd_job_last_finished_seconds{{job="reminders"}} > {rules.REMINDERS_LATE_SECONDS}',
+            f'hb_job_last_finished_seconds{{job="reminders"}} > {rules.REMINDERS_LATE_SECONDS}',
             f"hour() >= {hours[0]} and hour() < {hours[1]}",
         ],
-        "SmsRefused": ['delta(qd_sms_messages_last_day{status="failed"}[1h]) > 0'],
-        "SmsNotGoingOut": ['qd_sms_messages_last_day{status="retrying"} > 0'],
-        "ReceiptsWaiting": [f"qd_receipts_oldest_waiting_seconds > {rules.RECEIPT_WAITING_SECONDS}"],
-        "MetricsMissing": ["absent(qd_requests_total)"],
-        "BackupFailed": ["qd_backup_last_run_success == 0"],
+        "SmsRefused": ['delta(hb_sms_messages_last_day{status="failed"}[1h]) > 0'],
+        "SmsNotGoingOut": ['hb_sms_messages_last_day{status="retrying"} > 0'],
+        "ReceiptsWaiting": [f"hb_receipts_oldest_waiting_seconds > {rules.RECEIPT_WAITING_SECONDS}"],
+        "MetricsMissing": ["absent(hb_requests_total)"],
+        "BackupFailed": ["hb_backup_last_run_success == 0"],
         "BackupMissing": [
-            f"max(qd_backup_last_success_timestamp_seconds) > {rules.BACKUP_MAX_AGE_SECONDS}",
-            f'qd_backup_last_success_timestamp_seconds{{type="full"}} > {rules.FULL_BACKUP_MAX_AGE_SECONDS}',
-            "absent(qd_backup_last_success_timestamp_seconds)",
+            f"max(hb_backup_last_success_timestamp_seconds) > {rules.BACKUP_MAX_AGE_SECONDS}",
+            f'hb_backup_last_success_timestamp_seconds{{type="full"}} > {rules.FULL_BACKUP_MAX_AGE_SECONDS}',
+            "absent(hb_backup_last_success_timestamp_seconds)",
         ],
         "WalArchiveStale": [
-            f"qd_wal_archive_newest_age_seconds > {rules.WAL_MAX_AGE_SECONDS}",
-            "qd_wal_archive_newest_age_seconds < 0",
-            "absent(qd_wal_archive_newest_age_seconds)",
+            f"hb_wal_archive_newest_age_seconds > {rules.WAL_MAX_AGE_SECONDS}",
+            "hb_wal_archive_newest_age_seconds < 0",
+            "absent(hb_wal_archive_newest_age_seconds)",
         ],
         "RestoreTestNotPassed": [
-            f"qd_backup_restore_test_last_success_timestamp_seconds > {rules.RESTORE_TEST_MAX_AGE_SECONDS}",
-            "absent(qd_backup_restore_test_last_success_timestamp_seconds)",
+            f"hb_backup_restore_test_last_success_timestamp_seconds > {rules.RESTORE_TEST_MAX_AGE_SECONDS}",
+            "absent(hb_backup_restore_test_last_success_timestamp_seconds)",
         ],
     }
     for name, (kinds, window, more_than) in rules.SECURITY_RULES.items():
         selector = f'kind="{kinds[0]}"' if len(kinds) == 1 else f'kind=~"{"|".join(kinds)}"'
-        expected[name] = [f"increase(qd_security_events_total{{{selector}}}[{window // 60}m]) > {more_than}"]
+        expected[name] = [f"increase(hb_security_events_total{{{selector}}}[{window // 60}m]) > {more_than}"]
     return expected
 
 
@@ -552,11 +552,11 @@ def test_the_thresholds_are_those_of_the_alert_rules() -> None:
 @pytest.mark.parametrize(
     ("old", "new", "noticed"),
     [
-        ("qd_outbox_oldest_due_seconds > 600", "qd_outbox_oldest_due_seconds > 900", "OutboxOld"),
-        ("qd_wal_archive_newest_age_seconds > 300", "qd_wal_archive_newest_age_seconds > 600", "WalArchiveStale"),
+        ("hb_outbox_oldest_due_seconds > 600", "hb_outbox_oldest_due_seconds > 900", "OutboxOld"),
+        ("hb_wal_archive_newest_age_seconds > 300", "hb_wal_archive_newest_age_seconds > 600", "WalArchiveStale"),
         (
-            "max(qd_backup_last_success_timestamp_seconds) > 93600",
-            "max(qd_backup_last_success_timestamp_seconds) > 180000",
+            "max(hb_backup_last_success_timestamp_seconds) > 93600",
+            "max(hb_backup_last_success_timestamp_seconds) > 180000",
             "BackupMissing",
         ),
         ('{kind="bad_second_factor"}[15m]) > 5', '{kind="bad_second_factor"}[15m]) > 50', "AdminSecondFactorRepeated"),
@@ -564,8 +564,8 @@ def test_the_thresholds_are_those_of_the_alert_rules() -> None:
         ("0.001) > 0.02", "0.001) > 0.2", "ErrorRateHigh"),
         ("hour() >= 3 and hour() < 15", "hour() >= 0 and hour() < 24", "RemindersNotRunning"),
         (
-            "        expr: qd_outbox_oldest_due_seconds > 600\n        for: 2m",
-            "        expr: qd_outbox_oldest_due_seconds > 600\n        for: 20m",
+            "        expr: hb_outbox_oldest_due_seconds > 600\n        for: 2m",
+            "        expr: hb_outbox_oldest_due_seconds > 600\n        for: 20m",
             "OutboxOld",
         ),
         ("      - alert: ReceiptsWaiting", "      - alert: ReceiptsLate", "ReceiptsWaiting"),

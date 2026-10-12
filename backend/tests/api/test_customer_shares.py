@@ -14,7 +14,7 @@ import psycopg
 import pytest
 from fastapi.testclient import TestClient
 
-from qarz.domain.customer_share import SHARE_LIFETIME, TOKEN_LENGTH
+from hiso_box.domain.customer_share import SHARE_LIFETIME, TOKEN_LENGTH
 
 from .conftest import AdminEnv, World, as_user
 from .test_customer_account import attach_waiter, link_of

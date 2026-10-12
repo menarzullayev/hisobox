@@ -21,7 +21,7 @@ AS $$
   SELECT count(*) FROM stock_level_mismatches(NULL);
 $$;
 REVOKE ALL ON FUNCTION stock_level_mismatch_count() FROM PUBLIC;
-GRANT EXECUTE ON FUNCTION stock_level_mismatch_count() TO qd_worker;
+GRANT EXECUTE ON FUNCTION stock_level_mismatch_count() TO hb_worker;
 
 CREATE FUNCTION supplier_balance_mismatch_count()
 RETURNS bigint
@@ -33,7 +33,7 @@ AS $$
   SELECT count(*) FROM supplier_balance_mismatches(NULL);
 $$;
 REVOKE ALL ON FUNCTION supplier_balance_mismatch_count() FROM PUBLIC;
-GRANT EXECUTE ON FUNCTION supplier_balance_mismatch_count() TO qd_worker;
+GRANT EXECUTE ON FUNCTION supplier_balance_mismatch_count() TO hb_worker;
 
 -- How many customers of each of these shops have the status active: what the free plan counts (BR-33),
 -- for the administrators' list of shops, which shows a shop the plan holds as free and how much of the
@@ -52,4 +52,4 @@ AS $$
    GROUP BY c.shop_id;
 $$;
 REVOKE ALL ON FUNCTION admin_active_customer_counts(uuid[]) FROM PUBLIC;
-GRANT EXECUTE ON FUNCTION admin_active_customer_counts(uuid[]) TO qd_admin;
+GRANT EXECUTE ON FUNCTION admin_active_customer_counts(uuid[]) TO hb_admin;

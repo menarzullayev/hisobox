@@ -7,7 +7,7 @@
 -- buys from on credit, or has borrowed from, was written down nowhere. Here it is: the same kind of
 -- ledger, seen from the shop's side of the counter.
 --
--- The payables reuse the engine the customers' ledger is built on (qarz.domain.ledger) and not a copy
+-- The payables reuse the engine the customers' ledger is built on (hiso_box.domain.ledger) and not a copy
 -- of it: an account is a strictly ordered list of immutable entries, a wrong one is undone by an
 -- opposite one, and the balance is the sum of what stands and is never stored (INV-2). What is new is
 -- only the direction of the words: a `credit` entry is what the shop has undertaken to pay, a
@@ -98,24 +98,24 @@ BEGIN
     EXECUTE format('ALTER TABLE %I ENABLE ROW LEVEL SECURITY', t);
     EXECUTE format('ALTER TABLE %I FORCE ROW LEVEL SECURITY', t);
     EXECUTE format(
-      'CREATE POLICY tenant ON %I USING (shop_id = nullif(current_setting(''qd.shop_id'', true), '''')::uuid) '
-      'WITH CHECK (shop_id = nullif(current_setting(''qd.shop_id'', true), '''')::uuid)', t);
+      'CREATE POLICY tenant ON %I USING (shop_id = nullif(current_setting(''hb.shop_id'', true), '''')::uuid) '
+      'WITH CHECK (shop_id = nullif(current_setting(''hb.shop_id'', true), '''')::uuid)', t);
   END LOOP;
 END $$;
 
 -- The ordinary application. A contact is its to name and to rename, a folder its to make, rename and
 -- delete; the payable ledger is insert-only for it, like the customers' ledger; and a customer's
 -- folder is set with the customer, whose update rights already cover the column.
-GRANT SELECT, INSERT ON contact TO qd_app;
-GRANT UPDATE (name, name_norm, phone, note, status) ON contact TO qd_app;
-GRANT SELECT, INSERT ON payable_entry TO qd_app;
-GRANT SELECT, INSERT ON folder TO qd_app;
-GRANT UPDATE (name, name_norm) ON folder TO qd_app;
-GRANT DELETE ON folder TO qd_app;
+GRANT SELECT, INSERT ON contact TO hb_app;
+GRANT UPDATE (name, name_norm, phone, note, status) ON contact TO hb_app;
+GRANT SELECT, INSERT ON payable_entry TO hb_app;
+GRANT SELECT, INSERT ON folder TO hb_app;
+GRANT UPDATE (name, name_norm) ON folder TO hb_app;
+GRANT DELETE ON folder TO hb_app;
 
 -- The worker reads all of it for the owner's export of the shop's own data. The administrators' side
 -- has nothing to do here.
-GRANT SELECT ON contact, payable_entry, folder TO qd_worker;
+GRANT SELECT ON contact, payable_entry, folder TO hb_worker;
 
 -- ---------------------------------------------------------------------------
 -- Erasing a shop

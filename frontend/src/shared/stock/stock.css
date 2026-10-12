@@ -8,13 +8,13 @@
   display: flex;
   align-items: baseline;
   justify-content: space-between;
-  gap: var(--qd-space-3);
+  gap: var(--hb-space-3);
   margin: 0;
-  padding: var(--qd-space-1) 0;
+  padding: var(--hb-space-1) 0;
 }
 
 .stock-fact dt {
-  color: var(--qd-muted);
+  color: var(--hb-muted);
 }
 
 .stock-fact dd {
@@ -32,7 +32,7 @@
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(6.5rem, 1fr));
   align-items: end;
-  gap: var(--qd-space-2);
+  gap: var(--hb-space-2);
 }
 
 .stock-line .field {
@@ -42,8 +42,8 @@
 .stock-filters {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
-  gap: var(--qd-space-2) var(--qd-space-4);
-  margin: var(--qd-space-3) 0;
+  gap: var(--hb-space-2) var(--hb-space-4);
+  margin: var(--hb-space-3) 0;
 }
 
 .stock-filters .field {
@@ -51,24 +51,24 @@
 }
 
 .scanfield .search {
-  margin-bottom: var(--qd-space-1);
+  margin-bottom: var(--hb-space-1);
 }
 
 /* The camera's picture while a label is being read. */
 .scan {
-  margin: var(--qd-space-3) 0;
-  padding: var(--qd-space-3);
-  border: 1px solid var(--qd-line);
-  border-radius: var(--qd-radius-lg);
-  background: var(--qd-surface);
+  margin: var(--hb-space-3) 0;
+  padding: var(--hb-space-3);
+  border: 1px solid var(--hb-line);
+  border-radius: var(--hb-radius-lg);
+  background: var(--hb-surface);
 }
 
 .scan__video {
   display: block;
   width: 100%;
   max-height: 50vh;
-  border-radius: var(--qd-radius-md);
-  background: var(--qd-bg);
+  border-radius: var(--hb-radius-md);
+  background: var(--hb-bg);
   object-fit: cover;
 }
 
@@ -82,19 +82,19 @@
 }
 
 .combo .pick[aria-selected="true"] {
-  background: var(--qd-surface);
-  box-shadow: inset 3px 0 0 var(--qd-link);
+  background: var(--hb-surface);
+  box-shadow: inset 3px 0 0 var(--hb-link);
 }
 
 /* The row that asks for the next page. */
 .combo .pick--more {
   justify-content: center;
-  color: var(--qd-link);
+  color: var(--hb-link);
   font-weight: 700;
 }
 
 .combo .state {
-  margin: var(--qd-space-2) 0 0;
+  margin: var(--hb-space-2) 0 0;
 }
 
 /*
@@ -105,21 +105,21 @@
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 9.5rem), 1fr));
   align-items: center;
-  gap: var(--qd-space-2);
+  gap: var(--hb-space-2);
   max-width: 36rem;
-  margin-top: var(--qd-space-1);
+  margin-top: var(--hb-space-1);
 }
 
 .sale-qty {
   display: flex;
   align-items: center;
-  gap: var(--qd-space-1);
+  gap: var(--hb-space-1);
   min-width: 0;
 }
 
 .sale-qty .button {
   flex: none;
-  font: var(--qd-type-heading);
+  font: var(--hb-type-heading);
 }
 
 .sale-qty__input {
@@ -134,11 +134,11 @@
   flex-wrap: wrap;
   align-items: baseline;
   justify-content: space-between;
-  gap: var(--qd-space-2);
+  gap: var(--hb-space-2);
 }
 
 .sale-total strong {
-  font: var(--qd-type-amount);
+  font: var(--hb-type-amount);
 }
 
 /* "Naqd savdo № 7" is one name: the number stays with its sign. */

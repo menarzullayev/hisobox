@@ -4,8 +4,8 @@ from datetime import UTC, datetime, timedelta
 
 import pytest
 
-from qarz.domain.chat_entry import ParseError, ParseErrorCode, parse_amount
-from qarz.domain.payment_notices import (
+from hiso_box.domain.chat_entry import ParseError, ParseErrorCode, parse_amount
+from hiso_box.domain.payment_notices import (
     MAX_AMOUNT,
     MAX_OPEN_NOTICES,
     MIN_AMOUNT,

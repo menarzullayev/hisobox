@@ -27,10 +27,10 @@ import pytest
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
 
-from qarz.infrastructure.db import Database
-from qarz.infrastructure.file_store import FilesystemFileStore
-from qarz.infrastructure.secret_box import SecretBox
-from qarz.interface.observability import Metrics
+from hiso_box.infrastructure.db import Database
+from hiso_box.infrastructure.file_store import FilesystemFileStore
+from hiso_box.infrastructure.secret_box import SecretBox
+from hiso_box.interface.observability import Metrics
 
 from .conftest import (
     TEST_SECRETS_KEY,
@@ -253,7 +253,7 @@ def test_setting_back_refuses_an_application_without_exactly_one_set_of_counters
 # --- the stand-ins ------------------------------------------------------------------------------------------
 
 
-def _things(tmp_path: pathlib.Path, url: str = "postgresql://qd_app:x@127.0.0.1:1/none") -> dict[str, Any]:
+def _things(tmp_path: pathlib.Path, url: str = "postgresql://hb_app:x@127.0.0.1:1/none") -> dict[str, Any]:
     return {
         "database": Database(url),
         "admin_database": Database(url),

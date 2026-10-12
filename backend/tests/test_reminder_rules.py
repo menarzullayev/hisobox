@@ -2,8 +2,8 @@ from datetime import date, timedelta
 
 import pytest
 
-from qarz.domain.ledger import OverdueStatus
-from qarz.domain.reminders import (
+from hiso_box.domain.ledger import OverdueStatus
+from hiso_box.domain.reminders import (
     Channel,
     ReminderKind,
     ReminderPlan,

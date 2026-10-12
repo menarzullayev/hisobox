@@ -8,7 +8,7 @@ from uuid import UUID
 
 import pytest
 
-from qarz.domain.file_links import KEY_LABEL, LINK_LIFETIME, derive_key, expiry, sign, verify
+from hiso_box.domain.file_links import KEY_LABEL, LINK_LIFETIME, derive_key, expiry, sign, verify
 
 SECRET = "test-only-server-secret-0123456789"
 KEY = derive_key(SECRET)
@@ -120,7 +120,7 @@ def test_the_signature_is_compared_in_constant_time(monkeypatch: pytest.MonkeyPa
         compared.append((left, right))
         return real(left, right)
 
-    monkeypatch.setattr("qarz.domain.file_links.hmac.compare_digest", spy)
+    monkeypatch.setattr("hiso_box.domain.file_links.hmac.compare_digest", spy)
     token = link()
     assert verify(KEY, token, NOW) == (SHOP, FILE)
     assert verify(KEY, _flip(token, 70), NOW) is None

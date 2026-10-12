@@ -6,7 +6,7 @@
 -- every function below refuses.
 --
 -- THE TRUST MODEL. This is the first place where what one shop does reaches another shop's rows, and
--- tenant isolation (forced row-level security by `qd.shop_id`) is the product's central guarantee. So:
+-- tenant isolation (forced row-level security by `hb.shop_id`) is the product's central guarantee. So:
 --
 -- 1. No policy is widened. Every table below is an ordinary tenant table: `shop_id`, forced row-level
 --    security, the same policy as everywhere. A shop reads its own rows and nobody else's, with no
@@ -19,7 +19,7 @@
 --    one of the SECURITY DEFINER functions below, which writes both copies in one statement of the
 --    caller's transaction. Each function takes the acting shop and the partner by identifier and
 --    verifies, before it changes anything: that the acting shop is the tenant of the transaction
---    (`qd.shop_id`), that the switches are on, that the acting member is an active member of the acting
+--    (`hb.shop_id`), that the switches are on, that the acting member is an active member of the acting
 --    shop, that a link joins exactly these two shops, that the acting side has the role the step
 --    belongs to, and that the object is in the state the step starts from. A shop that is no party gets
 --    the refusal a missing object gets.
@@ -313,24 +313,24 @@ BEGIN
     EXECUTE format('ALTER TABLE %I ENABLE ROW LEVEL SECURITY', t);
     EXECUTE format('ALTER TABLE %I FORCE ROW LEVEL SECURITY', t);
     EXECUTE format(
-      'CREATE POLICY tenant ON %I USING (shop_id = nullif(current_setting(''qd.shop_id'', true), '''')::uuid) '
-      'WITH CHECK (shop_id = nullif(current_setting(''qd.shop_id'', true), '''')::uuid)', t);
+      'CREATE POLICY tenant ON %I USING (shop_id = nullif(current_setting(''hb.shop_id'', true), '''')::uuid) '
+      'WITH CHECK (shop_id = nullif(current_setting(''hb.shop_id'', true), '''')::uuid)', t);
   END LOOP;
 END $$;
 
 -- The ordinary application reads its own side and writes only what never crosses: an invitation it made
 -- (and its withdrawal) and an order it has not sent. Everything two shops share is written by the
 -- functions below and by nothing else.
-GRANT SELECT, INSERT ON network_invite TO qd_app;
-GRANT UPDATE (revoked_at) ON network_invite TO qd_app;
-GRANT SELECT, INSERT, DELETE ON network_order_draft TO qd_app;
-GRANT UPDATE (note, wanted_date, lines, updated_at) ON network_order_draft TO qd_app;
+GRANT SELECT, INSERT ON network_invite TO hb_app;
+GRANT UPDATE (revoked_at) ON network_invite TO hb_app;
+GRANT SELECT, INSERT, DELETE ON network_order_draft TO hb_app;
+GRANT UPDATE (note, wanted_date, lines, updated_at) ON network_order_draft TO hb_app;
 GRANT SELECT ON network_link, network_order, network_order_line, network_note, network_note_line, network_payment,
-  network_event TO qd_app;
+  network_event TO hb_app;
 
 -- The worker writes the owner's export of the shop's own side. It reads and nothing else.
 GRANT SELECT ON network_link, network_order, network_order_line, network_note, network_note_line, network_payment
-  TO qd_worker;
+  TO hb_worker;
 
 -- ---------------------------------------------------------------------------
 -- Helpers of the functions below. Not SECURITY DEFINER themselves and granted to nobody: only a
@@ -351,7 +351,7 @@ CREATE FUNCTION network_guard(p_shop uuid) RETURNS void
 LANGUAGE plpgsql STABLE SET search_path = public, pg_temp
 AS $$
 BEGIN
-  IF p_shop IS NULL OR p_shop IS DISTINCT FROM nullif(current_setting('qd.shop_id', true), '')::uuid THEN
+  IF p_shop IS NULL OR p_shop IS DISTINCT FROM nullif(current_setting('hb.shop_id', true), '')::uuid THEN
     PERFORM network_refuse('NETWORK_NOT_FOUND');
   END IF;
   IF NOT coalesce((SELECT s.value = 'true'::jsonb FROM platform_setting s WHERE s.key = 'network_on'), false)
@@ -456,7 +456,7 @@ BEGIN
   RETURN (network_pair(p_shop, p_peer, p_link)).state;
 END $$;
 REVOKE ALL ON FUNCTION network_lock(uuid, uuid, uuid) FROM PUBLIC;
-GRANT EXECUTE ON FUNCTION network_lock(uuid, uuid, uuid) TO qd_app;
+GRANT EXECUTE ON FUNCTION network_lock(uuid, uuid, uuid) TO hb_app;
 
 -- A shop presents a code it was handed. `p_role` is what the presenting shop wants to be; the invitation
 -- must be for the opposite. Any reason the code does not work is the same refusal.
@@ -498,7 +498,7 @@ BEGIN
   RETURN link;
 END $$;
 REVOKE ALL ON FUNCTION network_invite_redeem(uuid, bytea, text, uuid, timestamptz) FROM PUBLIC;
-GRANT EXECUTE ON FUNCTION network_invite_redeem(uuid, bytea, text, uuid, timestamptz) TO qd_app;
+GRANT EXECUTE ON FUNCTION network_invite_redeem(uuid, bytea, text, uuid, timestamptz) TO hb_app;
 
 -- The shop that made the invitation accepts or declines the request. Accepting is the moment each side
 -- learns the other's contact phone, and never before.
@@ -534,7 +534,7 @@ BEGIN
   END IF;
 END $$;
 REVOKE ALL ON FUNCTION network_link_decide(uuid, uuid, uuid, boolean, uuid, timestamptz) FROM PUBLIC;
-GRANT EXECUTE ON FUNCTION network_link_decide(uuid, uuid, uuid, boolean, uuid, timestamptz) TO qd_app;
+GRANT EXECUTE ON FUNCTION network_link_decide(uuid, uuid, uuid, boolean, uuid, timestamptz) TO hb_app;
 
 -- Either side ends a link (or takes back a request). Whatever still waited is closed; what was posted
 -- and the history stay with each side.
@@ -564,7 +564,7 @@ BEGIN
   PERFORM network_log(p_shop, p_peer, p_link, 'link', p_link, 'link_ended', p_member, p_now, NULL);
 END $$;
 REVOKE ALL ON FUNCTION network_link_end(uuid, uuid, uuid, uuid, timestamptz) FROM PUBLIC;
-GRANT EXECUTE ON FUNCTION network_link_end(uuid, uuid, uuid, uuid, timestamptz) TO qd_app;
+GRANT EXECUTE ON FUNCTION network_link_end(uuid, uuid, uuid, uuid, timestamptz) TO hb_app;
 
 -- A shop says which row of its own books the partner is: one of its suppliers (the buyer) or one of
 -- its customers (the supplier). Only its own rows are read or written; it is a function because the
@@ -605,7 +605,7 @@ BEGIN
   VALUES (p_shop, p_link, 'link', p_link, 'link_attached', false, p_member, now(), NULL);
 END $$;
 REVOKE ALL ON FUNCTION network_link_attach(uuid, uuid, uuid, boolean, uuid) FROM PUBLIC;
-GRANT EXECUTE ON FUNCTION network_link_attach(uuid, uuid, uuid, boolean, uuid) TO qd_app;
+GRANT EXECUTE ON FUNCTION network_link_attach(uuid, uuid, uuid, boolean, uuid) TO hb_app;
 
 -- Whom to tell on the other side: the Telegram chat and language of the partner's active members, with
 -- what decides whether each holds the permission the news is for. Nothing else of them is returned, and
@@ -628,7 +628,7 @@ BEGIN
      ORDER BY m.created_at, m.id;
 END $$;
 REVOKE ALL ON FUNCTION network_notice_recipients(uuid, uuid, uuid) FROM PUBLIC;
-GRANT EXECUTE ON FUNCTION network_notice_recipients(uuid, uuid, uuid) TO qd_app;
+GRANT EXECUTE ON FUNCTION network_notice_recipients(uuid, uuid, uuid) TO hb_app;
 
 -- ---------------------------------------------------------------------------
 -- Orders
@@ -673,7 +673,7 @@ BEGIN
   RETURN v_number;
 END $$;
 REVOKE ALL ON FUNCTION network_order_send(uuid, uuid, uuid, uuid, uuid, text, date, jsonb, timestamptz) FROM PUBLIC;
-GRANT EXECUTE ON FUNCTION network_order_send(uuid, uuid, uuid, uuid, uuid, text, date, jsonb, timestamptz) TO qd_app;
+GRANT EXECUTE ON FUNCTION network_order_send(uuid, uuid, uuid, uuid, uuid, text, date, jsonb, timestamptz) TO hb_app;
 
 -- Both copies of an order under their locks (after the link's); returns the acting shop's copy.
 CREATE FUNCTION network_order_pair(p_shop uuid, p_peer uuid, p_order uuid) RETURNS network_order
@@ -751,7 +751,7 @@ BEGIN
   RETURN v_total;
 END $$;
 REVOKE ALL ON FUNCTION network_order_accept(uuid, uuid, uuid, uuid, text, jsonb, timestamptz) FROM PUBLIC;
-GRANT EXECUTE ON FUNCTION network_order_accept(uuid, uuid, uuid, uuid, text, jsonb, timestamptz) TO qd_app;
+GRANT EXECUTE ON FUNCTION network_order_accept(uuid, uuid, uuid, uuid, text, jsonb, timestamptz) TO hb_app;
 
 -- The buyer cancels an order, or the supplier declines it, with a reason: while nothing of it has been
 -- received. After a delivery that is possible only when the buyer rejected the note, so nothing is posted.
@@ -786,7 +786,7 @@ BEGIN
   RETURN outcome;
 END $$;
 REVOKE ALL ON FUNCTION network_order_close(uuid, uuid, uuid, uuid, text, timestamptz) FROM PUBLIC;
-GRANT EXECUTE ON FUNCTION network_order_close(uuid, uuid, uuid, uuid, text, timestamptz) TO qd_app;
+GRANT EXECUTE ON FUNCTION network_order_close(uuid, uuid, uuid, uuid, text, timestamptz) TO hb_app;
 
 -- ---------------------------------------------------------------------------
 -- Delivery notes
@@ -884,7 +884,7 @@ BEGIN
   RETURN v_number;
 END $$;
 REVOKE ALL ON FUNCTION network_note_issue(uuid, uuid, uuid, uuid, uuid, uuid, bigint, text, jsonb, timestamptz) FROM PUBLIC;
-GRANT EXECUTE ON FUNCTION network_note_issue(uuid, uuid, uuid, uuid, uuid, uuid, bigint, text, jsonb, timestamptz) TO qd_app;
+GRANT EXECUTE ON FUNCTION network_note_issue(uuid, uuid, uuid, uuid, uuid, uuid, bigint, text, jsonb, timestamptz) TO hb_app;
 
 -- Both copies of a note under their locks (after the link's); returns the acting shop's copy.
 CREATE FUNCTION network_note_pair(p_shop uuid, p_peer uuid, p_note uuid) RETURNS network_note
@@ -945,7 +945,7 @@ BEGIN
                       jsonb_build_object('number', own.number, 'reason', p_reason));
 END $$;
 REVOKE ALL ON FUNCTION network_note_reject(uuid, uuid, uuid, uuid, text, jsonb, timestamptz) FROM PUBLIC;
-GRANT EXECUTE ON FUNCTION network_note_reject(uuid, uuid, uuid, uuid, text, jsonb, timestamptz) TO qd_app;
+GRANT EXECUTE ON FUNCTION network_note_reject(uuid, uuid, uuid, uuid, text, jsonb, timestamptz) TO hb_app;
 
 -- THE ONE PLACE A TRANSACTION MAY NAME A SECOND TENANT. The buyer is confirming a delivery note, and
 -- the supplier's side of that sale has to be written by the application's own ledger and stock code,
@@ -977,19 +977,19 @@ BEGIN
   IF NOT FOUND THEN
     PERFORM network_refuse('NETWORK_PARTNER_UNAVAILABLE');
   END IF;
-  PERFORM set_config('qd.network_receipt', p_home::text || ' ' || p_peer::text || ' ' || p_note::text, true);
-  PERFORM set_config('qd.shop_id', p_peer::text, true);
+  PERFORM set_config('hb.network_receipt', p_home::text || ' ' || p_peer::text || ' ' || p_note::text, true);
+  PERFORM set_config('hb.shop_id', p_peer::text, true);
 END $$;
 REVOKE ALL ON FUNCTION network_enter_peer(uuid, uuid, uuid) FROM PUBLIC;
-GRANT EXECUTE ON FUNCTION network_enter_peer(uuid, uuid, uuid) TO qd_app;
+GRANT EXECUTE ON FUNCTION network_enter_peer(uuid, uuid, uuid) TO hb_app;
 
 -- Back to the buyer: only from the supplier a receipt was entered for, in this transaction.
 CREATE FUNCTION network_leave_peer(p_home uuid, p_peer uuid, p_note uuid) RETURNS void
 LANGUAGE plpgsql SECURITY DEFINER SET search_path = public, pg_temp
 AS $$
 BEGIN
-  IF p_peer IS DISTINCT FROM nullif(current_setting('qd.shop_id', true), '')::uuid
-     OR current_setting('qd.network_receipt', true) IS DISTINCT FROM
+  IF p_peer IS DISTINCT FROM nullif(current_setting('hb.shop_id', true), '')::uuid
+     OR current_setting('hb.network_receipt', true) IS DISTINCT FROM
         p_home::text || ' ' || p_peer::text || ' ' || p_note::text THEN
     PERFORM network_refuse('NETWORK_NOT_FOUND');
   END IF;
@@ -998,11 +998,11 @@ BEGIN
   IF NOT FOUND THEN
     PERFORM network_refuse('NETWORK_NOT_FOUND');
   END IF;
-  PERFORM set_config('qd.network_receipt', '', true);
-  PERFORM set_config('qd.shop_id', p_home::text, true);
+  PERFORM set_config('hb.network_receipt', '', true);
+  PERFORM set_config('hb.shop_id', p_home::text, true);
 END $$;
 REVOKE ALL ON FUNCTION network_leave_peer(uuid, uuid, uuid) FROM PUBLIC;
-GRANT EXECUTE ON FUNCTION network_leave_peer(uuid, uuid, uuid) TO qd_app;
+GRANT EXECUTE ON FUNCTION network_leave_peer(uuid, uuid, uuid) TO hb_app;
 
 -- The buyer's confirmation takes effect: the note is received on both sides, in the transaction that
 -- posted both books. Refuses unless both postings are there and say what the note says: the buyer's
@@ -1066,7 +1066,7 @@ BEGIN
                                          'paid', own.paid));
 END $$;
 REVOKE ALL ON FUNCTION network_receipt_finish(uuid, uuid, uuid, uuid, uuid, uuid, uuid, timestamptz) FROM PUBLIC;
-GRANT EXECUTE ON FUNCTION network_receipt_finish(uuid, uuid, uuid, uuid, uuid, uuid, uuid, timestamptz) TO qd_app;
+GRANT EXECUTE ON FUNCTION network_receipt_finish(uuid, uuid, uuid, uuid, uuid, uuid, uuid, timestamptz) TO hb_app;
 
 -- ---------------------------------------------------------------------------
 -- Payments
@@ -1127,7 +1127,7 @@ BEGIN
                       jsonb_build_object('amount', p_amount, 'currency', p_currency));
 END $$;
 REVOKE ALL ON FUNCTION network_payment_record(uuid, uuid, uuid, uuid, uuid, bigint, text, text, uuid, timestamptz) FROM PUBLIC;
-GRANT EXECUTE ON FUNCTION network_payment_record(uuid, uuid, uuid, uuid, uuid, bigint, text, text, uuid, timestamptz) TO qd_app;
+GRANT EXECUTE ON FUNCTION network_payment_record(uuid, uuid, uuid, uuid, uuid, bigint, text, text, uuid, timestamptz) TO hb_app;
 
 -- Both copies of a payment under their locks (after the link's); returns the acting shop's copy.
 CREATE FUNCTION network_payment_pair(p_shop uuid, p_peer uuid, p_payment uuid) RETURNS network_payment
@@ -1201,7 +1201,7 @@ BEGIN
   END IF;
 END $$;
 REVOKE ALL ON FUNCTION network_payment_decide(uuid, uuid, uuid, uuid, boolean, text, uuid, timestamptz) FROM PUBLIC;
-GRANT EXECUTE ON FUNCTION network_payment_decide(uuid, uuid, uuid, uuid, boolean, text, uuid, timestamptz) TO qd_app;
+GRANT EXECUTE ON FUNCTION network_payment_decide(uuid, uuid, uuid, uuid, boolean, text, uuid, timestamptz) TO hb_app;
 
 -- The side that recorded a payment takes it back while it still waits: only after it has cancelled its
 -- own entry in its own books (checked here), so the two never disagree about a withdrawn payment.
@@ -1229,7 +1229,7 @@ BEGIN
                       jsonb_build_object('amount', own.amount, 'currency', own.currency));
 END $$;
 REVOKE ALL ON FUNCTION network_payment_withdraw(uuid, uuid, uuid, uuid, timestamptz) FROM PUBLIC;
-GRANT EXECUTE ON FUNCTION network_payment_withdraw(uuid, uuid, uuid, uuid, timestamptz) TO qd_app;
+GRANT EXECUTE ON FUNCTION network_payment_withdraw(uuid, uuid, uuid, uuid, timestamptz) TO hb_app;
 
 -- ---------------------------------------------------------------------------
 -- Erasing a shop

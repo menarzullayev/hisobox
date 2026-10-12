@@ -14,7 +14,7 @@ import psycopg
 import pytest
 from fastapi.testclient import TestClient
 
-from qarz.domain.promise import tashkent_date
+from hiso_box.domain.promise import tashkent_date
 
 from .conftest import World, as_user, set_overrides, switch_permissions_on
 from .test_customers_ledger import key, read, shop, write
@@ -319,8 +319,8 @@ def test_an_entry_is_cancelled_by_a_reversal_that_says_why_and_only_once(
     # repeats the entry it reverses.
     for statement in ("UPDATE payable_entry SET amount = 1", "DELETE FROM payable_entry"):
         with pytest.raises(psycopg.errors.InsufficientPrivilege), owner.transaction():
-            owner.execute("SET LOCAL ROLE qd_app")
-            owner.execute(f"SELECT set_config('qd.shop_id', '{world.shop_a}', true)")
+            owner.execute("SET LOCAL ROLE hb_app")
+            owner.execute(f"SELECT set_config('hb.shop_id', '{world.shop_a}', true)")
             owner.execute(statement)
 
 

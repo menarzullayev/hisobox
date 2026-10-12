@@ -26,7 +26,7 @@ CREATE TABLE geo_region (
   name_uz     text NOT NULL CHECK (length(name_uz) BETWEEN 1 AND 120),   -- Uzbek, Latin
   name_ru     text CHECK (length(name_ru) BETWEEN 1 AND 120),
   name_en     text CHECK (length(name_en) BETWEEN 1 AND 120),
-  -- The Uzbek name in the matching form of qarz.domain.names: what a search and the order read.
+  -- The Uzbek name in the matching form of hiso_box.domain.names: what a search and the order read.
   name_norm   text NOT NULL CHECK (length(name_norm) >= 1),
   status      text NOT NULL DEFAULT 'active' CHECK (status IN ('active', 'retired')),
   created_at  timestamptz NOT NULL DEFAULT now()
@@ -132,7 +132,7 @@ CREATE INDEX customer_last_address ON customer (shop_id, address_at DESC) WHERE 
 
 -- The ordinary application reads the reference and cannot write it. The worker reads it for the
 -- owner's export, which says where each customer lives.
-GRANT SELECT ON geo_region, geo_district, geo_mahalla, geo_street TO qd_app, qd_worker;
+GRANT SELECT ON geo_region, geo_district, geo_mahalla, geo_street TO hb_app, hb_worker;
 -- The administrators' role loads it (the import command). It is given no DELETE: a row a customer may
 -- point at is never removed, only retired.
-GRANT SELECT, INSERT, UPDATE ON geo_region, geo_district, geo_mahalla, geo_street TO qd_admin;
+GRANT SELECT, INSERT, UPDATE ON geo_region, geo_district, geo_mahalla, geo_street TO hb_admin;

@@ -4,9 +4,9 @@
  * it writes) reads the very same numbers the page shows, and there is one place to change when the
  * backend's defaults change.
  *
- *   trial days            backend/src/qarz/domain/platform_settings.py  ("trial_days", 30; REQ-052)
- *   the monthly price     backend/src/qarz/domain/subscription.py       (DEFAULT_PRICE_UZS = 100_000)
- *   the free plan's size  backend/src/qarz/domain/platform_settings.py  ("free_plan_customers", 30)
+ *   trial days            backend/src/hiso_box/domain/platform_settings.py  ("trial_days", 30; REQ-052)
+ *   the monthly price     backend/src/hiso_box/domain/subscription.py       (DEFAULT_PRICE_UZS = 100_000)
+ *   the free plan's size  backend/src/hiso_box/domain/platform_settings.py  ("free_plan_customers", 30)
  *
  * The administrator changes the price and the trial's length at run time (REQ-053), so the page never
  * states them as a promise: it shows them and says who sets them. A deployment can put the page in step

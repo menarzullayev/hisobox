@@ -6,9 +6,9 @@ SCRIPTS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PRODUCTION_DIR="$(cd "$SCRIPTS_DIR/.." && pwd)"
 REPO_DIR="$(cd "$PRODUCTION_DIR/../.." && pwd)"
 
-ENV_FILE="${DEPLOY_ENV_FILE:-/etc/qarz/production.env}"
-PROJECT="${DEPLOY_PROJECT:-qarz}"
-STATE_DIR="${DEPLOY_STATE_DIR:-/var/lib/qarz/deploy}"
+ENV_FILE="${DEPLOY_ENV_FILE:-/etc/hiso_box/production.env}"
+PROJECT="${DEPLOY_PROJECT:-hiso-box}"
+STATE_DIR="${DEPLOY_STATE_DIR:-/var/lib/hiso_box/deploy}"
 
 say() { printf '%s\n' "$*"; }
 die() { printf 'error: %s\n' "$*" >&2; exit 1; }
@@ -46,8 +46,8 @@ resolve_commit() {
   git -C "$REPO_DIR" rev-parse --verify --quiet "$1^{commit}" || die "not a commit of this repository: $1"
 }
 
-backend_image() { printf '%s:%s' "$(env_value DEPLOY_BACKEND_IMAGE qarz-daftari/backend)" "$1"; }
-proxy_image() { printf '%s:%s' "$(env_value DEPLOY_PROXY_IMAGE qarz-daftari/proxy)" "$1"; }
+backend_image() { printf '%s:%s' "$(env_value DEPLOY_BACKEND_IMAGE hiso_box/backend)" "$1"; }
+proxy_image() { printf '%s:%s' "$(env_value DEPLOY_PROXY_IMAGE hiso_box/proxy)" "$1"; }
 
 have_image() { docker image inspect "$1" >/dev/null 2>&1; }
 
@@ -96,7 +96,7 @@ pgbackup_tag() {
   git -C "$REPO_DIR" rev-parse "$1:deploy/backup/scripts" "$1:deploy/production/single-host" \
     | sha256sum | cut -c 1-16
 }
-pgbackup_image() { printf '%s:%s' "$(env_value DEPLOY_PGBACKUP_IMAGE qarz-daftari/pgbackup)" "$DEPLOY_PGBACKUP_TAG"; }
+pgbackup_image() { printf '%s:%s' "$(env_value DEPLOY_PGBACKUP_IMAGE hiso_box/pgbackup)" "$DEPLOY_PGBACKUP_TAG"; }
 
 ensure_pgbackup_image() {
   local commit="$1" image source

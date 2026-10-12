@@ -7,11 +7,11 @@
 #   stack.sh down    remove the containers, networks, volumes, images and generated files
 #   stack.sh logs    the last lines of every service
 #
-# Project `qd-e2e`, https://127.0.0.1:28443 and http://127.0.0.1:28480 (E2E_HTTPS_PORT, E2E_HTTP_PORT).
+# Project `hb-e2e`, https://127.0.0.1:28443 and http://127.0.0.1:28480 (E2E_HTTPS_PORT, E2E_HTTP_PORT).
 set -euo pipefail
 
 REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-export DEPLOY_PROJECT="qd-e2e"
+export DEPLOY_PROJECT="hb-e2e"
 export LOCAL_DIR="$REPO_DIR/deploy/production/.local-e2e"
 export LOCAL_HTTP_PORT="${E2E_HTTP_PORT:-28480}"
 export LOCAL_HTTPS_PORT="${E2E_HTTPS_PORT:-28443}"

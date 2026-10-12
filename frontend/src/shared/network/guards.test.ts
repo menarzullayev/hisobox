@@ -138,7 +138,7 @@ describe("the network's style sheet", () => {
   it("has what a printed note needs, and is refused for a color, an unknown variable or a removed outline", () => {
     expect(css).toMatch(/@media print \{\s*\.net-note \{/);
     expect(styleProblems(css + ".net-code { color: #c00; }", tokens)).toEqual(["color written out: #c00"]);
-    expect(styleProblems(css + ".net-code { color: var(--qd-net); }", tokens)).toEqual(["unknown variable: --qd-net"]);
+    expect(styleProblems(css + ".net-code { color: var(--hb-net); }", tokens)).toEqual(["unknown variable: --hb-net"]);
     expect(styleProblems(css + ".net-code { outline: none; }", tokens)).toEqual(["outline changed"]);
   });
 });

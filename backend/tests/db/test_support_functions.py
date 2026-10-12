@@ -1,7 +1,7 @@
 """Support access in the database, used directly as the roles that use it (migration 0025; REQ-059).
 
-The administrators' functions are called as `qd_admin`; what the owner does with the table is done as
-`qd_app`; erasure is the worker's (migration 0031).
+The administrators' functions are called as `hb_admin`; what the owner does with the table is done as
+`hb_app`; erasure is the worker's (migration 0031).
 
 The functions cross the tenant boundary for an administrator, so each must do nothing for anyone who is
 not an active administrator, and `admin_open_shop` must say yes only for that administrator's own
@@ -336,7 +336,7 @@ def test_ending_names_the_shop_itself_as_well_as_relying_on_row_level_security(
     shop B must still not end or read shop A's access (two controls, not one; REQ-N12)."""
     import asyncio
 
-    from qarz.infrastructure.db import Database
+    from hiso_box.infrastructure.db import Database
 
     access = _access(owner, shop_a, _admin(owner))
 

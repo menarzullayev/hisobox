@@ -14,21 +14,21 @@ Runbooks 1 to 5 were written for two servers; each now has a part headed **On th
 is the one to follow today, and keeps its two-server text for the day there are two. Runbooks 14 and 15
 are new and exist only for the single host. Runbooks 6 to 13 do not depend on where the service runs.
 On the single host every command is `deploy/production/scripts/single-host.sh` (below: `single-host.sh`), run in Git Bash on the machine
-from a checkout of the repository; its env file is `~/.qarz/single-host.env`.
+from a checkout of the repository; its env file is `~/.hiso_box/single-host.env`.
 
 Conventions used below:
 
 - `primary` and `standby` are the two servers of ADR-014. Commands are run as the service's operating-system
   user unless a step says otherwise.
-- The application is two processes of one code base: the API (`uvicorn qarz.interface.asgi:build --factory`)
-  and the worker (`python -m qarz.interface.worker`), run as the services `api` and `worker` of
+- The application is two processes of one code base: the API (`uvicorn hiso_box.interface.asgi:build --factory`)
+  and the worker (`python -m hiso_box.interface.worker`), run as the services `api` and `worker` of
   `deploy/production/compose.yml` behind the `proxy` service. Both read their configuration from the
   environment; the names are listed in `.env.example` and, by service, in `deploy/production/.env.example`. Secrets live in the operator's password manager, never in the
   repository and never in a chat.
 - "The owner connection" means a database session as the migration owner, which is not subject to
   row-level security. The application itself connects as three roles, one for each part: the API as
-  `qd_app` (`QD_DATABASE_URL`) and, for the administrators' side, as `qd_admin`
-  (`QD_ADMIN_DATABASE_URL`); the worker as `qd_worker` (`QD_WORKER_DATABASE_URL`). None of them can do
+  `hb_app` (`HB_DATABASE_URL`) and, for the administrators' side, as `hb_admin`
+  (`HB_ADMIN_DATABASE_URL`); the worker as `hb_worker` (`HB_WORKER_DATABASE_URL`). None of them can do
   what another is for (migration 0031).
 - Every action an administrator takes in the panel is written to the admin audit by the application. What
   an operator does on a server is not: write it down in the incident or change note.
@@ -45,12 +45,12 @@ user.
 2. Read the migrations the release adds (`backend/migrations/sql/`). A migration that would make the
    previous release fail (a dropped or renamed column) must not be deployed in the same step as the code
    that needs it; the operations document requires migrations to be backward compatible.
-   One existing migration is not: `0031_separate_roles` takes from the role `qd_app` what the
-   administrators' side and the worker now do as `qd_admin` and `qd_worker`. The release that brings it
+   One existing migration is not: `0031_separate_roles` takes from the role `hb_app` what the
+   administrators' side and the worker now do as `hb_admin` and `hb_worker`. The release that brings it
    needs the two new connection settings and the two new roles created with a login beforehand
    (`deploy/production/README.md`, "Database roles"), and rolling back across it needs one statement
    first (below).
-3. Take note of the current release: `cat /var/lib/qarz/deploy/current`. That is the reference a roll
+3. Take note of the current release: `cat /var/lib/hiso_box/deploy/current`. That is the reference a roll
    back needs.
 4. `deploy/production/scripts/deploy.sh <git-ref>`. It builds the two images of that commit (or reuses or
    pulls them), runs `alembic upgrade head` as the one-shot `migrate` service with the owner connection
@@ -63,14 +63,14 @@ user.
 6. Check by hand what the script cannot: `/metrics` is answered inside the network (with the token); a
    test shop's overview opens in the Mini App; the bot answers `/start`.
 7. Watch the error rate and the request log for fifteen minutes
-   (`docker compose -p qarz logs -f proxy api worker`).
+   (`docker compose -p hisobox logs -f proxy api worker`).
 
 **Roll back.** `deploy/production/scripts/rollback.sh <previous-ref>` (the last release is in
-`/var/lib/qarz/deploy/previous`), then `smoke.sh` again. It starts the previous images and runs no
+`/var/lib/hiso_box/deploy/previous`), then `smoke.sh` again. It starts the previous images and runs no
 migration. Do not run `alembic downgrade`: the migrations have no tested downgrade, and because they are
 backward compatible the previous code runs on the newer schema. The exception is a roll back to a release
-from before migration `0031`: run `GRANT qd_admin, qd_worker TO qd_app;` as the owner first, so that the
-one role the old release connects as can again do everything, and `REVOKE qd_admin, qd_worker FROM qd_app;`
+from before migration `0031`: run `GRANT hb_admin, hb_worker TO hb_app;` as the owner first, so that the
+one role the old release connects as can again do everything, and `REVOKE hb_admin, hb_worker FROM hb_app;`
 when the newer release is back.
 
 **Not yet possible.** The scripts have run only on a developer machine, against a throwaway database and
@@ -79,8 +79,8 @@ is no image registry (images are built on the host), no staging, no restore poin
 update of the standby's images, all of which the operations document asks for. Step 6 needs a real bot
 and a monitoring system, and neither exists.
 
-**On the single host (changed by the founder on 2026-10-08, DEC-070).** Steps 1 to 3 are the same, with the state in `~/.qarz/deploy/` instead of
-`/var/lib/qarz/deploy/`. Then:
+**On the single host (changed by the founder on 2026-10-08, DEC-070).** Steps 1 to 3 are the same, with the state in `~/.hiso_box/deploy/` instead of
+`/var/lib/hiso_box/deploy/`. Then:
 
 4. Take a backup first, so that the moment before the release can be had back:
    `single-host.sh backup diff`, and note the time. That is the restore point the operations document
@@ -94,7 +94,7 @@ and a monitoring system, and neither exists.
 
 Roll back: `single-host.sh rollback <previous-ref>`, then `single-host.sh smoke`. The note about migration
 `0031` above applies; the statement is run with
-`docker compose -p qarz exec db psql -U postgres -d qarz`.
+`docker compose -p hisobox exec db psql -U postgres -d qarz`.
 
 Not yet possible on the single host either: none of this has been done on the real machine.
 
@@ -159,17 +159,17 @@ because no server exists. A point-in-time restore from a repository on a real st
 **On the single host (changed by the founder on 2026-10-08, DEC-070).** The repository is the R2 bucket, and the new instance is a second
 PostgreSQL container beside the live one, with its own volume and with archiving off.
 
-1. Stop the damage, as in step 1: `docker compose -p qarz stop worker api` (the database keeps running,
+1. Stop the damage, as in step 1: `docker compose -p hisobox stop worker api` (the database keeps running,
    and keeps archiving).
 2. Find the moment, as in step 2. Look at what can be restored: `single-host.sh status` prints the ages
    of the newest backup and of the newest archived WAL segment;
-   `docker compose -p qarz exec backup pgbackrest --stanza=qarz info` lists the backups. The moment must
+   `docker compose -p hisobox exec backup pgbackrest --stanza=qarz info` lists the backups. The moment must
    lie after the end of a full backup whose WAL is still kept: the last 14 days at least.
 3. `single-host.sh pitr '2026-10-08 14:05:00+05'` (the moment, with the time zone). It restores from
-   the bucket into the volume `qarz_pgscratch` up to that moment and starts the copy. The live database
+   the bucket into the volume `hiso_box_pgscratch` up to that moment and starts the copy. The live database
    is not stopped, read or changed. Restoring over the live database is not offered: `single-host.sh
    restore` refuses a volume that holds one.
-4. Compare, as in step 4: `docker compose -p qarz exec db-scratch psql -U postgres -d qarz` for the
+4. Compare, as in step 4: `docker compose -p hisobox exec db-scratch psql -U postgres -d qarz` for the
    copy, `... exec db psql ...` for the live database. What is copied back is decided with the founder
    and done through the product, never by editing the ledger.
 5. `single-host.sh pitr-down` removes the copy and its volume. Start the API and the worker again
@@ -189,11 +189,11 @@ or bucket.
 
 | Secret | How | What it breaks |
 |---|---|---|
-| Bot token (`QD_BOT_TOKEN`) | Revoke and reissue with BotFather; set the new value; restart API and worker; set the webhook again | Until restart: sign-in and sending fail. Sessions already open keep working |
-| Webhook secret (`QD_WEBHOOK_SECRET`) | Generate a new one; set the webhook with it; then restart the API with it | Between the two steps Telegram's calls are refused (403) and delivered again later |
-| Server secret (`QD_SECRETS_KEY`) | See below | Nothing, when done in the order below |
-| Database passwords | As the owner, for each role in turn: `ALTER ROLE qd_app PASSWORD ...` and `QD_DATABASE_URL`; `ALTER ROLE qd_admin PASSWORD ...` and `QD_ADMIN_DATABASE_URL`; `ALTER ROLE qd_worker PASSWORD ...` and `QD_WORKER_DATABASE_URL`. Each role has its own password. Restart the API after the first two and the worker after the third | Requests of that part fail between the change and the restart |
-| Metrics token (`QD_METRICS_TOKEN`) | Set a new value; restart the API; update the monitoring system | Scrapes fail until both are changed |
+| Bot token (`HB_BOT_TOKEN`) | Revoke and reissue with BotFather; set the new value; restart API and worker; set the webhook again | Until restart: sign-in and sending fail. Sessions already open keep working |
+| Webhook secret (`HB_WEBHOOK_SECRET`) | Generate a new one; set the webhook with it; then restart the API with it | Between the two steps Telegram's calls are refused (403) and delivered again later |
+| Server secret (`HB_SECRETS_KEY`) | See below | Nothing, when done in the order below |
+| Database passwords | As the owner, for each role in turn: `ALTER ROLE hb_app PASSWORD ...` and `HB_DATABASE_URL`; `ALTER ROLE hb_admin PASSWORD ...` and `HB_ADMIN_DATABASE_URL`; `ALTER ROLE hb_worker PASSWORD ...` and `HB_WORKER_DATABASE_URL`. Each role has its own password. Restart the API after the first two and the worker after the third | Requests of that part fail between the change and the restart |
+| Metrics token (`HB_METRICS_TOKEN`) | Set a new value; restart the API; update the monitoring system | Scrapes fail until both are changed |
 | Backup key | See below | Losing the key loses the backups: keep it in two places off both servers |
 
 **On the single host (changed by the founder on 2026-10-08, DEC-070)** the secrets live in one env file, and `single-host.sh up` is what applies
@@ -201,8 +201,8 @@ a changed value: it recreates the containers whose settings changed.
 
 | Secret | How, on the single host | What it breaks |
 |---|---|---|
-| Bot token, webhook secret, server secret, metrics token | As in the table above and the steps below; "restart" is `single-host.sh up`; the commands that need the API's settings are run as `docker compose -p qarz exec api ...` | As above |
-| Database passwords (`postgres`, `qd_app`, `qd_admin`, `qd_worker`) | Change the password **inside the connection string** in the env file (`QD_MIGRATION_URL`, `QD_DATABASE_URL`, `QD_ADMIN_DATABASE_URL`, `QD_WORKER_DATABASE_URL`; four different ones, 16 characters or more), then `single-host.sh up`. It sets each role's password from its connection string through the database's socket and restarts the services. No `ALTER ROLE` by hand | A few seconds without service |
+| Bot token, webhook secret, server secret, metrics token | As in the table above and the steps below; "restart" is `single-host.sh up`; the commands that need the API's settings are run as `docker compose -p hisobox exec api ...` | As above |
+| Database passwords (`postgres`, `hb_app`, `hb_admin`, `hb_worker`) | Change the password **inside the connection string** in the env file (`HB_MIGRATION_URL`, `HB_DATABASE_URL`, `HB_ADMIN_DATABASE_URL`, `HB_WORKER_DATABASE_URL`; four different ones, 16 characters or more), then `single-host.sh up`. It sets each role's password from its connection string through the database's socket and restarts the services. No `ALTER ROLE` by hand | A few seconds without service |
 | Tunnel token (`CLOUDFLARE_TUNNEL_TOKEN`) | In Cloudflare, Zero Trust, the tunnel: refresh its token (the old one stops working), or delete the tunnel and create a new one with the same public hostname and service `http://proxy:8080`. Put the new token in the env file and the password manager; `single-host.sh up` | Between the refresh and `up` the service is unreachable. Whoever held the old token could receive the service's traffic while it was valid: treat a leak as runbook 11 |
 | R2 key (`DEPLOY_R2_ACCESS_KEY_ID`, `DEPLOY_R2_SECRET_ACCESS_KEY`) | In Cloudflare, create a new token limited to the bucket; put it in the env file and the password manager; `single-host.sh up` (the database restarts: its settings changed); `single-host.sh status` until the archive is fresh; then delete the old token | A few seconds without service. Between deleting an old token and `up`, nothing is archived |
 | Backup passphrase (`DEPLOY_BACKUP_PASSPHRASE`) | See "The backup key" below | Losing it loses the backups: keep it in two places **off the machine** |
@@ -212,27 +212,27 @@ administrators' second-factor secrets. Changed on its own it makes every stored 
 unreadable. It is therefore rotated with the old secret kept beside the new one for a few minutes:
 
 1. Generate the new secret (`.env.example` shows how) and store it in the password manager.
-2. In the API's environment set `QD_SECRETS_KEY_PREVIOUS` to the secret in use and `QD_SECRETS_KEY` to the
+2. In the API's environment set `HB_SECRETS_KEY_PREVIOUS` to the secret in use and `HB_SECRETS_KEY` to the
    new one; restart the API. From here new file links are signed with the new key and links handed out
    a moment ago still open; administrators sign in with the device they have, because a stored secret the
    new key cannot read is tried under the previous one. Nothing new is signed or encrypted with the
    previous secret.
 3. Re-encrypt the stored second-factor secrets, with the same two settings in the environment:
-   `docker compose run --rm api python -m qarz.interface.rotate_secrets`. It works in one transaction,
+   `docker compose run --rm api python -m hiso_box.interface.rotate_secrets`. It works in one transaction,
    prints how many secrets it re-encrypted, how many were already under the new key and how many neither
    key could read, and never prints a secret. It can be run again: the second run re-encrypts none.
 4. If it names accounts that neither key could read (exit status 1), those administrators are enrolled
    again (runbook 7, "An administrator"); nothing else was lost by the rotation.
-5. Not sooner than five minutes after step 2 (the life of a file link), clear `QD_SECRETS_KEY_PREVIOUS`
+5. Not sooner than five minutes after step 2 (the life of a file link), clear `HB_SECRETS_KEY_PREVIOUS`
    and restart the API. Run the command once more: it must report nothing re-encrypted and nothing
    unreadable beyond step 4. Then destroy the old secret.
 
-While `QD_SECRETS_KEY_PREVIOUS` is set, whoever holds the old secret can still sign a file link. **After a
+While `HB_SECRETS_KEY_PREVIOUS` is set, whoever holds the old secret can still sign a file link. **After a
 suspected leak** do not leave it in the API at all: stop the API, run step 3 with both settings given to
 the command only, and start the API with the new secret alone. Administrators and file links are
 unavailable for that minute, and links handed out before it stop working.
 
-A wrong value in `QD_SECRETS_KEY_PREVIOUS` changes nothing: the command reports the secrets as readable
+A wrong value in `HB_SECRETS_KEY_PREVIOUS` changes nothing: the command reports the secrets as readable
 under neither key and leaves them as they were, so it can be run again with the right value. A secret
 shorter than 16 characters in either setting refuses to start, the API and the command alike.
 
@@ -243,7 +243,7 @@ they have never been carried out on a server.
 lives and what it protects: `deploy/backup/README.md`, "The key".
 
 1. Generate the new passphrase away from both servers and store it in the two places **before** using it.
-2. On the standby, stop the timers (`systemctl stop 'qd-backup-*.timer' qd-restore-test.timer`), move the
+2. On the standby, stop the timers (`systemctl stop 'hb-backup-*.timer' hb-restore-test.timer`), move the
    old repository aside (`/var/lib/pgbackrest` to a dated name), put the new passphrase into
    `/etc/pgbackrest/conf.d/cipher.conf`, run `pgbackrest --stanza=qarz stanza-create`, then
    `deploy/backup/scripts/backup.sh full` and `deploy/backup/scripts/restore-test.sh`.
@@ -286,7 +286,7 @@ of exposure, and treat it as runbook 11.
    for errors at start). The API refuses to start on a webhook secret, metrics token or server secret that
    is too short, and on a rate limit that is not positive. Start it again; if it will not start on the
    current release, roll back (runbook 1).
-4. The API answers but the bot is silent: is the worker running? Read `qd_outbox_oldest_due_seconds` in
+4. The API answers but the bot is silent: is the worker running? Read `hb_outbox_oldest_due_seconds` in
    `/metrics`: a growing age means messages are queued and not sent. Read the worker's log for
    `dispatch_failed` and `schedule_failed`. Ask Telegram for the webhook's state (`getWebhookInfo`): a
    backlog or a last error there means Telegram cannot reach the API.
@@ -305,7 +305,7 @@ meant:
   an administrator, the admin session too: the second factor is asked again after the next sign-in.
 - **Nobody can sign in to the panel at all, and the Mini App still works:** the server's clock. The
   web login's signed data is accepted for five minutes after Telegram signed it
-  (`QD_WEB_LOGIN_MAX_AGE_SECONDS`, 300), and not at all when it is dated more than a minute ahead; the
+  (`HB_WEB_LOGIN_MAX_AGE_SECONDS`, 300), and not at all when it is dated more than a minute ahead; the
   Mini App's is given an hour. A clock some minutes off therefore stops the panel first. The log shows
   `bad_sign_in` for each refusal. Set the clock right (runbook 14, step 7). Only if the clock is right
   and the widget's data is still refused as too old, raise the setting, up to 3600, and restart the API.
@@ -315,14 +315,14 @@ meant:
 - `/healthz` from outside gives **no answer at all, or Cloudflare's own error page** (error 1033 or
   530, "Argo Tunnel error", or a 502 from Cloudflare): the tunnel is not connected. Either the machine
   is off, asleep or offline, or Docker is not running, or the `cloudflared` container is not: runbook
-  14. If the machine is fine and `docker compose -p qarz logs cloudflared` shows it connected, look at
+  14. If the machine is fine and `docker compose -p hisobox logs cloudflared` shows it connected, look at
   Cloudflare's own status and at the tunnel's page in Zero Trust.
 - `/healthz` answers `down` (503 from the service itself): the API is up and the database is not.
   `single-host.sh status`, then `single-host.sh logs db`. A full disk stops PostgreSQL: the status prints
   the disk.
 - Step 2's "if the server itself is gone" is runbook 15, not runbook 2.
 - Steps 3 to 5 are unchanged; the logs are `single-host.sh logs api`, `... worker`, and the metrics are
-  read with `docker compose -p qarz exec api python -c ...` as `deploy/production/scripts/local.sh` does.
+  read with `docker compose -p hisobox exec api python -c ...` as `deploy/production/scripts/local.sh` does.
 
 ## 6. "An entry is wrong"
 
@@ -373,14 +373,14 @@ shop.
 
 **An administrator.** A lost device means a lost second factor; it cannot be replaced through the API.
 
-1. Remove the person's Telegram identifier from `QD_ADMIN_TG_IDS` and restart the API if the device may be
+1. Remove the person's Telegram identifier from `HB_ADMIN_TG_IDS` and restart the API if the device may be
    in someone else's hands.
 2. As the owner connection, clear that administrator's stored second-factor secret and confirmation, so
    that enrolment starts again; put the identifier back and restart.
 3. The administrator signs in and enrols again; the new secret is shown once.
 4. Review the admin audit for anything done with the lost device.
 
-**The administrators' second factor, on or off (`QD_ADMIN_SECOND_FACTOR`).** A setting of the
+**The administrators' second factor, on or off (`HB_ADMIN_SECOND_FACTOR`).** A setting of the
 deployment, read from the environment when the API starts: `required`, which is the default and what an
 empty or absent value means in the Compose files, or `off`. Anything else and the API refuses to start.
 The owner chose `off` for his own installation on 2026-10-10, knowing what follows; every file in the
@@ -414,9 +414,9 @@ How you know it is off, without reading the env file:
   (runbook 16); `single-host.sh status` lists it among what is firing;
 - the audit: a setting changed without a code has `second_factor: off` in its details, and a replaced
   owner has a row `shop.owner_reassigned_without_code` beside the row of the change;
-- `/metrics`: `qd_admin_second_factor_off 1`.
+- `/metrics`: `hb_admin_second_factor_off 1`.
 
-To change it: set the line in the env file of the installation (`QD_ADMIN_SECOND_FACTOR=off`, or
+To change it: set the line in the env file of the installation (`HB_ADMIN_SECOND_FACTOR=off`, or
 `required`) and restart the API as for any other setting of the environment (runbook 1). Nothing is
 migrated in either direction.
 
@@ -516,7 +516,7 @@ contract with the provider, and a registered entity.
 
 **Online payment.**
 
-1. Set the provider's keys in the environment (`QD_PAYME_*`, `QD_CLICK_*`) and restart the API.
+1. Set the provider's keys in the environment (`HB_PAYME_*`, `HB_CLICK_*`) and restart the API.
 2. **Before the switch:** run the provider's own test cabinet against `/pay/payme` and `/pay/click`. The
    adapters were written from the providers' published protocols and have never been run against either.
 3. In the admin panel, Settings: turn `online_pay_on` on (the code is asked for again). It applies to all
@@ -527,7 +527,7 @@ contract with the provider, and a registered entity.
 5. To switch off: the same setting. Provider calls are then answered "disabled".
 
 **SMS.** The provider is Eskiz (eskiz.uz; founder's decision of 2026-10-08) and the sender is built
-(`backend/src/qarz/infrastructure/eskiz_sms.py`). It was written from Eskiz's published Postman collection
+(`backend/src/hiso_box/infrastructure/eskiz_sms.py`). It was written from Eskiz's published Postman collection
 "СМС шлюз от Eskiz.uz" (https://documenter.getpostman.com/view/663428/RzfmES4z, as published 2023-11-13,
 read 2026-10-08) and **has never been run against Eskiz**: every test uses a fake transport. An SMS
 leaves only when all four hold: the Eskiz account is set in the worker's environment, the platform switch
@@ -539,13 +539,13 @@ limited shop then send no SMS, and their owners are shown SMS as something payin
 1. **Contract.** A contract with Eskiz in the name of the registered entity, and money on its balance.
    **Not yet possible:** there is no registered entity.
 2. **Sender name.** Eskiz sends from `4546` until an alpha name is registered with it. Decide the name,
-   register it in the Eskiz cabinet, and use it as `QD_ESKIZ_SENDER` once Eskiz confirms it; until then
+   register it in the Eskiz cabinet, and use it as `HB_ESKIZ_SENDER` once Eskiz confirms it; until then
    the value is `4546`.
 3. **Templates.** Eskiz sends only texts that match a template it has approved. Register every text of
    "Templates to register in the Eskiz cabinet" below and wait until each is approved as a service
    message (not advertising). A reminder whose text has no approved template is refused and is not
    retried.
-4. **Variables.** Set `QD_ESKIZ_EMAIL`, `QD_ESKIZ_PASSWORD` and `QD_ESKIZ_SENDER` in the worker's
+4. **Variables.** Set `HB_ESKIZ_EMAIL`, `HB_ESKIZ_PASSWORD` and `HB_ESKIZ_SENDER` in the worker's
    environment (`deploy/production/.env.example`, "worker only"; the values live in the password
    manager) and restart the worker. All three or none: with any of them empty the worker logs
    `sms_partly_configured` once at start and sends nothing. The API is not given them. Nothing is sent
@@ -560,11 +560,11 @@ limited shop then send no SMS, and their owners are shown SMS as something payin
 7. **Check one message end to end.** In the test shop, a customer with the founder's phone number and no
    Telegram link, with something overdue; send a manual reminder. Check: the SMS arrives; its sender
    name; its text against the template; in the Eskiz cabinet, how many parts it was charged as; the
-   worker's log has `sms_sent`; `qd_sms_messages_last_day{status="sent"}` is 1.
+   worker's log has `sms_sent`; `hb_sms_messages_last_day{status="sent"}` is 1.
 8. **To switch off:** the same setting. The very next message is not sent. Messages already queued are
    tried again with the outbox's backoff and given up after a day, so switching on again within that day
    sends them late.
-9. **To change the Eskiz password:** change it in the cabinet, set `QD_ESKIZ_PASSWORD`, restart the
+9. **To change the Eskiz password:** change it in the cabinet, set `HB_ESKIZ_PASSWORD`, restart the
    worker. The token Eskiz gives (30 days) is held only in the worker's memory: it is never logged and
    never stored, and a restart obtains a new one with the first message.
 
@@ -629,7 +629,7 @@ and it is all still read. Switching the plan on tells nobody.
 
 The worker logs one line for each attempt, with no number, no text and no secret: `sms_sent`,
 `sms_rejected` (failed for good) or `sms_retry` (will be tried again), with `kind` and the HTTP `status`.
-`/metrics` gives `qd_sms_messages_last_day{status="sent"|"failed"|"retrying"}` and the rules `SmsRefused`
+`/metrics` gives `hb_sms_messages_last_day{status="sent"|"failed"|"retrying"}` and the rules `SmsRefused`
 and `SmsNotGoingOut` read it.
 
 | What happened | `kind` | Outcome in the outbox |
@@ -668,7 +668,7 @@ and `SmsNotGoingOut` read it.
 
 The SMS texts are a short fixed form in each language, whatever wording the shop chose for Telegram
 (DEC-035). These are all the texts the code can send by SMS, exactly as it produces them
-(`backend/src/qarz/application/chat_texts.py`; `backend/tests/test_sms_templates.py` fails when this
+(`backend/src/hiso_box/application/chat_texts.py`; `backend/tests/test_sms_templates.py` fails when this
 table and the code differ). `{shop}` is the shop's name, `{name}` the customer's name as the shop wrote
 it, `{amount}` an amount such as `70 000 so'm` or `1 250 000 сум`: digits in groups of three separated by
 ordinary spaces, then the currency word of the language. How Eskiz wants a variable part written in a
@@ -679,7 +679,7 @@ only after Eskiz has approved it, and only these four are registered. A customer
 shop's language) is Uzbek Cyrillic, Tajik, Karakalpak or English is sent the Uzbek text, whole, with the
 Uzbek currency word. No other language has an SMS text in the code, and the same test fails if one is
 added. To send SMS in another language: write its two texts, register them here and with Eskiz, and add
-the language to `qarz.domain.languages.SMS_LANGUAGES`.
+the language to `hiso_box.domain.languages.SMS_LANGUAGES`.
 
 | Text | Language | Template |
 |---|---|---|
@@ -702,7 +702,7 @@ debt is due.
 To let an SMS carry dollars, the founder asks Eskiz one question when registering: may the variable
 part `{amount}` of the approved templates also be `12.50 $`, or `70 000 so'm va 12.50 $` (Russian:
 `70 000 сум и 12.50 $`)? If Eskiz says yes, no new template is needed and the change is in
-`qarz.application.reminders` only (the SMS takes the whole plan and `both()` writes the amount). If
+`hiso_box.application.reminders` only (the SMS takes the whole plan and `both()` writes the amount). If
 Eskiz wants the unit to be part of the fixed text, eight more templates are registered first (dollars
 only, and both amounts; due today and overdue; Uzbek and Russian), added to the table above and to the
 catalog, and only then sent. Until one of the two is done, nothing changes here.
@@ -785,11 +785,11 @@ in the last five minutes.
    preparation of `deploy/production/SINGLE-HOST.md`, step 2.
 3. Clone the repository and check out the commit that was running (the newest of `main` if that is not
    known; a newer release migrates the restored database forward when it starts).
-4. The env file, at `~/.qarz/single-host.env`, mode 600:
+4. The env file, at `~/.hiso_box/single-host.env`, mode 600:
    - if the password manager holds a copy of the whole file, use it as it is;
    - if it holds only single secrets: `single-host.sh env-init`, then replace the generated
      `DEPLOY_BACKUP_PASSPHRASE` with the **real** one, fill in the bucket, its key, the tunnel token
-     and the bot token, and replace `QD_SECRETS_KEY` and `QD_WEBHOOK_SECRET` with the real ones (with a
+     and the bot token, and replace `HB_SECRETS_KEY` and `HB_WEBHOOK_SECRET` with the real ones (with a
      new server secret every administrator must enrol the second factor again, runbook 7; with a new
      webhook secret the webhook must be set again). New database passwords are fine: they are set from
      the file in step 7.
@@ -815,17 +815,17 @@ volume aside by hand first, so that nothing is destroyed before the restore has 
 
 ```sh
 single-host.sh stop
-docker compose -p qarz rm -f db backup
-docker volume create qarz_pgdata_aside
+docker compose -p hisobox rm -f db backup
+docker volume create hiso_box_pgdata_aside
 # a copy of the volume, file for file (MSYS_NO_PATHCONV: Git Bash must not rewrite the container's paths)
 MSYS_NO_PATHCONV=1 docker run --rm --user 0 --entrypoint cp \
-  -v qarz_pgdata:/from:ro -v qarz_pgdata_aside:/to postgres:16.15-bookworm -a /from/. /to/
-docker volume rm qarz_pgdata          # the original; from here only the copy and the bucket hold the data
+  -v hiso_box_pgdata:/from:ro -v hiso_box_pgdata_aside:/to postgres:16.15-bookworm -a /from/. /to/
+docker volume rm hiso_box_pgdata          # the original; from here only the copy and the bucket hold the data
 single-host.sh restore                # or: restore --time '<moment>'
 single-host.sh up
 ```
 
-Remove `qarz_pgdata_aside` only when the restored service has been checked.
+Remove `hiso_box_pgdata_aside` only when the restored service has been checked.
 
 **What has been proven and what has not.** In containers, with a MinIO server standing in for R2: the
 database volume was destroyed, `single-host.sh up` refused to start an empty database in front of the
@@ -840,7 +840,7 @@ same number of files, the same owner); the sequence as a whole has never been ru
 
 Added on 2026-10-09 (the founder's decision, DEC-078). **None of it has been executed against real
 Telegram or on the real machine.** The worker watches the service every minute and writes to the
-Telegram chats named in `QD_ALERT_CHAT_IDS` (`deploy/production/SINGLE-HOST.md`, "What is watched, and
+Telegram chats named in `HB_ALERT_CHAT_IDS` (`deploy/production/SINGLE-HOST.md`, "What is watched, and
 what is not", has the full table and the thresholds). A message has three kinds of line: 🔴 it began,
 🟠 it still goes on (every four hours), 🟢 it stopped, with from when to when. A line names a rule and
 sometimes a label, never a shop or a person.
@@ -848,13 +848,13 @@ sometimes a label, never a shop or a person.
 ### Once, after the first deployment (launch criterion 9)
 
 1. Put your numeric Telegram identifier, or a group's (negative; add the bot to the group first), into
-   `QD_ALERT_CHAT_IDS` in the env file, and run `single-host.sh up` so that the worker reads it. A person
+   `HB_ALERT_CHAT_IDS` in the env file, and run `single-host.sh up` so that the worker reads it. A person
    must have sent `/start` to the bot once, or Telegram refuses the message.
 2. `single-host.sh alert-test`. It prints `ACCEPTED` or `NOT DELIVERED` with the reason for every chat.
    **Then look in the chat**: the criterion is "triggered and received", and the command can only know
    the first half. Write down the date and that you saw it.
-3. See one real alert arrive and stop: `docker compose -p qarz stop files-backup`, wait about 25 minutes
-   for `FilesCopyStale`, `docker compose -p qarz start files-backup`, wait for the 🟢.
+3. See one real alert arrive and stop: `docker compose -p hisobox stop files-backup`, wait about 25 minutes
+   for `FilesCopyStale`, `docker compose -p hisobox start files-backup`, wait for the 🟢.
 4. **Turn on Cloudflare's notification for the tunnel.** Cloudflare dashboard, *Notifications*, *Add*,
    **Tunnel Health Alert**, this tunnel, your e-mail. This is the only thing that tells you when the
    machine is off, offline, or Docker is not running: the worker's watch runs on that machine and is
@@ -874,7 +874,7 @@ worker` shows the watch's own lines (`ops_alert_firing`, `ops_alert_resolved`, `
 | `WalArchiveStale` | The same log; `single-host.sh status` | The database is not sending its log to the bucket, or the check is not running. Until it is fixed, a lost disk loses everything since the last archived segment. If the link is down, it catches up by itself when the link returns |
 | `FilesCopyStale` | `single-host.sh logs files-backup` | The same causes. Receipts uploaded since the last copy exist on this machine only |
 | `DiskAlmostFull` | `docker system df`; `single-host.sh status` | Free space before the database stops: old images of earlier releases (`docker image ls`), never a volume. Runbook 14 has what else lives on that disk |
-| `OutboxOld`, `DispatcherFailing` | `single-host.sh logs worker` | Messages are not going out. With `TelegramUnreachable` beside it: the link, or Telegram. With `TelegramRefusesBot`: the token (runbook 4). Otherwise restart the worker (`docker compose -p qarz restart worker`) and read why it stopped. Nothing is lost: messages wait up to 24 hours |
+| `OutboxOld`, `DispatcherFailing` | `single-host.sh logs worker` | Messages are not going out. With `TelegramUnreachable` beside it: the link, or Telegram. With `TelegramRefusesBot`: the token (runbook 4). Otherwise restart the worker (`docker compose -p hisobox restart worker`) and read why it stopped. Nothing is lost: messages wait up to 24 hours |
 | `TelegramRefusesBot`, `TelegramUnreachable` | These reach you only after they stopped (the alert could not be sent while they held) | Read the period in the 🟢 line and check what did not go out meanwhile; runbook 5 |
 | `RemindersNotRunning`, `JobNotRunning:<job>` | `single-host.sh logs worker`, lines `schedule_failed` | A scheduled job fails every time it is tried. The error names the place. `ledger_check` or `stock_check` failing alone on a large database means its one statement takes longer than the worker's 60 seconds: tell the developer |
 | `LedgerMismatch` | Nothing in the panel shows it; the figure in the message is in how many places | The stored open debts differ from the ledger somewhere. The ledger is the truth and the stored figures can be rebuilt from it (`refresh_open_debts`, as the owner). **Do not edit anything by hand**: this should never happen and means a defect, so tell the developer first |
@@ -884,14 +884,14 @@ worker` shows the watch's own lines (`ops_alert_firing`, `ops_alert_resolved`, `
 | `ApiDown`, `MetricsMissing`, `ErrorRateHigh` | `single-host.sh logs api`; `single-host.sh status` | Runbook 5. `ErrorRateHigh` right after a release: runbook 1, roll back |
 | `CrossTenantAttempt`, `InvalidSignaturesRepeated`, `AdminSecondFactorRepeated`, `AdminWithoutSupportAccess` | `single-host.sh logs api`, lines with `"event":"security"`: they carry the request identifier, the user and the shop | One `CrossTenantAttempt` is often a member who was just removed. Repeated, or with the others: runbook 11 |
 | `SupportAccessOpened`, `ShopOwnerReassigned` | The admin audit in the panel | Expected now and then; you should be able to name the reason for each (runbooks 9 and 7) |
-| `AdminSecondFactorOff` | The env file of the installation: `QD_ADMIN_SECOND_FACTOR=off`. The API's log has `admin_second_factor_off` at its last start | Not a fault: a standing reminder that administrators are asked for no code (runbook 7). It is repeated every four hours for as long as the setting stays, and taken back when the API runs with `required` again. If nobody decided this, set `required`, restart the API, and read the admin audit for rows with `second_factor: off` |
+| `AdminSecondFactorOff` | The env file of the installation: `HB_ADMIN_SECOND_FACTOR=off`. The API's log has `admin_second_factor_off` at its last start | Not a fault: a standing reminder that administrators are asked for no code (runbook 7). It is repeated every four hours for as long as the setting stays, and taken back when the API runs with `required` again. If nobody decided this, set `required`, restart the API, and read the admin audit for rows with `second_factor: off` |
 | "the worker cannot reach the database" | `single-host.sh status`, `single-host.sh logs db` | Runbook 5, then 14. While it lasts nothing else is watched |
 
 ### When no alert arrives and one should have
 
 - `single-host.sh alert-test`: `NOT DELIVERED` says whether it is the token, the chat or the network.
 - `single-host.sh status`: under "operations watch", `FIRING, nobody told (unconfigured)` means
-  `QD_ALERT_CHAT_IDS` is empty in the env file the worker was started with.
+  `HB_ALERT_CHAT_IDS` is empty in the env file the worker was started with.
 - The worker is not running or is restarting (`single-host.sh status`): then nothing is watched at all,
   and nothing says so. This is the gap the watch cannot close for itself.
 

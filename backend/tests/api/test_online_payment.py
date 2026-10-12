@@ -17,14 +17,14 @@ import pytest
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
 
-from qarz.application.auth import AuthService
-from qarz.application.chat_texts import day as show_day
-from qarz.application.chat_texts import money, say
-from qarz.application.online_payment import OnlinePaymentService, PaymentKeys
-from qarz.domain import online_payment as rules
-from qarz.infrastructure.db import Database
-from qarz.interface.http import create_app
-from qarz.interface.online_payment_api import add_provider_routes
+from hiso_box.application.auth import AuthService
+from hiso_box.application.chat_texts import day as show_day
+from hiso_box.application.chat_texts import money, say
+from hiso_box.application.online_payment import OnlinePaymentService, PaymentKeys
+from hiso_box.domain import online_payment as rules
+from hiso_box.infrastructure.db import Database
+from hiso_box.interface.http import create_app
+from hiso_box.interface.online_payment_api import add_provider_routes
 
 from .conftest import TEST_BOT_TOKEN, HeaderAuthenticator, World, as_user
 from .test_subscription import owner_chat, set_subscription

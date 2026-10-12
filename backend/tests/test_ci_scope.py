@@ -51,7 +51,7 @@ RUNS_EVERYTHING = [
     "docs/08-technical-spec/schema.sql",
     "docs/08-technical-spec/tests/schema_checks.sql",
     # code, wherever a Markdown file may lie in it
-    "backend/src/qarz/domain/ledger.py",
+    "backend/src/hiso_box/domain/ledger.py",
     "backend/tests/test_ledger.py",
     "backend/README.md",
     "backend/requirements.lock",
@@ -153,7 +153,7 @@ def _run(*arguments: str, stdin: bytes = b"", env: dict[str, str] | None = None)
     ("stdin", "answer"),
     [
         (b"docs/04-prd/OUTPUT.md\0README.md\0.project-alpha/state.json\0", "docs_only=true\n"),
-        (b"docs/04-prd/OUTPUT.md\0backend/src/qarz/domain/ledger.py\0", "docs_only=false\n"),
+        (b"docs/04-prd/OUTPUT.md\0backend/src/hiso_box/domain/ledger.py\0", "docs_only=false\n"),
         (b"docs/10-operations/runbooks.md\0", "docs_only=false\n"),
         (b"", "docs_only=false\n"),
         # Newline-separated input is not what the workflow sends: it is one path, and not a document.

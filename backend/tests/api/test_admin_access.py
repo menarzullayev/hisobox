@@ -13,11 +13,11 @@ import psycopg
 import pytest
 from fastapi.testclient import TestClient
 
-from qarz.application.admin_access import ADMIN_SESSION, AdminAccess
-from qarz.application.auth import AuthService
-from qarz.domain import brand, totp
-from qarz.infrastructure.db import Database
-from qarz.interface.http import create_app
+from hiso_box.application.admin_access import ADMIN_SESSION, AdminAccess
+from hiso_box.application.auth import AuthService
+from hiso_box.domain import brand, totp
+from hiso_box.infrastructure.db import Database
+from hiso_box.interface.http import create_app
 from tests.test_telegram_auth import login_data, webapp_init_data
 
 from .conftest import (
@@ -463,7 +463,7 @@ def test_an_ordinary_session_and_an_admin_session_cannot_stand_in_for_each_other
     assert deployed.get(SETTINGS, headers={**ordinary, "Cookie": f"{ADMIN_COOKIE}={bearer}"}).status_code == 404
     # The admin token in an ordinary session's place, as a bearer token or as the web cookie: signs nobody in.
     assert deployed.get("/api/v1/me", headers={"Authorization": f"Bearer {admin_token}"}).status_code == 401
-    assert deployed.get("/api/v1/me", headers={"Cookie": f"qd_session={admin_token}"}).status_code == 401
+    assert deployed.get("/api/v1/me", headers={"Cookie": f"hb_session={admin_token}"}).status_code == 401
     assert deployed.get(SETTINGS, headers={"Authorization": f"Bearer {admin_token}"}).status_code == 401
     # The admin token alone, without the sign-in it belongs to: nothing.
     assert deployed.get(SETTINGS, headers={"Cookie": f"{ADMIN_COOKIE}={admin_token}"}).status_code == 401
@@ -611,7 +611,7 @@ def test_from_the_web_panel_an_admin_write_needs_the_csrf_token(
         json=login_data(tg_id, token=TEST_BOT_TOKEN, auth_date=datetime.now(UTC) - timedelta(seconds=30)),
     )
     assert signed.status_code == 200, signed.text
-    session = signed.headers["set-cookie"].split("qd_session=")[1].split(";")[0]
+    session = signed.headers["set-cookie"].split("hb_session=")[1].split(";")[0]
     csrf = {"X-CSRF-Token": signed.json()["csrf_token"]}
     row = owner.execute("SELECT id FROM app_user WHERE tg_id = %s", (tg_id,)).fetchone()
     assert row is not None
@@ -619,7 +619,7 @@ def test_from_the_web_panel_an_admin_write_needs_the_csrf_token(
 
     def cookies(admin_token: str | None = None) -> dict[str, str]:
         extra = "" if admin_token is None else f"; {ADMIN_COOKIE}={admin_token}"
-        return {"Cookie": f"qd_session={session}{extra}"}
+        return {"Cookie": f"hb_session={session}{extra}"}
 
     # Passing the factor is itself a write.
     code = fresh_code(admin_env, secret)

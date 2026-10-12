@@ -3,7 +3,7 @@ import { reading, type ShopApi } from "../api";
 /**
  * The owner's receipts for the subscription paid by card transfer (REQ-054, REQ-055). Built on the shop
  * API's `send` in the module that the subscription screen loads on demand. Shapes follow
- * backend/src/qarz/application/subscription_receipts.py (`receipt_body`) and
+ * backend/src/hiso_box/application/subscription_receipts.py (`receipt_body`) and
  * interface/subscription_receipts_api.py; the bounds are those of domain/subscription_receipts.py.
  */
 

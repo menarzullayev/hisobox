@@ -107,7 +107,7 @@ function paint(canvas: HTMLCanvasElement, time: number, pointer: { x: number; y:
  * colour value in this file at all.
  */
 function fieldColor(element: HTMLElement): string {
-  const value = getComputedStyle(element).getPropertyValue("--qd-accent-ink").trim();
+  const value = getComputedStyle(element).getPropertyValue("--hb-accent-ink").trim();
   return value === "" ? "currentColor" : value;
 }
 

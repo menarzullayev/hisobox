@@ -3,20 +3,20 @@
 # dump is written into the state volume and copied to the bucket, because a dump that exists only on
 # the machine it protects is not a backup.
 #
-#   monthly.sh upload             copy every dump of $QD_MONTHLY_DIR to qdcrypt:monthly
-#   monthly.sh prune [--dry-run]  keep the newest QD_KEEP_MONTHS (12) months in the bucket
+#   monthly.sh upload             copy every dump of $HB_MONTHLY_DIR to qdcrypt:monthly
+#   monthly.sh prune [--dry-run]  keep the newest HB_KEEP_MONTHS (12) months in the bucket
 #
 # The dump is already encrypted with the backup passphrase (openssl); the copy goes through rclone's
 # crypt remote as everything else does, so its name is hidden as well. Standard output: one JSON line.
 set -euo pipefail
 # shellcheck source-path=SCRIPTDIR source=env.sh
-. /opt/qarz-single/env.sh
+. /opt/hiso-box-single/env.sh
 # shellcheck source-path=SCRIPTDIR source=../../../backup/scripts/lib.sh
-. /opt/qarz-backup/scripts/lib.sh
+. /opt/hiso-box-backup/scripts/lib.sh
 need rclone jq awk
-qd_rclone_env
+hb_rclone_env
 
-: "${QD_KEEP_MONTHS:=12}"
+: "${HB_KEEP_MONTHS:=12}"
 mode="${1:-}"
 dry=0
 [ "${2:-}" = "--dry-run" ] && dry=1
@@ -46,9 +46,9 @@ remote_months() { rc lsf --files-only "$REMOTE" 2> /dev/null | sed -n 's/^db-\([
 
 case "$mode" in
 upload)
-    mkdir -p "$QD_MONTHLY_DIR"
-    local_count="$(find "$QD_MONTHLY_DIR" -maxdepth 1 -type f -name 'db-*.dump.enc' | wc -l | tr -d ' ')"
-    rc copy "$QD_MONTHLY_DIR" "$REMOTE" --include 'db-*.dump.enc' --include 'globals-*.sql.enc' >&2
+    mkdir -p "$HB_MONTHLY_DIR"
+    local_count="$(find "$HB_MONTHLY_DIR" -maxdepth 1 -type f -name 'db-*.dump.enc' | wc -l | tr -d ' ')"
+    rc copy "$HB_MONTHLY_DIR" "$REMOTE" --include 'db-*.dump.enc' --include 'globals-*.sql.enc' >&2
     remote_count="$(remote_months | wc -l | tr -d ' ')"
     [ "$remote_count" -ge "$local_count" ] || die "the bucket holds $remote_count monthly dumps, this host $local_count"
     ;;
@@ -63,7 +63,7 @@ prune)
             note "removed the monthly dump of $month from the bucket"
         fi
         removed=$((removed + 1))
-    done < <(remote_months | awk -v m="$QD_KEEP_MONTHS" '{ month[NR] = $1 } END { for (i = 1; i <= NR - m; i++) print month[i] }')
+    done < <(remote_months | awk -v m="$HB_KEEP_MONTHS" '{ month[NR] = $1 } END { for (i = 1; i <= NR - m; i++) print month[i] }')
     remote_count="$(remote_months | wc -l | tr -d ' ')"
     ;;
 *)

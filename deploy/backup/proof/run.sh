@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Local proof of deploy/backup, in containers on one machine. It runs the backup scripts against
-# the rehearsal stack of deploy/rehearsal under its own Compose project (qd-backup-proof).
+# the rehearsal stack of deploy/rehearsal under its own Compose project (hb-backup-proof).
 #
 #   proof/run.sh up      start the stack, build the application's schema with the real migrations
 #                        and fill it with a small generated data set
@@ -8,7 +8,7 @@
 #   proof/run.sh down    remove every container, volume, network and image of the proof
 #   proof/run.sh all     up, run, down (down also when run fails)
 #
-# "up" needs a Python that has the backend installed (QD_PYTHON, default backend/.venv); the other
+# "up" needs a Python that has the backend installed (HB_PYTHON, default backend/.venv); the other
 # steps need only Docker and bash. This proves the scripts, not an installation: one machine, one
 # disk, a repository that every container mounts, no systemd, no second server.
 #
@@ -16,19 +16,19 @@
 # shellcheck disable=SC2016
 set -euo pipefail
 
-export QD_COMPOSE_PROJECT=qd-backup-proof
-export QD_COMPOSE_OVERLAY=../backup/proof/compose.proof.yml
-export QD_PORT_PRIMARY="${QD_PORT_PRIMARY:-55632}"
-export QD_PORT_STANDBY="${QD_PORT_STANDBY:-55633}"
-export QD_PORT_PITR="${QD_PORT_PITR:-55634}"
-export QD_PORT_FILESTORE="${QD_PORT_FILESTORE:-55910}"
-export QD_PORT_FILESTORE_STANDBY="${QD_PORT_FILESTORE_STANDBY:-55911}"
+export HB_COMPOSE_PROJECT=hb-backup-proof
+export HB_COMPOSE_OVERLAY=../backup/proof/compose.proof.yml
+export HB_PORT_PRIMARY="${HB_PORT_PRIMARY:-55632}"
+export HB_PORT_STANDBY="${HB_PORT_STANDBY:-55633}"
+export HB_PORT_PITR="${HB_PORT_PITR:-55634}"
+export HB_PORT_FILESTORE="${HB_PORT_FILESTORE:-55910}"
+export HB_PORT_FILESTORE_STANDBY="${HB_PORT_FILESTORE_STANDBY:-55911}"
 
 PROOF_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "$PROOF_DIR/../../.." && pwd)"
 REHEARSAL_SCRIPTS="$REPO_ROOT/deploy/rehearsal/scripts"
-PROOF_DB=qd_load_proof
-S=/qd-backup/scripts
+PROOF_DB=hb_load_proof
+S=/hb-backup/scripts
 
 # ---------------------------------------------------------------------------------------------- up
 up() {
@@ -48,15 +48,15 @@ up() {
     node_id="$(garage2 node id -q | cut -d@ -f1)"
     garage2 layout assign -z local -c 1G "$node_id" > /dev/null
     garage2 layout apply --version 1 > /dev/null
-    garage2 key import --yes -n rehearsal "$QD_FILESTORE_KEY_ID" "$QD_FILESTORE_KEY_SECRET" > /dev/null
-    garage2 bucket create qd-files > /dev/null
-    garage2 bucket allow --read --write --owner qd-files --key rehearsal > /dev/null
+    garage2 key import --yes -n rehearsal "$HB_FILESTORE_KEY_ID" "$HB_FILESTORE_KEY_SECRET" > /dev/null
+    garage2 bucket create hb-files > /dev/null
+    garage2 bucket allow --read --write --owner hb-files --key rehearsal > /dev/null
 
     dc exec -T -u root pg-primary install -d -o postgres -g postgres \
-        /var/lib/qarz-backup /var/lib/qarz-backup/textfile
+        /var/lib/hiso-box-backup /var/lib/hiso-box-backup/textfile
 
     log "building the application's schema with the migrations and loading the 'tiny' data set"
-    local py="${QD_PYTHON:-}"
+    local py="${HB_PYTHON:-}"
     if [ -z "$py" ]; then
         for py in "$REPO_ROOT/backend/.venv/Scripts/python.exe" "$REPO_ROOT/backend/.venv/bin/python" python; do
             [ -x "$py" ] && break
@@ -65,7 +65,7 @@ up() {
     mkdir -p "$OUT_DIR"
     (
         cd "$REPO_ROOT/backend"
-        QD_LOAD_ADMIN_URL="postgresql://postgres:${QD_POSTGRES_PASSWORD}@127.0.0.1:${QD_PORT_PRIMARY}/postgres" \
+        HB_LOAD_ADMIN_URL="postgresql://postgres:${HB_POSTGRES_PASSWORD}@127.0.0.1:${HB_PORT_PRIMARY}/postgres" \
             "$py" -m loadtest.load --database "$PROOF_DB" --profile tiny --seed 1
     ) > "$OUT_DIR/backup-proof-load.json"
     log "loaded: $(tr -d ' \n' < "$OUT_DIR/backup-proof-load.json" | head -c 400)"
@@ -76,11 +76,11 @@ up() {
 
 # -------------------------------------------------------------------------------------------- down
 down() {
-    QD_COMPOSE_OVERLAY="$QD_COMPOSE_OVERLAY" bash "$REHEARSAL_SCRIPTS/down.sh" --all
-    docker image rm -f qd-backup-proof-postgres:16 qd-backup-proof-filestore:1 qd-backup-proof-tools:1 \
+    HB_COMPOSE_OVERLAY="$HB_COMPOSE_OVERLAY" bash "$REHEARSAL_SCRIPTS/down.sh" --all
+    docker image rm -f hb-backup-proof-postgres:16 hb-backup-proof-filestore:1 hb-backup-proof-tools:1 \
         > /dev/null 2>&1 || true
     local left
-    left="$(docker image ls -q --filter 'reference=qd-backup-proof-*' | wc -l)"
+    left="$(docker image ls -q --filter 'reference=hb-backup-proof-*' | wc -l)"
     echo "images of the proof left: ${left// /}"
 }
 
@@ -170,14 +170,14 @@ run() {
     expect_field outcome ok
     expect_field backup_type diff
     echo "MEASURE restore_seconds $(field restore_seconds), start_seconds $(field start_seconds), whole test $(field duration_seconds) s"
-    if [ -z "$(on_standby bash -c 'ls -d /var/tmp/qd-restore-test.* 2>/dev/null')" ]; then
+    if [ -z "$(on_standby bash -c 'ls -d /var/tmp/hb-restore-test.* 2>/dev/null')" ]; then
         pass "the throwaway instance was removed"
     else
         fail "the throwaway instance was left behind"
     fi
 
     section "4. Negative: the restored database is not at the repository's migration head"
-    step restore-test-wrong-head 1 on_standby env QD_EXPECTED_MIGRATION_HEAD=9999 bash "$S/restore-test.sh"
+    step restore-test-wrong-head 1 on_standby env HB_EXPECTED_MIGRATION_HEAD=9999 bash "$S/restore-test.sh"
     expect_field failed_check migration
 
     section "5. Negative: a stored open debt differs from the ledger in the backup"
@@ -222,7 +222,7 @@ run() {
 
     section "6. Negative: the newest backup's files are damaged"
     label="$(newest_label)"
-    file="$(on_standby bash -c "find /var/lib/pgbackrest/backup/qarz/$label -type f ! -name 'backup.manifest*' -printf '%s %p\n' | sort -n | tail -n 1 | cut -d' ' -f2-")"
+    file="$(on_standby bash -c "find /var/lib/pgbackrest/backup/hiso_box/$label -type f ! -name 'backup.manifest*' -printf '%s %p\n' | sort -n | tail -n 1 | cut -d' ' -f2-")"
     on_standby bash -c "head -c \"\$(stat -c %s '$file')\" /dev/urandom > '$file'"
     echo "      overwrote with random bytes: ${file#/var/lib/pgbackrest/}"
     step restore-test-damaged-backup 1 on_standby bash "$S/restore-test.sh"
@@ -231,9 +231,9 @@ run() {
     step backup-diff-after-damage 0 on_primary bash "$S/backup.sh" diff
     step restore-test-after-new-backup 0 on_standby bash "$S/restore-test.sh"
 
-    section "7. Negative: archiving stops (threshold shortened to 20 s through QD_MAX_WAL_AGE_SECONDS; the real one is 300 s)"
+    section "7. Negative: archiving stops (threshold shortened to 20 s through HB_MAX_WAL_AGE_SECONDS; the real one is 300 s)"
     switch_and_wait || fail "the WAL segment was not archived"
-    step check-short-threshold-archiving 0 on_standby env QD_MAX_WAL_AGE_SECONDS=20 bash "$S/check.sh"
+    step check-short-threshold-archiving 0 on_standby env HB_MAX_WAL_AGE_SECONDS=20 bash "$S/check.sh"
     on_primary pgbackrest --stanza=qarz --log-level-console=warn stop
     echo "      archiving stopped on the primary (pgbackrest stop); writing for 30 s"
     local i
@@ -241,17 +241,17 @@ run() {
         primary_sql postgres "select pg_logical_emit_message(true, 'proof', '$i'); select pg_switch_wal()" > /dev/null
         sleep 5
     done
-    step check-archive-stopped 1 on_standby env QD_MAX_WAL_AGE_SECONDS=20 bash "$S/check.sh"
+    step check-archive-stopped 1 on_standby env HB_MAX_WAL_AGE_SECONDS=20 bash "$S/check.sh"
     on_primary pgbackrest --stanza=qarz --log-level-console=warn start
     if switch_and_wait 150; then
-        step check-archive-resumed 0 on_standby env QD_MAX_WAL_AGE_SECONDS=20 bash "$S/check.sh"
+        step check-archive-resumed 0 on_standby env HB_MAX_WAL_AGE_SECONDS=20 bash "$S/check.sh"
     else
         fail "archiving did not resume within 150 s"
     fi
 
     section "8. Negative: no backup is recent enough (thresholds shortened to 1 s)"
     sleep 2
-    step check-backup-too-old 1 on_standby env QD_MAX_BACKUP_AGE_SECONDS=1 QD_MAX_FULL_AGE_SECONDS=1 bash "$S/check.sh"
+    step check-backup-too-old 1 on_standby env HB_MAX_BACKUP_AGE_SECONDS=1 HB_MAX_FULL_AGE_SECONDS=1 bash "$S/check.sh"
 
     section "9. The heartbeat keeps the archive moving on an idle database (archive-heartbeat.sh, archive_timeout 60 s)"
     local before after waited=0
@@ -268,7 +268,7 @@ run() {
     else
         fail "no segment was archived within 90 s of a heartbeat"
     fi
-    if [ "${QD_PROOF_IDLE:-0}" = 1 ]; then
+    if [ "${HB_PROOF_IDLE:-0}" = 1 ]; then
         before="$after"
         sleep 150
         after="$(primary_sql postgres 'select archived_count from pg_stat_archiver')"
@@ -278,20 +278,20 @@ run() {
     section "10. File store: copy to the standby's store, weekly archive (filestore-sync.sh)"
     in_tools bash -c 'rm -rf /tmp/in && mkdir -p /tmp/in/receipts /tmp/in/imports \
         && head -c 30000 /dev/urandom > /tmp/in/receipts/a.jpg && head -c 5000 /dev/urandom > /tmp/in/receipts/b.jpg \
-        && echo "name,amount" > /tmp/in/imports/c.csv && rclone copy /tmp/in primary:qd-files'
+        && echo "name,amount" > /tmp/in/imports/c.csv && rclone copy /tmp/in primary:hb-files'
     step filestore-sync 0 in_tools bash "$S/filestore-sync.sh" sync
     expect_field objects_count 3
-    if in_tools bash -c 'rclone check primary:qd-files standby:qd-files --download 2>&1 | grep -q "0 differences found"'; then
+    if in_tools bash -c 'rclone check primary:hb-files standby:hb-files --download 2>&1 | grep -q "0 differences found"'; then
         pass "the standby's bucket holds the same three objects, compared byte by byte"
     else
         fail "the two buckets differ"
     fi
     step filestore-archive 0 in_tools bash "$S/filestore-sync.sh" archive
     expect_field objects_count 3
-    in_tools bash -c 'rclone delete primary:qd-files'
-    step filestore-sync-mass-delete nonzero in_tools env QD_FILES_MAX_DELETE=1 bash "$S/filestore-sync.sh" sync
-    if [ "$(in_tools bash -c 'rclone size --json standby:qd-files | jq .count')" -ge 2 ]; then
-        pass "an emptied source did not empty the copy (QD_FILES_MAX_DELETE=1 for the proof; 100 by default)"
+    in_tools bash -c 'rclone delete primary:hb-files'
+    step filestore-sync-mass-delete nonzero in_tools env HB_FILES_MAX_DELETE=1 bash "$S/filestore-sync.sh" sync
+    if [ "$(in_tools bash -c 'rclone size --json standby:hb-files | jq .count')" -ge 2 ]; then
+        pass "an emptied source did not empty the copy (HB_FILES_MAX_DELETE=1 for the proof; 100 by default)"
     else
         fail "the copy was emptied"
     fi
@@ -307,7 +307,7 @@ run() {
     on_standby bash -c 'rm -rf /tmp/prune && mkdir -p /tmp/prune/files /tmp/prune/monthly \
         && for i in $(seq 0 59); do : > "/tmp/prune/files/files-$(date -d "2026-10-04 -$((i * 7)) days" +%Y%m%d).tar.gz.enc"; done \
         && for i in $(seq 0 14); do m=$(date -d "2026-10-01 -$i months" +%Y%m); : > "/tmp/prune/monthly/db-$m.dump.enc"; : > "/tmp/prune/monthly/globals-$m.sql.enc"; done'
-    step expire-prune 0 on_standby env QD_FILES_ARCHIVE_DIR=/tmp/prune/files QD_MONTHLY_DIR=/tmp/prune/monthly bash "$S/expire.sh"
+    step expire-prune 0 on_standby env HB_FILES_ARCHIVE_DIR=/tmp/prune/files HB_MONTHLY_DIR=/tmp/prune/monthly bash "$S/expire.sh"
     local kept
     kept="$(on_standby bash -c 'cd /tmp/prune && ls files | tr "\n" " "; echo; ls monthly | grep -c "^db-"; ls monthly | grep -c "^globals-"')"
     echo "      kept: $kept" | tr '\n' ' '
@@ -327,17 +327,17 @@ run() {
     fi
     # The real installation's retention options, applied to this repository without removing anything.
     on_standby mkdir -p /tmp/no-include
-    step expire-production-settings 0 on_standby pgbackrest --config=/qd-backup/pgbackrest.conf \
+    step expire-production-settings 0 on_standby pgbackrest --config=/hb-backup/pgbackrest.conf \
         --config-include-path=/tmp/no-include --stanza=qarz --log-path=/tmp --log-level-file=off \
         --log-level-console=info expire --dry-run
 
     section "13. The figures written for monitoring"
-    on_standby bash -c 'cd /var/lib/qarz-backup/textfile && grep -h -v "^#" -- *.prom | sort' | sed 's/^/      /'
+    on_standby bash -c 'cd /var/lib/hiso-box-backup/textfile && grep -h -v "^#" -- *.prom | sort' | sed 's/^/      /'
     local wanted
-    for wanted in 'qd_backup_last_success_timestamp_seconds{type="full"}' \
-        'qd_backup_last_success_timestamp_seconds{type="diff"}' \
-        'qd_backup_restore_test_last_success_timestamp_seconds' 'qd_wal_archive_newest_age_seconds'; do
-        if on_standby bash -c 'cat /var/lib/qarz-backup/textfile/*.prom' | grep -F "$wanted " | grep -qv ' 0$'; then
+    for wanted in 'hb_backup_last_success_timestamp_seconds{type="full"}' \
+        'hb_backup_last_success_timestamp_seconds{type="diff"}' \
+        'hb_backup_restore_test_last_success_timestamp_seconds' 'hb_wal_archive_newest_age_seconds'; do
+        if on_standby bash -c 'cat /var/lib/hiso-box-backup/textfile/*.prom' | grep -F "$wanted " | grep -qv ' 0$'; then
             pass "written and not zero: $wanted"
         else
             fail "missing or zero: $wanted"
@@ -345,11 +345,11 @@ run() {
     done
 
     section "14. shellcheck and systemd-analyze"
-    step shellcheck 0 in_tools bash -c 'cd /qd-backup && shellcheck --external-sources --severity=style scripts/*.sh proof/run.sh'
+    step shellcheck 0 in_tools bash -c 'cd /hb-backup && shellcheck --external-sources --severity=style scripts/*.sh proof/run.sh'
     # The units are copied first: a directory mounted from Windows makes every file look executable.
-    step systemd-units 0 in_tools bash -c 'rm -rf /tmp/units && mkdir /tmp/units && cp /qd-backup/systemd/* /tmp/units/ \
+    step systemd-units 0 in_tools bash -c 'rm -rf /tmp/units && mkdir /tmp/units && cp /hb-backup/systemd/* /tmp/units/ \
         && chmod 644 /tmp/units/* && systemd-analyze verify --man=no /tmp/units/*.service /tmp/units/*.timer'
-    step systemd-calendars 0 in_tools bash -c 'for t in /qd-backup/systemd/*.timer; do sed -n "s/^OnCalendar=//p" "$t" | while read -r c; do systemd-analyze calendar "$c" > /dev/null || exit 1; done || exit 1; done'
+    step systemd-calendars 0 in_tools bash -c 'for t in /hb-backup/systemd/*.timer; do sed -n "s/^OnCalendar=//p" "$t" | while read -r c; do systemd-analyze calendar "$c" > /dev/null || exit 1; done || exit 1; done'
 
     printf '\n== Result: %s passed, %s failed, in %s s\n' "$passes" "$failures" "$(seconds_between "$t_run" "$(now)")"
     [ "$failures" = 0 ]

@@ -35,7 +35,7 @@ function backend(role: Role, stockOn: boolean) {
         return {
           status: 200,
           body: { items: [{ shop_id: SHOP_ID, name: "Baraka savdo", role, membership_id: "33333333-3333-4333-8333-333333333333" }], active_shop: SHOP_ID },
-          headers: stockOn ? { "X-Qarz-Stock": "on" } : {},
+          headers: stockOn ? { "X-Shop-Stock": "on" } : {},
         };
       case `${SHOP_BASE}/overview`:
         return ok({ outstanding: 0, debtors: 0, overdue: { amount: 0, customers: 0 }, due_today: 0 });

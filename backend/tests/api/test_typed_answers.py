@@ -1,4 +1,4 @@
-"""Routes with a response model answer with the same bytes as without one (qarz.interface.answers).
+"""Routes with a response model answer with the same bytes as without one (hiso_box.interface.answers).
 
 A response model checks an answer; it must not change it. For each typed route the test records what the
 application service returned, sends that through a route with no model, and compares the bytes with what
@@ -18,10 +18,10 @@ from fastapi import FastAPI
 from fastapi.exceptions import ResponseValidationError
 from fastapi.testclient import TestClient
 
-from qarz.application.account import AccountService
-from qarz.application.customers import CustomerService
-from qarz.application.ledger_service import LedgerService
-from qarz.application.shops import ShopService
+from hiso_box.application.account import AccountService
+from hiso_box.application.customers import CustomerService
+from hiso_box.application.ledger_service import LedgerService
+from hiso_box.application.shops import ShopService
 
 from .conftest import World, as_user
 from .test_customers_ledger import read, record, reverse, seed_entry, shop, today, write

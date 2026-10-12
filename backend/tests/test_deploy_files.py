@@ -12,35 +12,35 @@ from types import ModuleType
 
 import pytest
 
-from qarz.infrastructure.settings import Settings
+from hiso_box.infrastructure.settings import Settings
 
 REPO = Path(__file__).resolve().parents[2]
 PRODUCTION = REPO / "deploy" / "production"
 BACKEND = REPO / "backend"
 
-OWNER_URL = "QD_MIGRATION_URL"
+OWNER_URL = "HB_MIGRATION_URL"
 # The SMS provider's account: the worker alone sends, so the API is never handed it.
-ESKIZ = {"QD_ESKIZ_EMAIL", "QD_ESKIZ_PASSWORD", "QD_ESKIZ_SENDER"}
+ESKIZ = {"HB_ESKIZ_EMAIL", "HB_ESKIZ_PASSWORD", "HB_ESKIZ_SENDER"}
 # The operations watch (DEC-078) runs in the worker: whom it tells and what it reads.
 ALERTS = {
-    "QD_ALERT_CHAT_IDS",
-    "QD_ALERT_API_URL",
-    "QD_ALERT_BACKUP_FIGURES_DIR",
-    "QD_ALERT_FILES_FIGURES_DIR",
-    "QD_ALERT_DISK_PATHS",
+    "HB_ALERT_CHAT_IDS",
+    "HB_ALERT_API_URL",
+    "HB_ALERT_BACKUP_FIGURES_DIR",
+    "HB_ALERT_FILES_FIGURES_DIR",
+    "HB_ALERT_DISK_PATHS",
 }
-WORKER_ONLY = {"QD_WORKER_STATEMENT_TIMEOUT_MS", "QD_WORKER_DATABASE_URL"} | ESKIZ | ALERTS
+WORKER_ONLY = {"HB_WORKER_STATEMENT_TIMEOUT_MS", "HB_WORKER_DATABASE_URL"} | ESKIZ | ALERTS
 # The connection of each part's own database role (migration 0031): which service may hold which.
 CONNECTIONS = {
-    "QD_DATABASE_URL": {"api"},
-    "QD_ADMIN_DATABASE_URL": {"api"},
-    "QD_WORKER_DATABASE_URL": {"worker"},
+    "HB_DATABASE_URL": {"api"},
+    "HB_ADMIN_DATABASE_URL": {"api"},
+    "HB_WORKER_DATABASE_URL": {"worker"},
     OWNER_URL: {"migrate"},
 }
 
 
 def setting_names() -> set[str]:
-    return {f"QD_{name.upper()}" for name in Settings.model_fields}
+    return {f"HB_{name.upper()}" for name in Settings.model_fields}
 
 
 def assigned_names(env_text: str) -> set[str]:
@@ -66,12 +66,12 @@ def block(compose_text: str, header: str) -> str:
 
 
 def handed(compose_text: str, service: str) -> set[str]:
-    """The QD_ names in a service's environment, the shared group included when it is merged in."""
+    """The HB_ names in a service's environment, the shared group included when it is merged in."""
     own = block(compose_text, f"  {service}:")
-    names = set(re.findall(r"^\s+(QD_[A-Z0-9_]+):", own, flags=re.MULTILINE))
+    names = set(re.findall(r"^\s+(HB_[A-Z0-9_]+):", own, flags=re.MULTILINE))
     if "*shared-env" in own:
         shared = block(compose_text, "x-shared-env: &shared-env")
-        names |= set(re.findall(r"^\s+(QD_[A-Z0-9_]+):", shared, flags=re.MULTILINE))
+        names |= set(re.findall(r"^\s+(HB_[A-Z0-9_]+):", shared, flags=re.MULTILINE))
     return names
 
 
@@ -90,13 +90,13 @@ def test_every_setting_is_named_in_the_production_env_example(production_env: st
 
 
 def test_a_setting_missing_from_the_env_example_is_reported(production_env: str) -> None:
-    without = production_env.replace("QD_SECRETS_KEY=", "# QD_SECRETS_KEY=")
-    assert missing_from(without, setting_names()) == {"QD_SECRETS_KEY"}
+    without = production_env.replace("HB_SECRETS_KEY=", "# HB_SECRETS_KEY=")
+    assert missing_from(without, setting_names()) == {"HB_SECRETS_KEY"}
 
 
 def test_the_production_env_example_names_nothing_the_root_one_does_not(production_env: str) -> None:
     root = assigned_names((REPO / ".env.example").read_text(encoding="utf-8"))
-    ours = {name for name in assigned_names(production_env) if name.startswith("QD_")}
+    ours = {name for name in assigned_names(production_env) if name.startswith("HB_")}
     assert ours - root == set()
     assert setting_names() - root == set()
 
@@ -112,7 +112,7 @@ def test_every_setting_reaches_the_service_that_reads_it(compose: str) -> None:
     # The worker's bot and file store are the API's. Its database connection is not: see below.
     shared = handed(compose, "worker") - WORKER_ONLY
     assert shared <= api
-    assert {"QD_BOT_TOKEN", "QD_FILE_STORE", "QD_S3_SECRET_KEY"} <= shared
+    assert {"HB_BOT_TOKEN", "HB_FILE_STORE", "HB_S3_SECRET_KEY"} <= shared
 
 
 def holders(compose_text: str) -> dict[str, set[str]]:
@@ -130,21 +130,21 @@ def test_each_part_is_handed_the_connection_of_its_own_role_and_no_other(compose
 def test_a_connection_handed_to_the_wrong_service_is_reported(compose: str) -> None:
     """The counterpart: the old arrangement, one connection shared by the API and the worker, fails."""
     shared_again = compose.replace(
-        "  QD_BOT_TOKEN: ${QD_BOT_TOKEN:-}\n", "  QD_BOT_TOKEN: ${QD_BOT_TOKEN:-}\n  QD_DATABASE_URL: x\n", 1
+        "  HB_BOT_TOKEN: ${HB_BOT_TOKEN:-}\n", "  HB_BOT_TOKEN: ${HB_BOT_TOKEN:-}\n  HB_DATABASE_URL: x\n", 1
     )
     assert shared_again != compose
-    assert holders(shared_again)["QD_DATABASE_URL"] == {"api", "worker"}
+    assert holders(shared_again)["HB_DATABASE_URL"] == {"api", "worker"}
     to_the_api = compose.replace(
-        "      QD_WEBHOOK_SECRET: ${QD_WEBHOOK_SECRET:-}\n",
-        "      QD_WEBHOOK_SECRET: ${QD_WEBHOOK_SECRET:-}\n      QD_WORKER_DATABASE_URL: x\n",
+        "      HB_WEBHOOK_SECRET: ${HB_WEBHOOK_SECRET:-}\n",
+        "      HB_WEBHOOK_SECRET: ${HB_WEBHOOK_SECRET:-}\n      HB_WORKER_DATABASE_URL: x\n",
         1,
     )
-    assert holders(to_the_api)["QD_WORKER_DATABASE_URL"] == {"api", "worker"}
+    assert holders(to_the_api)["HB_WORKER_DATABASE_URL"] == {"api", "worker"}
 
 
 def test_a_setting_not_handed_to_the_api_is_reported(compose: str) -> None:
-    without = compose.replace("      QD_METRICS_TOKEN: ${QD_METRICS_TOKEN:-}\n", "")
-    assert setting_names() - WORKER_ONLY - handed(without, "api") == {"QD_METRICS_TOKEN"}
+    without = compose.replace("      HB_METRICS_TOKEN: ${HB_METRICS_TOKEN:-}\n", "")
+    assert setting_names() - WORKER_ONLY - handed(without, "api") == {"HB_METRICS_TOKEN"}
 
 
 def test_the_sms_account_goes_to_the_worker_alone(compose: str) -> None:
@@ -155,12 +155,12 @@ def test_the_sms_account_goes_to_the_worker_alone(compose: str) -> None:
 
 def test_the_sms_account_handed_to_the_api_is_reported(compose: str) -> None:
     to_the_api = compose.replace(
-        "      QD_WEBHOOK_SECRET: ${QD_WEBHOOK_SECRET:-}\n",
-        "      QD_WEBHOOK_SECRET: ${QD_WEBHOOK_SECRET:-}\n      QD_ESKIZ_PASSWORD: x\n",
+        "      HB_WEBHOOK_SECRET: ${HB_WEBHOOK_SECRET:-}\n",
+        "      HB_WEBHOOK_SECRET: ${HB_WEBHOOK_SECRET:-}\n      HB_ESKIZ_PASSWORD: x\n",
         1,
     )
     assert to_the_api != compose
-    assert ESKIZ & handed(to_the_api, "api") == {"QD_ESKIZ_PASSWORD"}
+    assert ESKIZ & handed(to_the_api, "api") == {"HB_ESKIZ_PASSWORD"}
 
 
 def test_the_owner_connection_goes_to_the_migration_alone(compose: str) -> None:
@@ -220,7 +220,7 @@ def test_the_api_is_deployed_as_one_process(api_files: tuple[str, dict[str, str]
     dockerfile, compose_files = api_files
     assert api_process_problems(dockerfile, compose_files) == []
     # The image's own command is what runs: uvicorn, which serves with one process unless told otherwise.
-    assert 'CMD ["uvicorn", "qarz.interface.asgi:build", "--factory"' in dockerfile
+    assert 'CMD ["uvicorn", "hiso_box.interface.asgi:build", "--factory"' in dockerfile
     assert any("  api:" in text.splitlines() for text in compose_files.values())
 
 
@@ -243,7 +243,7 @@ def test_the_api_is_deployed_as_one_process(api_files: tuple[str, dict[str, str]
         (
             "compose.yml",
             "  api:\n",
-            '  api:\n    command: ["gunicorn", "qarz.interface.asgi:build"]\n',
+            '  api:\n    command: ["gunicorn", "hiso_box.interface.asgi:build"]\n',
             "compose.yml: api command:",
         ),
         (
@@ -293,13 +293,13 @@ def test_the_image_installs_the_runtime_part_of_the_lock_and_no_tools() -> None:
 
 def test_a_runtime_dependency_absent_from_the_lock_is_refused() -> None:
     module = _runtime_requirements()
-    lock = "fastapi==1.0 \\\n    --hash=sha256:00\n    # via qarz-daftari-backend (pyproject.toml)\n"
+    lock = "fastapi==1.0 \\\n    --hash=sha256:00\n    # via hiso-box-backend (pyproject.toml)\n"
     pyproject = '[project]\ndependencies = ["fastapi>=0.1", "left-out>=1"]\n'
     with pytest.raises(ValueError, match="left-out"):
         module.select(lock, pyproject)
 
 
-_LISTS_A_NAME = re.compile(r"docker image ls[^\n]*\|\s*grep[^\n]*qarz-daftari/")
+_LISTS_A_NAME = re.compile(r"docker image ls[^\n]*\|\s*grep[^\n]*hiso_box/")
 
 
 def _removes_every_tag(script: str) -> bool:
@@ -315,14 +315,14 @@ def test_taking_the_local_stack_down_leaves_other_releases_images() -> None:
     """
     script = (REPO / "deploy/production/scripts/local.sh").read_text(encoding="utf-8")
     assert not _removes_every_tag(script)
-    assert "qarz-daftari/backend:$RELEASE" in script and "qarz-daftari/proxy:$RELEASE" in script
+    assert "hiso_box/backend:$RELEASE" in script and "hiso_box/proxy:$RELEASE" in script
     removal = [line for line in script.splitlines() if "docker image rm" in line]
     assert removal and all("--force" not in line and " -f " not in line for line in removal)
 
 
 def test_the_check_notices_a_teardown_that_removes_every_tag() -> None:
     old = (
-        "images=\"$(docker image ls --format '{{.Repository}}:{{.Tag}}' | grep -E '^qarz-daftari/(backend|proxy):')\"\n"
+        "images=\"$(docker image ls --format '{{.Repository}}:{{.Tag}}' | grep -E '^hiso_box/(backend|proxy):')\"\n"
         "docker image rm $images >/dev/null\n"
     )
     assert _removes_every_tag(old)

@@ -17,7 +17,7 @@ import { MAX_DOCUMENT_TOTAL, MAX_NOTE, readQty, tidy } from "./quantity";
 import { SALE_METHOD_LABELS, SaleDetails, SaleWarnings } from "./saleParts";
 import { type ItemFilter, type NewSale, PAYMENT_METHODS, type PaymentMethod, type RecordedSale, type StockItem, type StockSettings } from "./stockApi";
 
-/** The most lines one sale holds (backend/src/qarz/domain/stock.py, MAX_SALE_LINES). */
+/** The most lines one sale holds (backend/src/hiso_box/domain/stock.py, MAX_SALE_LINES). */
 export const MAX_SALE_LINES = 100;
 
 /** What the finder offers by name: every item of the catalog. One that is not counted is sold too, with no movement. */

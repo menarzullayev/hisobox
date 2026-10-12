@@ -25,11 +25,11 @@ from loadtest.invariants import database_problems
 from loadtest.load import app_url, copy_shops, drop_database, fill, read_manifest
 from psycopg import errors
 
-from qarz.application.auth import AuthService
-from qarz.infrastructure.db import Database
-from qarz.infrastructure.settings import Settings
-from qarz.interface.http import create_app
-from qarz.interface.rate_limit import Limit, RateLimits
+from hiso_box.application.auth import AuthService
+from hiso_box.infrastructure.db import Database
+from hiso_box.infrastructure.settings import Settings
+from hiso_box.interface.http import create_app
+from hiso_box.interface.rate_limit import Limit, RateLimits
 
 pytestmark = pytest.mark.db
 
@@ -46,10 +46,10 @@ class Loaded:
 
 @pytest.fixture(scope="module")
 def loaded() -> Iterator[Loaded]:
-    admin_url = os.environ.get("QD_TEST_ADMIN_URL")
+    admin_url = os.environ.get("HB_TEST_ADMIN_URL")
     if not admin_url:
-        pytest.fail("QD_TEST_ADMIN_URL is not set; start PostgreSQL (docker compose -f docker-compose.dev.yml up -d)")
-    name = f"qd_load_t{uuid.uuid4().hex[:12]}"
+        pytest.fail("HB_TEST_ADMIN_URL is not set; start PostgreSQL (docker compose -f docker-compose.dev.yml up -d)")
+    name = f"hb_load_t{uuid.uuid4().hex[:12]}"
     try:
         manifest = fill(admin_url, name, TINY, SEED, datetime.now(UTC), drop_existing=False)
         yield Loaded(admin_url, name, admin_url.rsplit("/", 1)[0] + "/" + name, manifest)
@@ -108,10 +108,10 @@ def test_the_application_role_sees_one_shop_at_a_time(loaded: Loaded) -> None:
     with psycopg.connect(loaded.url) as connection:
         shops = [row[0] for row in connection.execute("SELECT id FROM shop ORDER BY id")]
         per_shop = dict(connection.execute("SELECT shop_id, count(*) FROM ledger_entry GROUP BY shop_id").fetchall())
-        connection.execute("SET ROLE qd_app")
+        connection.execute("SET ROLE hb_app")
         assert connection.execute("SELECT count(*) FROM ledger_entry").fetchone() == (0,)
         for shop_id in shops:
-            connection.execute("SELECT set_config('qd.shop_id', %s, true)", (str(shop_id),))
+            connection.execute("SELECT set_config('hb.shop_id', %s, true)", (str(shop_id),))
             assert connection.execute("SELECT count(*) FROM ledger_entry").fetchone() == (per_shop[shop_id],)
         connection.rollback()
 

@@ -19,9 +19,9 @@ import psycopg
 import pytest
 from fastapi.testclient import TestClient
 
-from qarz.domain import territories
-from qarz.infrastructure.settings import Settings
-from qarz.interface.import_territories import report, run
+from hiso_box.domain import territories
+from hiso_box.infrastructure.settings import Settings
+from hiso_box.interface.import_territories import report, run
 
 from .conftest import World, as_user
 from .test_customers_ledger import key, read, record, shop, write
@@ -208,7 +208,7 @@ def test_with_the_switch_off_no_route_of_the_reference_exists_for_anyone(
         for headers in (as_user(world.manager_a), as_user(world.stranger), {}):
             response = client.get(f"{geo(world)}/{path}", headers=headers)
             assert response.status_code == 404 and response.json() == NOT_FOUND, (path, headers)
-    assert "x-qarz-address" not in client.get("/api/v1/me/shops", headers=as_user(world.manager_a)).headers
+    assert "x-shop-address" not in client.get("/api/v1/me/shops", headers=as_user(world.manager_a)).headers
 
 
 def test_with_the_switch_off_a_customer_is_exactly_what_it_was(
@@ -248,7 +248,7 @@ def test_with_the_switch_off_a_customer_is_exactly_what_it_was(
     assert "address" not in listed, "a list of customers never carries addresses"
     for before, after in zip(off, on, strict=True):
         assert set(after) - set(before) <= {"address"} and set(before) <= set(after)
-    assert client.get("/api/v1/me/shops", headers=as_user(world.manager_a)).headers["x-qarz-address"] == "on"
+    assert client.get("/api/v1/me/shops", headers=as_user(world.manager_a)).headers["x-shop-address"] == "on"
 
 
 # --- the lists -----------------------------------------------------------------------------------------
@@ -814,7 +814,7 @@ def test_the_import_refuses_a_directory_or_a_configuration_it_cannot_use_and_cha
         owner.execute(f"SELECT count(*), count(*) FILTER (WHERE status = 'active') FROM {t}").fetchone()
         for t in GEO_TABLES
     ]
-    with pytest.raises(ValueError, match="QD_ADMIN_DATABASE_URL"):
+    with pytest.raises(ValueError, match="HB_ADMIN_DATABASE_URL"):
         asyncio.run(run(directory, Settings(admin_database_url="")))
     # A missing file would otherwise read as "the reference has no streets any more".
     (directory / "streets.csv").rename(directory / "streets.txt")

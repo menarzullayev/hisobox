@@ -30,12 +30,12 @@ CREATE INDEX customer_advance_shop ON customer_advance (shop_id, currency);
 
 -- Read by the application; written only by the function below, which runs with its owner's rights.
 REVOKE ALL ON customer_advance FROM PUBLIC;
-GRANT SELECT ON customer_advance TO qd_app;
+GRANT SELECT ON customer_advance TO hb_app;
 ALTER TABLE customer_advance ENABLE ROW LEVEL SECURITY;
 ALTER TABLE customer_advance FORCE ROW LEVEL SECURITY;
 CREATE POLICY tenant ON customer_advance
-  USING (shop_id = nullif(current_setting('qd.shop_id', true), '')::uuid)
-  WITH CHECK (shop_id = nullif(current_setting('qd.shop_id', true), '')::uuid);
+  USING (shop_id = nullif(current_setting('hb.shop_id', true), '')::uuid)
+  WITH CHECK (shop_id = nullif(current_setting('hb.shop_id', true), '')::uuid);
 
 -- What the ledger says each of the given customers is in credit by, per currency. The balance of 0041:
 -- debts minus payments among the entries that stand; a reversal is neither.
@@ -177,7 +177,7 @@ END $$;
 -- `network_note_author` is that rule, and `network_receipt_finish` now compares the author of the
 -- supplier's entries with it: the issuer while active and permitted, the owner otherwise, nobody else.
 --
--- "Holds `credits.record`" is the domain's `effective` (qarz.domain.permissions), said again in SQL for
+-- "Holds `credits.record`" is the domain's `effective` (hiso_box.domain.permissions), said again in SQL for
 -- this one key. Every role holds `credits.record` by default and the key is not a fixed one, so:
 --   * the owner holds it, always;
 --   * with the platform switch `permissions_on` off, every active member holds it;
@@ -207,7 +207,7 @@ REVOKE ALL ON FUNCTION network_note_author(uuid, uuid) FROM PUBLIC;
 -- credit sale and the payment of what was paid on delivery):
 --     e.author_id = theirs.issued_by   ->   e.author_id = network_note_author(p_peer, theirs.issued_by)
 -- Same name, same arguments, same refusal (`NETWORK_BOOKS_MISMATCH`), same rights: replaced, so it stays
--- closed to PUBLIC and granted to `qd_app` alone (said again below).
+-- closed to PUBLIC and granted to `hb_app` alone (said again below).
 CREATE OR REPLACE FUNCTION network_receipt_finish(
   p_shop uuid, p_peer uuid, p_note uuid, p_member uuid, p_document uuid, p_entry uuid, p_paid_entry uuid,
   p_now timestamptz
@@ -325,5 +325,5 @@ BEGIN
                                          'paid', own.paid));
 END $$;
 REVOKE ALL ON FUNCTION network_receipt_finish(uuid, uuid, uuid, uuid, uuid, uuid, uuid, timestamptz) FROM PUBLIC;
-GRANT EXECUTE ON FUNCTION network_receipt_finish(uuid, uuid, uuid, uuid, uuid, uuid, uuid, timestamptz) TO qd_app;
+GRANT EXECUTE ON FUNCTION network_receipt_finish(uuid, uuid, uuid, uuid, uuid, uuid, uuid, timestamptz) TO hb_app;
 -- End of decision 2.

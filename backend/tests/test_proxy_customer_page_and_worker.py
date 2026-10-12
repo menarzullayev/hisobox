@@ -157,7 +157,7 @@ def test_a_photo_of_the_shared_catalogue_may_be_cached_and_nothing_else_under_fi
     handed = read("image-proxy.conf")
     # The application's own header is dropped and the proxy says it once, from the map.
     assert "proxy_hide_header Cache-Control;" in handed
-    assert header(handed, "Cache-Control") == ["$qd_image_cache"]
+    assert header(handed, "Cache-Control") == ["$hb_image_cache"]
     assert "headers-api.conf" not in handed, "that file says no-store, which would be said as well"
     assert image_cache(read("http-common.conf")) == {
         '"~immutable"': '"public, max-age=31536000, immutable"',
@@ -167,7 +167,7 @@ def test_a_photo_of_the_shared_catalogue_may_be_cached_and_nothing_else_under_fi
 
 def image_cache(http: str) -> dict[str, str]:
     """The map that decides what a cache is told about an answer of /files/catalog/."""
-    body = re.search(r"map \$upstream_http_cache_control \$qd_image_cache \{(.*?)\}", code(http), re.S)
+    body = re.search(r"map \$upstream_http_cache_control \$hb_image_cache \{(.*?)\}", code(http), re.S)
     assert body is not None
     entries = [line.strip().rstrip(";").split(" ", 1) for line in body.group(1).splitlines() if line.strip()]
     return {key: value.strip() for key, value in entries}
@@ -228,11 +228,11 @@ def test_the_customers_page_is_served_with_those_headers_at_its_own_path() -> No
 def test_the_read_behind_a_link_has_its_own_limit_by_address_and_one_address() -> None:
     server = read("app-server.conf")
     block = location(server, "= /api/v1/customer-share")
-    assert "limit_req zone=qd_share burst=20 nodelay;" in block
-    assert "limit_req zone=qd_general burst=40 nodelay;" in block
+    assert "limit_req zone=hb_share burst=20 nodelay;" in block
+    assert "limit_req zone=hb_general burst=40 nodelay;" in block
     assert "include /etc/nginx/snippets/api-proxy.conf;" in block
     zone = re.findall(
-        r"^limit_req_zone (\S+) zone=qd_share:\S+ rate=(\S+);", read("limit-zones.conf"), flags=re.MULTILINE
+        r"^limit_req_zone (\S+) zone=hb_share:\S+ rate=(\S+);", read("limit-zones.conf"), flags=re.MULTILINE
     )
     assert zone == [("$binary_remote_addr", "60r/m")]
     # An exact match: no address under it exists, so no secret can be put in a path and logged.
@@ -242,9 +242,9 @@ def test_the_read_behind_a_link_has_its_own_limit_by_address_and_one_address() -
 def test_the_access_log_holds_no_header_and_no_query_string() -> None:
     """Where the secret travels (a header) and where a caller might put it by mistake (a query string)."""
     log = read("http-common.conf")
-    written = re.search(r"log_format qd_json escape=json(.*?);", log, flags=re.DOTALL)
+    written = re.search(r"log_format hb_json escape=json(.*?);", log, flags=re.DOTALL)
     assert written is not None
     assert (
         "$http_" not in written.group(1) and "$request_uri" not in written.group(1) and "$args" not in written.group(1)
     )
-    assert '"path":"$qd_path"' in written.group(1)
+    assert '"path":"$hb_path"' in written.group(1)

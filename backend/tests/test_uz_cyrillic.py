@@ -12,10 +12,10 @@ from typing import Any
 
 import pytest
 
-from qarz.application import chat_texts, export_texts
-from qarz.domain import brand, uz_cyrillic
-from qarz.domain.uz_cyrillic import to_cyrillic
-from qarz.interface.errors import _MESSAGES
+from hiso_box.application import chat_texts, export_texts
+from hiso_box.domain import brand, uz_cyrillic
+from hiso_box.domain.uz_cyrillic import to_cyrillic
+from hiso_box.interface.errors import _MESSAGES
 
 FIXTURE: dict[str, Any] = json.loads(
     (Path(__file__).resolve().parent / "data" / "uz_cyrillic_cases.json").read_text(encoding="utf-8")
@@ -68,9 +68,9 @@ def test_the_tables_are_the_shared_ones() -> None:
         "{count}",
         "/obuna",
         "/start",
-        "https://t.me/qarz_bot?start=abc",
-        "yordam@qarz.uz",
-        "@qarz_bot",
+        "https://t.me/hiso_box_bot?start=abc",
+        "yordam@hiso_box.uz",
+        "@hiso_box_bot",
         brand.NAME,
         "Telegram",
         "Excel",

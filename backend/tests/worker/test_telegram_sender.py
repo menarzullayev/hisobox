@@ -7,8 +7,8 @@ import pytest
 from aiogram.exceptions import TelegramBadRequest, TelegramForbiddenError, TelegramNetworkError, TelegramRetryAfter
 from aiogram.methods import SendMessage
 
-from qarz.application.ports import RecipientBlocked, RetryLater, SendFailed
-from qarz.infrastructure.telegram_sender import TelegramSender
+from hiso_box.application.ports import RecipientBlocked, RetryLater, SendFailed
+from hiso_box.infrastructure.telegram_sender import TelegramSender
 
 METHOD = SendMessage(chat_id=1, text="x")
 SECRET_TEXT = "Ali aka, qarzingiz 450 000 so'm"

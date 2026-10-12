@@ -1,11 +1,11 @@
-"""The product's name is written in one place: `src/qarz/domain/brand.json`.
+"""The product's name is written in one place: `src/hiso_box/domain/brand.json`.
 
 Both sides read that file, every text says `{brand}` where the name belongs, and nothing else in the
 repository writes the name, a former name or the initials an icon once showed. The last tests here plant
 a literal and show the search finds it.
 
-Technical identifiers are not the brand and are not looked for: the package `qarz`, `QD_*` variables,
-`X-Qarz-*` headers, `qd.*` storage keys, `--qd-*` style variables, the Compose project, the database and
+Technical identifiers are not the brand and are not looked for: the package `hiso_box`, `HB_*` variables,
+`X-Shop-*` headers, `hb.*` storage keys, `--hb-*` style variables, the Compose project, the database and
 its roles, the repository's name (docs/08-technical-spec/OUTPUT.md, "Brand").
 """
 
@@ -18,15 +18,15 @@ from pathlib import Path
 
 import pytest
 
-from qarz.application import admin_access, chat_texts
-from qarz.application.chat_texts import say, tagline, template
-from qarz.domain import brand, uz_cyrillic
-from qarz.domain.languages import LANGUAGES
-from qarz.domain.uz_cyrillic import to_cyrillic
-from qarz.interface import api_description
+from hiso_box.application import admin_access, chat_texts
+from hiso_box.application.chat_texts import say, tagline, template
+from hiso_box.domain import brand, uz_cyrillic
+from hiso_box.domain.languages import LANGUAGES
+from hiso_box.domain.uz_cyrillic import to_cyrillic
+from hiso_box.interface import api_description
 
 REPO = Path(__file__).resolve().parents[2]
-DEFINITION = "backend/src/qarz/domain/brand.json"
+DEFINITION = "backend/src/hiso_box/domain/brand.json"
 
 # --- one definition, read by both sides ---------------------------------------------------------------
 
@@ -44,7 +44,7 @@ def test_the_definition_is_one_file_and_the_package_reads_it() -> None:
     assert brand.SOURCE == REPO / DEFINITION
     assert [path for path in tracked() if path.rsplit("/", 1)[-1].lower().startswith("brand.")] == [
         DEFINITION,
-        "backend/src/qarz/domain/brand.py",
+        "backend/src/hiso_box/domain/brand.py",
         "frontend/src/brand.test.ts",
         "frontend/src/shared/brand.ts",
     ]
@@ -73,7 +73,7 @@ def test_the_front_end_reads_the_same_file_in_a_checkout_and_in_the_proxy_image(
     assert dockerfile.index(copy) < dockerfile.index("RUN npm run build")
     # The backend image takes the whole of src/, and an installed package carries the file as data.
     assert "COPY src ./src\n" in (REPO / "backend/Dockerfile").read_text(encoding="utf-8")
-    assert '"qarz.domain" = ["brand.json"]' in (REPO / "backend/pyproject.toml").read_text(encoding="utf-8")
+    assert '"hiso_box.domain" = ["brand.json"]' in (REPO / "backend/pyproject.toml").read_text(encoding="utf-8")
 
 
 def _definition(tmp_path: Path, **changes: object) -> Path:
@@ -176,7 +176,7 @@ ALLOWED_FILES: tuple[tuple[str, str, str], ...] = (
     ("docs/*", "any", "documents and their attachments"),
     (".project-alpha/*", "any", "the project's records"),
     # Made from the definition; each has a check that fails when it is not what the definition gives.
-    ("backend/openapi.json", "current", "`python -m qarz.interface.api_description --check`"),
+    ("backend/openapi.json", "current", "`python -m hiso_box.interface.api_description --check`"),
     ("frontend/public/panel/manifest.webmanifest", "current", "`node scripts/pwaIcons.ts --check`"),
     ("frontend/src/app/__snapshots__/*.snap", "current", "the Mini App's recorded markup"),
 )
@@ -279,10 +279,10 @@ def test_every_exception_is_still_needed() -> None:
     ],
 )
 def test_a_planted_literal_is_found(planted: str) -> None:
-    clean = 'TITLE = brand.NAME\nKEY = "QD_SECRET"\nHEADER = "X-Qarz-Shop"\nstore("qd.language")\n'
-    assert literals([("backend/src/qarz/interface/http.py", clean)]) == []
-    found = literals([("backend/src/qarz/interface/http.py", clean + planted + "\n")])
-    assert len(found) == 1 and found[0].startswith("backend/src/qarz/interface/http.py:5: ")
+    clean = 'TITLE = brand.NAME\nKEY = "HB_SECRET"\nHEADER = "X-Shop"\nstore("hb.language")\n'
+    assert literals([("backend/src/hiso_box/interface/http.py", clean)]) == []
+    found = literals([("backend/src/hiso_box/interface/http.py", clean + planted + "\n")])
+    assert len(found) == 1 and found[0].startswith("backend/src/hiso_box/interface/http.py:5: ")
     # In a text catalog, a script, a page and a deployment file alike.
     for path in (
         "frontend/src/i18n/uz.ts",
@@ -302,12 +302,12 @@ def test_a_former_name_is_found_even_in_a_file_made_from_the_definition() -> Non
     assert not old.search("ON_SECRET") and not old.search("--on-accent") and not old.search("SEASON")
     # The technical names that merely look like the brand are not the brand.
     for technical in (
-        "qarz-daftari/backend:ci",
-        "QD_DATABASE_URL",
-        "X-Qarz-Shop",
-        "qd.language",
-        "--qd-bg",
-        "qd_app",
+        "hiso_box/backend:ci",
+        "HB_DATABASE_URL",
+        "X-Shop",
+        "hb.language",
+        "--hb-bg",
+        "hb_app",
         "QD-1",
     ):
         assert not CURRENT.search(technical), technical

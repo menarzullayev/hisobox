@@ -9,7 +9,7 @@ import psycopg
 import pytest
 from fastapi.testclient import TestClient
 
-from qarz.application.chat_texts import day, money, say
+from hiso_box.application.chat_texts import day, money, say
 
 from .conftest import World, as_user
 from .test_chat import Chat, chat_of, today

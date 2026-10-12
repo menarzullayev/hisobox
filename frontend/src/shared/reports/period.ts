@@ -3,7 +3,7 @@ import { addDays, compareDays, isoWeekday, parseIsoDate, toIsoDate } from "../pr
 
 /**
  * The period of a report (REQ-046): a run of Tashkent calendar days with both ends included. A port of
- * backend/src/qarz/domain/reports.py (`validate_period`), which is the authority; the server checks the
+ * backend/src/hiso_box/domain/reports.py (`validate_period`), which is the authority; the server checks the
  * period again and answers the same four problems.
  */
 

@@ -1,0 +1,190 @@
+"""Reports for managers and owners (REQ-046): one period of Tashkent days, and overdue debt by age.
+
+Every figure is derived from the ledger when asked for; nothing is stored. An entry and its reversal
+cancel out wherever each of them falls: a sale recorded in the period and reversed after it is in neither
+the credit given nor the balances, and its reversal shows only in the reversals of the period it was
+recorded in. The balances are therefore the ledger as it is known now, cut at an instant, and
+`start + credit + opening - payments = end` holds exactly.
+"""
+
+from collections.abc import Callable
+from datetime import UTC, date, datetime
+from typing import Any
+from uuid import UUID
+
+from hiso_box.application.currencies import USD, UZS, dollars_on
+from hiso_box.application.customers import require_viewable
+from hiso_box.application.errors import ValidationFailed
+from hiso_box.application.operations import operation
+from hiso_box.application.ports import PeriodTotals, Storage, TenantSession
+from hiso_box.application.shops import require_member
+from hiso_box.domain.access import Capability
+from hiso_box.domain.money import Currency
+from hiso_box.domain.promise import tashkent_date
+from hiso_box.domain.reports import (
+    AGE_BANDS,
+    AgeBand,
+    PeriodProblem,
+    age_band,
+    due_before,
+    on_time_percent,
+    parse_day,
+    period_bounds,
+    period_days,
+    validate_period,
+)
+
+REPORT_PERIOD = operation("reports.period", Capability.MANAGE)
+REPORT_OVERDUE = operation("reports.overdue", Capability.MANAGE)
+
+TOP_DEBTORS = 10
+
+
+def clean_period(raw_first: str | None, raw_last: str | None, today: date) -> tuple[date, date]:
+    first, last = parse_day(raw_first), parse_day(raw_last)
+    fields = {name: PeriodProblem.DATE_INVALID.value for name, day in (("from", first), ("to", last)) if day is None}
+    if first is None or last is None:
+        raise ValidationFailed(fields)
+    problem = validate_period(first, last, today)
+    if problem is not None:
+        raise ValidationFailed({"from" if problem is PeriodProblem.FROM_AFTER_TO else "to": problem.value})
+    return first, last
+
+
+class ReportService:
+    def __init__(self, storage: Storage, now: Callable[[], datetime] | None = None) -> None:
+        self._storage = storage
+        self._now = now or (lambda: datetime.now(UTC))
+
+    def _today(self) -> date:
+        return tashkent_date(self._now())
+
+    async def period(
+        self, user_id: UUID, shop_id: UUID, *, raw_first: str | None, raw_last: str | None
+    ) -> dict[str, Any]:
+        async with self._storage.tenant(shop_id) as session:
+            actor = await require_member(session, user_id, REPORT_PERIOD)
+            today = self._today()
+            await require_viewable(session, actor, today)
+            first, last = clean_period(raw_first, raw_last, today)
+            start, end = period_bounds(first, last)
+
+            window = (first, last, start, end, today)
+            totals, body = await _period_money(session, window, UZS)
+            report = {
+                "from": first.isoformat(),
+                "to": last.isoformat(),
+                **body,
+                # Counts of customers and disputes, not of money: once, whatever the currencies.
+                "new_customers": totals.new_customers,
+                "disputes_opened": totals.disputes_opened,
+            }
+            if await dollars_on(session):
+                # The same sections from the dollar book, in cents. Nothing above includes them.
+                report["usd"] = (await _period_money(session, window, USD))[1]
+            return report
+
+    async def overdue(self, user_id: UUID, shop_id: UUID) -> dict[str, Any]:
+        """Overdue debt by how long past its promised date it is, as of today. Disputed entries count (BR-13)."""
+        async with self._storage.tenant(shop_id) as session:
+            actor = await require_member(session, user_id, REPORT_OVERDUE)
+            today = self._today()
+            await require_viewable(session, actor, today)
+            report = {"as_of": today.isoformat(), **await _overdue_money(session, today, UZS)}
+            if await dollars_on(session):
+                report["usd"] = await _overdue_money(session, today, USD)
+            return report
+
+
+async def _period_money(
+    session: TenantSession, window: tuple[date, date, datetime, datetime, date], currency: Currency
+) -> tuple[PeriodTotals, dict[str, Any]]:
+    """Every money figure of the period report in one currency, each from that currency's entries only."""
+    first, last, start, end, today = window
+    totals = await session.period_totals(start, end, currency)
+    by_day = {figures.day: figures for figures in await session.period_days(start, end, currency)}
+    staff = await session.period_staff(start, end, currency)
+    debtors = await session.debtors_as_of(end, TOP_DEBTORS, currency)
+    on_time_amount, due_amount = await session.fell_due(first, due_before(last, today), currency)
+    # In a shop that accepts advances, what customers owed and what the shop held of customers in credit
+    # are two figures, the second only when there was any. In a shop that does not, the report is what
+    # it always was: one figure, which a payment that outlived a sale reversed later could already take
+    # below what the others owed at an earlier date (there is no advance to show apart; none stands).
+    apart = await session.accepts_advances()
+    held_start, held_end = (0, 0) if apart else (totals.advances_start, totals.advances_end)
+    return totals, {
+        "outstanding": {"start": totals.outstanding_start - held_start, "end": totals.outstanding_end - held_end},
+        **(
+            {"advances": {"start": totals.advances_start, "end": totals.advances_end}}
+            if apart and (totals.advances_start or totals.advances_end)
+            else {}
+        ),
+        "credit": {
+            "amount": totals.credit_amount,
+            "count": totals.credit_count,
+            "customers": totals.credit_customers,
+        },
+        "payments": {
+            "amount": totals.payment_amount,
+            "count": totals.payment_count,
+            "customers": totals.payment_customers,
+        },
+        "opening": {"amount": totals.opening_amount, "count": totals.opening_count},
+        # Of the position as a whole (owed minus held): what the period's entries moved it by.
+        "net_change": (totals.outstanding_end - totals.advances_end)
+        - (totals.outstanding_start - totals.advances_start),
+        "reversals": {"amount": totals.reversal_amount, "count": totals.reversal_count},
+        "on_time": {
+            "due_amount": due_amount,
+            "on_time_amount": on_time_amount,
+            "percent": on_time_percent(on_time_amount, due_amount),
+        },
+        "days": [
+            {
+                "date": day.isoformat(),
+                "credit": by_day[day].credit if day in by_day else 0,
+                "payments": by_day[day].payments if day in by_day else 0,
+            }
+            for day in period_days(first, last)
+        ],
+        "top_debtors": [
+            {"customer_id": str(customer_id), "display_name": name, "balance": balance}
+            for customer_id, name, balance in debtors
+        ],
+        "staff": [
+            {
+                "membership_id": str(member.membership_id),
+                "role": member.role.value,
+                "credit": {"amount": member.credit_amount, "count": member.credit_count},
+                "payments": {"amount": member.payment_amount, "count": member.payment_count},
+            }
+            for member in staff
+        ],
+    }
+
+
+async def _overdue_money(session: TenantSession, today: date, currency: Currency) -> dict[str, Any]:
+    """Overdue debt of one currency by age."""
+    amounts = {band: 0 for band, _, _ in AGE_BANDS}
+    customers: dict[AgeBand, set[UUID]] = {band: set() for band, _, _ in AGE_BANDS}
+    for debt in await session.uncovered_debts(currency):
+        band = age_band(debt.promised_date, today)
+        if band is not None:
+            amounts[band] += debt.remaining
+            customers[band].add(debt.customer_id)
+    return {
+        "total": {
+            "amount": sum(amounts.values()),
+            "customers": len(set().union(*customers.values())),
+        },
+        "bands": [
+            {
+                "band": band.value,
+                "from_days": first_day,
+                "to_days": last_day,
+                "amount": amounts[band],
+                "customers": len(customers[band]),
+            }
+            for band, first_day, last_day in AGE_BANDS
+        ],
+    }

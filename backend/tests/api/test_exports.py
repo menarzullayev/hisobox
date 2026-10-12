@@ -12,18 +12,18 @@ import psycopg
 import pytest
 from fastapi.testclient import TestClient
 
-from qarz.application import exports as exports_module
-from qarz.application.chat_texts import say
-from qarz.application.errors import StorageTimeout
-from qarz.application.exports import ExportService
-from qarz.application.files import FileService
-from qarz.application.payment_notices import PaymentNoticeService
-from qarz.application.ports import FileStoreError
-from qarz.application.reminders import ReminderService
-from qarz.application.scheduler import Scheduler
-from qarz.application.shop_deletion import ShopDeletionService
-from qarz.infrastructure.db import Database
-from qarz.infrastructure.file_store import FilesystemFileStore
+from hiso_box.application import exports as exports_module
+from hiso_box.application.chat_texts import say
+from hiso_box.application.errors import StorageTimeout
+from hiso_box.application.exports import ExportService
+from hiso_box.application.files import FileService
+from hiso_box.application.payment_notices import PaymentNoticeService
+from hiso_box.application.ports import FileStoreError
+from hiso_box.application.reminders import ReminderService
+from hiso_box.application.scheduler import Scheduler
+from hiso_box.application.shop_deletion import ShopDeletionService
+from hiso_box.infrastructure.db import Database
+from hiso_box.infrastructure.file_store import FilesystemFileStore
 
 from .. import xlsx_reader
 from .conftest import World, as_user, stored_objects

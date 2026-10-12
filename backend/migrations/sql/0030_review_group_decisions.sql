@@ -134,10 +134,10 @@ REVOKE ALL ON FUNCTION review_group_receipt(bigint, uuid, boolean) FROM PUBLIC;
 REVOKE ALL ON FUNCTION review_group_decide_receipt(
   bigint, bigint, uuid, text, smallint, text, text, date, text, jsonb, timestamptz
 ) FROM PUBLIC;
-GRANT EXECUTE ON FUNCTION review_group_receipt(bigint, uuid, boolean) TO qd_app;
+GRANT EXECUTE ON FUNCTION review_group_receipt(bigint, uuid, boolean) TO hb_app;
 GRANT EXECUTE ON FUNCTION review_group_decide_receipt(
   bigint, bigint, uuid, text, smallint, text, text, date, text, jsonb, timestamptz
-) TO qd_app;
+) TO hb_app;
 
 -- The administrator's two readings of receipts (0024) also say which review-group administrator
 -- decided, when it was one. A function's result columns cannot be changed in place, so both are dropped
@@ -207,5 +207,5 @@ END $$;
 
 REVOKE ALL ON FUNCTION admin_receipts(uuid, text, timestamptz, uuid, integer) FROM PUBLIC;
 REVOKE ALL ON FUNCTION admin_receipt(uuid, uuid, boolean) FROM PUBLIC;
-GRANT EXECUTE ON FUNCTION admin_receipts(uuid, text, timestamptz, uuid, integer) TO qd_app;
-GRANT EXECUTE ON FUNCTION admin_receipt(uuid, uuid, boolean) TO qd_app;
+GRANT EXECUTE ON FUNCTION admin_receipts(uuid, text, timestamptz, uuid, integer) TO hb_app;
+GRANT EXECUTE ON FUNCTION admin_receipt(uuid, uuid, boolean) TO hb_app;

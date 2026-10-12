@@ -10,7 +10,7 @@ import { linkBody, NET_LINK_ID, NETWORK, NOTE_ID, noteBody, ORDER_ID, orderBody,
 import { StaffRoot } from "./StaffRoot";
 import { stockSettingsBody } from "./stock/testing";
 
-const ON = { "X-Qarz-Network": "on", "X-Qarz-Stock": "on" };
+const ON = { "X-Shop-Network": "on", "X-Shop-Stock": "on" };
 
 /**
  * The network between shops in the Telegram Mini App, behind its platform switch (the expansion's
@@ -40,7 +40,7 @@ function backend(role: Role, header: Record<string, string>, options: { permissi
         return {
           status: 200,
           body: { items, active_shop: SHOP_ID },
-          headers: { ...header, ...(options.permissions ? { "X-Qarz-Permissions": "on" } : {}) },
+          headers: { ...header, ...(options.permissions ? { "X-Shop-Permissions": "on" } : {}) },
         };
       case "/api/v1/me/accounts":
         return ok({ items: [] });
@@ -95,11 +95,11 @@ describe("the network switched off", () => {
   });
 
   it.each([
-    ["off", { "X-Qarz-Network": "off" }],
-    ["true", { "X-Qarz-Network": "true" }],
-    ["empty", { "X-Qarz-Network": "" }],
-    ["the stock's, not the network's", { "X-Qarz-Stock": "on" }],
-    ["the cash book's", { "X-Qarz-Cash-Book": "on" }],
+    ["off", { "X-Shop-Network": "off" }],
+    ["true", { "X-Shop-Network": "true" }],
+    ["empty", { "X-Shop-Network": "" }],
+    ["the stock's, not the network's", { "X-Shop-Stock": "on" }],
+    ["the cash book's", { "X-Shop-Cash-Book": "on" }],
   ])("is also what a member sees when the header is %s: only the word 'on' turns it on", async (_name, header) => {
     const server = backend("owner", header);
     await miniApp(server);

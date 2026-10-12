@@ -16,7 +16,7 @@ import {
 
 function mapped(theme: TelegramThemeParams): BaseColors {
   const variables = themeToCssVariables(theme);
-  if (!("--qd-bg" in variables)) {
+  if (!("--hb-bg" in variables)) {
     throw new Error("the theme has no background and text color");
   }
   return variables as BaseColors;
@@ -61,18 +61,18 @@ const TELEGRAM_THEMES: Readonly<Record<string, { scheme: Scheme; theme: Telegram
     scheme: "light",
     theme: DAY,
     fails: [
-      "--qd-muted on --qd-bg",
-      "--qd-muted on --qd-surface",
-      "--qd-link on --qd-bg",
-      "--qd-link on --qd-surface",
-      "--qd-on-accent on --qd-accent",
-      "--qd-border on --qd-bg",
+      "--hb-muted on --hb-bg",
+      "--hb-muted on --hb-surface",
+      "--hb-link on --hb-bg",
+      "--hb-link on --hb-surface",
+      "--hb-on-accent on --hb-accent",
+      "--hb-border on --hb-bg",
     ],
   },
   "the night theme of Telegram Desktop": {
     scheme: "dark",
     theme: NIGHT,
-    fails: ["--qd-muted on --qd-bg", "--qd-muted on --qd-surface", "--qd-on-accent on --qd-accent"],
+    fails: ["--hb-muted on --hb-bg", "--hb-muted on --hb-surface", "--hb-on-accent on --hb-accent"],
   },
   "the dark theme of Telegram Web": {
     scheme: "dark",
@@ -85,7 +85,7 @@ const TELEGRAM_THEMES: Readonly<Record<string, { scheme: Scheme; theme: Telegram
       button_color: "#8774e1",
       button_text_color: "#ffffff",
     },
-    fails: ["--qd-link on --qd-bg", "--qd-on-accent on --qd-accent"],
+    fails: ["--hb-link on --hb-bg", "--hb-on-accent on --hb-accent"],
   },
 };
 
@@ -132,7 +132,7 @@ describe("the design system's own colors", () => {
 
   it.each(["light", "dark"] as const)("are the ones tokens.css has (%s)", (scheme) => {
     const inSheet = Object.fromEntries(
-      [...blocks[scheme].matchAll(/(--qd-[\w-]+):\s*(#[0-9a-f]{6})\s*;/gi)].map((match) => [match[1], match[2]]),
+      [...blocks[scheme].matchAll(/(--hb-[\w-]+):\s*(#[0-9a-f]{6})\s*;/gi)].map((match) => [match[1], match[2]]),
     );
     for (const token of BASE_TOKENS) {
       expect(DESIGN[scheme][token], token).toBe(inSheet[token]);
@@ -173,13 +173,13 @@ describe("Telegram's own themes", () => {
       const after = guardContrast(before, scheme);
       expect(failingPairs(after)).toEqual([]);
       // The ground and the text were readable: they stay Telegram's.
-      expect(after["--qd-bg"]).toBe(before["--qd-bg"]);
-      expect(after["--qd-text"]).toBe(before["--qd-text"]);
-      expect(after["--qd-surface"]).toBe(before["--qd-surface"]);
+      expect(after["--hb-bg"]).toBe(before["--hb-bg"]);
+      expect(after["--hb-text"]).toBe(before["--hb-text"]);
+      expect(after["--hb-surface"]).toBe(before["--hb-surface"]);
       // A token no failing pair names is the theme's own still.
       const named = fails.join(" ");
       for (const token of BASE_TOKENS) {
-        const touched = named.includes(token) || (token === "--qd-accent" && named.includes("--qd-on-accent"));
+        const touched = named.includes(token) || (token === "--hb-accent" && named.includes("--hb-on-accent"));
         if (!touched) {
           expect(after[token], token).toBe(before[token]);
         }
@@ -189,21 +189,21 @@ describe("Telegram's own themes", () => {
 
   it("the default day theme: grey hints and the blue button take the design system's light colors", () => {
     const after = guardContrast(mapped(DAY), "light");
-    expect(after["--qd-muted"]).toBe(DESIGN.light["--qd-muted"]);
-    expect(after["--qd-link"]).toBe(DESIGN.light["--qd-link"]);
-    expect(after["--qd-border"]).toBe(DESIGN.light["--qd-border"]);
-    expect(after["--qd-accent"]).toBe(DESIGN.light["--qd-accent"]);
-    expect(after["--qd-on-accent"]).toBe(DESIGN.light["--qd-on-accent"]);
+    expect(after["--hb-muted"]).toBe(DESIGN.light["--hb-muted"]);
+    expect(after["--hb-link"]).toBe(DESIGN.light["--hb-link"]);
+    expect(after["--hb-border"]).toBe(DESIGN.light["--hb-border"]);
+    expect(after["--hb-accent"]).toBe(DESIGN.light["--hb-accent"]);
+    expect(after["--hb-on-accent"]).toBe(DESIGN.light["--hb-on-accent"]);
     // Telegram's blue reaches 3:1 on white: enough for the focus ring, which is a shape and not text.
-    expect(after["--qd-focus"]).toBe("#2481cc");
+    expect(after["--hb-focus"]).toBe("#2481cc");
   });
 
   it("the night theme of Telegram Desktop: the dark set's colors, not the light set's", () => {
     const after = guardContrast(mapped(NIGHT), "dark");
-    expect(after["--qd-muted"]).toBe(DESIGN.dark["--qd-muted"]);
-    expect(after["--qd-accent"]).toBe(DESIGN.dark["--qd-accent"]);
-    expect(after["--qd-on-accent"]).toBe(DESIGN.dark["--qd-on-accent"]);
-    expect(after["--qd-link"]).toBe("#6ab3f3");
+    expect(after["--hb-muted"]).toBe(DESIGN.dark["--hb-muted"]);
+    expect(after["--hb-accent"]).toBe(DESIGN.dark["--hb-accent"]);
+    expect(after["--hb-on-accent"]).toBe(DESIGN.dark["--hb-on-accent"]);
+    expect(after["--hb-link"]).toBe("#6ab3f3");
   });
 });
 
@@ -220,25 +220,25 @@ describe("themes that are wrong", () => {
 
   it("unreadable text takes the whole ground of the design system with it, for the scheme the ground has", () => {
     const after = guardContrast(mapped({ bg_color: "#1c1c1e", text_color: "#3a3a3c" }));
-    expect(after["--qd-bg"]).toBe(DESIGN.dark["--qd-bg"]);
-    expect(after["--qd-text"]).toBe(DESIGN.dark["--qd-text"]);
-    expect(after["--qd-surface"]).toBe(DESIGN.dark["--qd-surface"]);
+    expect(after["--hb-bg"]).toBe(DESIGN.dark["--hb-bg"]);
+    expect(after["--hb-text"]).toBe(DESIGN.dark["--hb-text"]);
+    expect(after["--hb-surface"]).toBe(DESIGN.dark["--hb-surface"]);
   });
 
   it("what Telegram says the scheme is decides, when it says", () => {
     const colors = mapped({ bg_color: "#ffffff", text_color: "#ffffff" });
-    expect(guardContrast(colors, "dark")["--qd-bg"]).toBe(DESIGN.dark["--qd-bg"]);
-    expect(guardContrast(colors, "light")["--qd-bg"]).toBe(DESIGN.light["--qd-bg"]);
+    expect(guardContrast(colors, "dark")["--hb-bg"]).toBe(DESIGN.dark["--hb-bg"]);
+    expect(guardContrast(colors, "light")["--hb-bg"]).toBe(DESIGN.light["--hb-bg"]);
   });
 
   it("on a ground where the design system's color does not read either, the text color is used", () => {
     const after = guardContrast(mapped(MID_GREY));
-    expect(after["--qd-bg"]).toBe("#808080");
-    expect(after["--qd-muted"]).toBe("#000000");
-    expect(after["--qd-link"]).toBe("#000000");
+    expect(after["--hb-bg"]).toBe("#808080");
+    expect(after["--hb-muted"]).toBe("#000000");
+    expect(after["--hb-link"]).toBe("#000000");
     // The button is the text and the ground the other way round.
-    expect(after["--qd-accent"]).toBe("#000000");
-    expect(after["--qd-on-accent"]).toBe("#808080");
+    expect(after["--hb-accent"]).toBe("#000000");
+    expect(after["--hb-on-accent"]).toBe("#808080");
   });
 
   it("holds for any nine colors: a thousand themes drawn at random", () => {
@@ -275,8 +275,8 @@ describe("what reaches the page", () => {
 
   it("is the guarded theme: Telegram's grey hint is not what labels are drawn in", () => {
     const values = launch(DAY, "light");
-    expect(values.get("--qd-bg")).toBe("#ffffff");
-    expect(values.get("--qd-muted")).toBe(DESIGN.light["--qd-muted"]);
+    expect(values.get("--hb-bg")).toBe("#ffffff");
+    expect(values.get("--hb-muted")).toBe(DESIGN.light["--hb-muted"]);
     expect(failingPairs(Object.fromEntries(values) as BaseColors)).toEqual([]);
   });
 

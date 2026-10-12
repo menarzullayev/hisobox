@@ -16,9 +16,9 @@ Everything is under `backend/loadtest/`; nothing in `backend/src/qarz` imports i
 | Part | What it does |
 |---|---|
 | `dataset.py` | Generates shops in memory, deterministically for a profile, a seed and an anchor instant. Profile `full` is 5,000 shops and 500,000 customers, one shop of them at the NFR-005 size (2,000 customers, 200,000 entries). |
-| `load.py` | Creates a database named `qd_load_*`, builds it with the real migrations, and copies the rows in as the migration owner, 200 shops per transaction. Every constraint and trigger checks them, except one trigger (below). |
+| `load.py` | Creates a database named `hb_load_*`, builds it with the real migrations, and copies the rows in as the migration owner, 200 shops per transaction. Every constraint and trigger checks them, except one trigger (below). |
 | `invariants.py` | The ledger rules, checked on generated rows in memory (tests) and on the loaded database (after every load, which fails if one is broken). |
-| `drive.py` | Starts the production wiring (`uvicorn qarz.interface.asgi:build --factory`) as separate processes connected as `qd_app`, sends an open load over HTTP, and prints the table below. |
+| `drive.py` | Starts the production wiring (`uvicorn hiso_box.interface.asgi:build --factory`) as separate processes connected as `hb_app`, sends an open load over HTTP, and prints the table below. |
 | `report.py` | Percentiles and the comparison with the targets. |
 | `docker-compose.yml` | A PostgreSQL 16 for the run, with its data on a volume. |
 
@@ -31,16 +31,16 @@ in CI with the rest and take about ten seconds together.
 From `backend/`, with the development dependencies installed:
 
 ```sh
-docker compose -p qd-loadtest -f loadtest/docker-compose.yml up -d
-export QD_LOAD_ADMIN_URL=postgresql://postgres:postgres@127.0.0.1:54330/postgres
+docker compose -p hb-loadtest -f loadtest/docker-compose.yml up -d
+export HB_LOAD_ADMIN_URL=postgresql://postgres:postgres@127.0.0.1:54330/postgres
 
 # about 8 minutes and 3.2 GB for the full profile
-PYTHONPATH=src python -m loadtest.load --database qd_load_full --profile full --seed 1
+PYTHONPATH=src python -m loadtest.load --database hb_load_full --profile full --seed 1
 
 # NFR-006 asks for 30 minutes
-PYTHONPATH=src python -m loadtest.drive --database qd_load_full --duration 1800 --out results.json
+PYTHONPATH=src python -m loadtest.drive --database hb_load_full --duration 1800 --out results.json
 
-docker compose -p qd-loadtest -f loadtest/docker-compose.yml down -v    # removes the data
+docker compose -p hb-loadtest -f loadtest/docker-compose.yml down -v    # removes the data
 ```
 
 `PYTHONPATH=src` is needed only where the package is not installed from this checkout. Profiles `tenth`
@@ -48,7 +48,7 @@ and `tiny` are smaller.
 `--base-url` drives a server that is already running instead of starting one; that is how the staging run
 is meant to be done. `--now` fixes the anchor instant so that two loads give identical rows.
 
-Safety: the loader refuses any database whose name does not start with `qd_load_`. Generated staff
+Safety: the loader refuses any database whose name does not start with `hb_load_`. Generated staff
 sessions have predictable tokens, so such a database must never be reachable from outside.
 
 ## What the load is
@@ -59,7 +59,7 @@ sessions have predictable tokens, so such a database must never be reachable fro
   3.2 GB with indexes. One shop holds 2,000 customers and 200,000 entries; its accounts have 71 entries at the
   median, 491 at the 99th percentile and 1,153 at most. The others average 100 customers and about 7 entries a customer.
 - **Server**: four API processes, each with the application's default pool of at most 10 connections,
-  connected as `qd_app` with row-level security in force. Authentication is the real one: a bearer token
+  connected as `hb_app` with row-level security in force. Authentication is the real one: a bearer token
   resolved through `user_session` on every request, and the webhook secret for chat messages.
 - **Load**, open (Poisson arrivals, a request is sent at its time whether or not earlier ones answered):
   50 recorded entries a second across all shops and 1 more in the large shop, as 30% chat credit sales,
@@ -193,14 +193,14 @@ answered 429; the driver counts those in a column of their own, apart from refus
 counts each against the target of its operation. Run C had none. Two things to know: the chat webhook is
 not a signed-in caller and is not limited by these settings; and each API process keeps its own
 counters, so with the four processes of this test a caller is in fact allowed four times the rate
-(finding P39-2 of the security review). To run with other limits, set `QD_RATE_USER_PER_MINUTE`,
-`QD_RATE_USER_BURST`, `QD_RATE_SHOP_PER_MINUTE` and `QD_RATE_SHOP_BURST` in the environment of the driver
+(finding P39-2 of the security review). To run with other limits, set `HB_RATE_USER_PER_MINUTE`,
+`HB_RATE_USER_BURST`, `HB_RATE_SHOP_PER_MINUTE` and `HB_RATE_SHOP_BURST` in the environment of the driver
 (the servers it starts inherit it) or of the server driven with `--base-url`; the result file records the
 values used.
 
 **Statement timeout.** Run A showed that a few slow queries of one shop can stop the service for all.
 The application now sets `statement_timeout` on every connection it opens: 5 seconds for the API
-(`QD_STATEMENT_TIMEOUT_MS`), 60 seconds for the worker (`QD_WORKER_STATEMENT_TIMEOUT_MS`), 0 for no limit.
+(`HB_STATEMENT_TIMEOUT_MS`), 60 seconds for the worker (`HB_WORKER_STATEMENT_TIMEOUT_MS`), 0 for no limit.
 It is a setting of the application's connections, not of the role, so migrations, the test suite's own
 connections and this loader are not limited. A cancelled statement rolls its transaction back and the
 caller is answered 503 with the code `TIMEOUT`; in the chat the seller is told nothing was recorded.
@@ -233,7 +233,7 @@ times of 3 to 55 seconds for every operation in every shop, 947 of 9,142 request
 database's four cores were fully used by a handful of queries from the large shop that each ran for
 tens of seconds.
 
-The cause is one fact with several faces: row-level security adds `shop_id = current_setting('qd.shop_id')`
+The cause is one fact with several faces: row-level security adds `shop_id = current_setting('hb.shop_id')`
 to every query, and the planner cannot see which shop that is. It plans every query for an average shop
 of about 700 entries. For the shop with 200,000 that is wrong by a factor of 270.
 
@@ -293,7 +293,7 @@ allocation over every debtor's entries, and restricting that to customers who ow
 paid is stored with what is left of it and its promised date (table `open_debt`), rewritten by the
 database for a customer whenever an entry or a promise of theirs is added.
 
-Measured on the same generated database (`qd_load_merged`, 3.69 million entries) with the migration applied
+Measured on the same generated database (`hb_load_merged`, 3.69 million entries) with the migration applied
 by hand, single statements timed in `psql`, no other load:
 
 | What | Before | After |

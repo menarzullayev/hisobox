@@ -16,12 +16,12 @@ from typing import Any
 
 import pytest
 
-from qarz.application.chat_texts import money
-from qarz.application.ports import SendFailed, SendRejected
-from qarz.application.reminders import reminder_text
-from qarz.domain.languages import LANGUAGES, sms_language
-from qarz.domain.reminders import Channel, ReminderKind, ReminderPlan
-from qarz.infrastructure.eskiz_sms import (
+from hiso_box.application.chat_texts import money
+from hiso_box.application.ports import SendFailed, SendRejected
+from hiso_box.application.reminders import reminder_text
+from hiso_box.domain.languages import LANGUAGES, sms_language
+from hiso_box.domain.reminders import Channel, ReminderKind, ReminderPlan
+from hiso_box.infrastructure.eskiz_sms import (
     LOGIN_PATH,
     SEND_PATH,
     SIGN_IN_PAUSE,
@@ -30,9 +30,9 @@ from qarz.infrastructure.eskiz_sms import (
     eskiz_number,
     wire_text,
 )
-from qarz.interface.observability import JsonFormatter
+from hiso_box.interface.observability import JsonFormatter
 
-EMAIL = "owner@qarz-test.example"
+EMAIL = "owner@hiso-box-test.example"
 PASSWORD = "eskiz-PASSWORD-9f2c"
 SENDER = "4546"
 PHONE = "+998901234567"

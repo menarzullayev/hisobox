@@ -1,0 +1,21 @@
+# Runs on the standby server. Output goes to the journal: journalctl -u hb-restore-test.service
+[Unit]
+Description=hiso-box: weekly restore test of the latest backup
+After=network-online.target postgresql.service
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=postgres
+Group=postgres
+EnvironmentFile=-/etc/hiso-box-backup/backup.env
+ExecStart=/opt/hiso-box-backup/scripts/restore-test.sh
+SyslogIdentifier=hb-restore-test
+StandardOutput=journal
+StandardError=journal
+TimeoutStartSec=6h
+NoNewPrivileges=yes
+ProtectHome=yes
+Nice=10
+IOSchedulingClass=best-effort
+IOSchedulingPriority=7

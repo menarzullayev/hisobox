@@ -183,7 +183,7 @@ check "the worker's scope is not widened (no Service-Worker-Allowed)" header_abs
 check "the worker's own policy reaches this origin only" header_has Content-Security-Policy "connect-src 'self'"
 check "the worker's own policy names no other host" own_origin_only "$(header Content-Security-Policy)"
 check "the build wrote its list of files into the worker" contains "$worker" '/panel/'
-check "the worker holds no unfilled mark" refuses contains "$worker" '__QD_PANEL_WORKER_MANIFEST__'
+check "the worker holds no unfilled mark" refuses contains "$worker" '__HB_PANEL_WORKER_MANIFEST__'
 check "the worker leaves the API alone" contains "$worker" '/api/'
 for path in /sw.js /app/sw.js /admin/sw.js /k/sw.js /assets/sw.js; do
   probe "$HTTPS$path"
@@ -222,7 +222,7 @@ echo "# metrics are not reachable"
 for path in /metrics /metrics/ //metrics /api/../metrics /api/%2e%2e/metrics /healthz/../metrics; do
   probe --path-as-is "$HTTPS$path"
   check "$path answers 404" status_is 404
-  check "$path gives no metrics" bash -c '! printf "%s" "$1" | grep -q "qd_requests_total"' _ "$(body --path-as-is "$HTTPS$path")"
+  check "$path gives no metrics" bash -c '! printf "%s" "$1" | grep -q "hb_requests_total"' _ "$(body --path-as-is "$HTTPS$path")"
 done
 probe -H "Authorization: Bearer smoke" "$HTTPS/metrics"
 check "/metrics with a bearer token answers 404" status_is 404

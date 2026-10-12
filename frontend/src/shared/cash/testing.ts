@@ -1,5 +1,5 @@
 /**
- * Answers of the cash book as the server writes them (backend/src/qarz/interface/cash_answers.py), for
+ * Answers of the cash book as the server writes them (backend/src/hiso_box/interface/cash_answers.py), for
  * the tests of the cash screens. Not part of any build.
  */
 

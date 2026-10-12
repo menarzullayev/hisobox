@@ -7,8 +7,8 @@ from collections.abc import AsyncIterator
 
 import pytest
 
-from qarz.application.online_payment import PaymentKeys
-from qarz.domain import online_payment as rules
+from hiso_box.application.online_payment import PaymentKeys
+from hiso_box.domain import online_payment as rules
 
 KEY = "a-key-for-tests-only"
 
@@ -143,7 +143,7 @@ def test_a_provider_is_configured_only_with_all_of_its_values() -> None:
 
 
 def test_every_protocol_code_has_its_words() -> None:
-    from qarz.application.online_payment import _PAYME_MESSAGES
+    from hiso_box.application.online_payment import _PAYME_MESSAGES
 
     payme = {
         value
@@ -171,7 +171,7 @@ class Pieces:
 
 
 def test_a_provider_body_is_read_in_pieces_and_given_up_on_once_too_large() -> None:
-    from qarz.interface.online_payment_api import MAX_BODY, _body
+    from hiso_box.interface.online_payment_api import MAX_BODY, _body
 
     def read(pieces: list[bytes]) -> tuple[bytes | None, int]:
         request = Pieces(pieces)

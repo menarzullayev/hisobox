@@ -119,24 +119,24 @@ CREATE TRIGGER cash_entry_matches_payment
 ALTER TABLE cash_category ENABLE ROW LEVEL SECURITY;
 ALTER TABLE cash_category FORCE ROW LEVEL SECURITY;
 CREATE POLICY tenant ON cash_category
-  USING (shop_id = nullif(current_setting('qd.shop_id', true), '')::uuid)
-  WITH CHECK (shop_id = nullif(current_setting('qd.shop_id', true), '')::uuid);
+  USING (shop_id = nullif(current_setting('hb.shop_id', true), '')::uuid)
+  WITH CHECK (shop_id = nullif(current_setting('hb.shop_id', true), '')::uuid);
 
 ALTER TABLE cash_entry ENABLE ROW LEVEL SECURITY;
 ALTER TABLE cash_entry FORCE ROW LEVEL SECURITY;
 CREATE POLICY tenant ON cash_entry
-  USING (shop_id = nullif(current_setting('qd.shop_id', true), '')::uuid)
-  WITH CHECK (shop_id = nullif(current_setting('qd.shop_id', true), '')::uuid);
+  USING (shop_id = nullif(current_setting('hb.shop_id', true), '')::uuid)
+  WITH CHECK (shop_id = nullif(current_setting('hb.shop_id', true), '')::uuid);
 
 -- The ordinary application writes an entry and cancels one; it never deletes one and never rewrites what
 -- it says. A category it may rename, archive and, while nothing uses it (the foreign key above), delete.
 -- The worker reads both to write the shop's export; it writes neither. The administrators' side has
 -- nothing to do here.
-GRANT SELECT, INSERT ON cash_entry TO qd_app;
-GRANT UPDATE (cancelled_at, cancelled_by, cancel_reason) ON cash_entry TO qd_app;
-GRANT SELECT, INSERT, DELETE ON cash_category TO qd_app;
-GRANT UPDATE (name, name_norm, archived_at) ON cash_category TO qd_app;
-GRANT SELECT ON cash_entry, cash_category TO qd_worker;
+GRANT SELECT, INSERT ON cash_entry TO hb_app;
+GRANT UPDATE (cancelled_at, cancelled_by, cancel_reason) ON cash_entry TO hb_app;
+GRANT SELECT, INSERT, DELETE ON cash_category TO hb_app;
+GRANT UPDATE (name, name_norm, archived_at) ON cash_category TO hb_app;
+GRANT SELECT ON cash_entry, cash_category TO hb_worker;
 
 -- Erasing a shop erases its cash book: the function of 0041 with two more tables. The entries go before
 -- the ledger entries and the members they point at, the categories after the entries.

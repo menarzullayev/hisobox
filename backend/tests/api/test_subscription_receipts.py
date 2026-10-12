@@ -20,18 +20,18 @@ import pytest
 from fastapi.testclient import TestClient
 from psycopg.types.json import Jsonb
 
-from qarz.application.admin_access import AdminAccess
-from qarz.application.auth import AuthService
-from qarz.application.chat_texts import day, money, say
-from qarz.application.files import FileService
-from qarz.application.payment_notices import PaymentNoticeService
-from qarz.application.shop_deletion import ShopDeletionService
-from qarz.domain.files import MAX_FILE_BYTES
-from qarz.domain.subscription import add_months
-from qarz.domain.subscription_receipts import MAX_AMOUNT, MIN_AMOUNT
-from qarz.infrastructure.db import _MEASURE_NAMESPACE, Database
-from qarz.infrastructure.file_store import FilesystemFileStore
-from qarz.interface.http import create_app
+from hiso_box.application.admin_access import AdminAccess
+from hiso_box.application.auth import AuthService
+from hiso_box.application.chat_texts import day, money, say
+from hiso_box.application.files import FileService
+from hiso_box.application.payment_notices import PaymentNoticeService
+from hiso_box.application.shop_deletion import ShopDeletionService
+from hiso_box.domain.files import MAX_FILE_BYTES
+from hiso_box.domain.subscription import add_months
+from hiso_box.domain.subscription_receipts import MAX_AMOUNT, MIN_AMOUNT
+from hiso_box.infrastructure.db import _MEASURE_NAMESPACE, Database
+from hiso_box.infrastructure.file_store import FilesystemFileStore
+from hiso_box.interface.http import create_app
 
 from ..receipt_samples import EXIF, HTML, JPEG, PDF, PNG, jpeg, segment
 from .conftest import (

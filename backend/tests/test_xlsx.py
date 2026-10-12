@@ -4,7 +4,7 @@ from decimal import Decimal
 
 import pytest
 
-from qarz.application.xlsx import MAX_CELL, MAX_ROWS, MIME, Workbook, clean_text, column_letters, sheet_name
+from hiso_box.application.xlsx import MAX_CELL, MAX_ROWS, MIME, Workbook, clean_text, column_letters, sheet_name
 
 from . import xlsx_reader
 

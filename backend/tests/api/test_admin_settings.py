@@ -10,7 +10,7 @@ import psycopg
 import pytest
 from fastapi.testclient import TestClient
 
-from qarz.domain import totp
+from hiso_box.domain import totp
 
 from .conftest import ADMIN_API, AdminEnv, World, as_user, elevate, fresh_code, make_admin
 from .test_authorization_suite import ADMIN_CALLS, ADMIN_ENTRY_CALLS

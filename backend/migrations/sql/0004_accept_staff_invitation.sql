@@ -50,4 +50,4 @@ BEGIN
 END $$;
 
 REVOKE ALL ON FUNCTION accept_staff_invitation(bytea, uuid) FROM PUBLIC;
-GRANT EXECUTE ON FUNCTION accept_staff_invitation(bytea, uuid) TO qd_app;
+GRANT EXECUTE ON FUNCTION accept_staff_invitation(bytea, uuid) TO hb_app;

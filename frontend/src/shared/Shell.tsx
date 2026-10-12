@@ -43,7 +43,7 @@ type ShellProps = {
 };
 
 /** One shell to a page, so one picker: a fixed name keeps the markup the same from one render to the next. */
-const PICKER_ID = "qd-language";
+const PICKER_ID = "hb-language";
 
 const isLanguage = (code: string): code is Language => LANGUAGES.some((language) => language === code);
 

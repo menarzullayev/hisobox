@@ -16,8 +16,8 @@ CREATE TABLE signin_replay (
   expires_at    timestamptz NOT NULL
 );
 CREATE INDEX signin_replay_expiry ON signin_replay (expires_at);
-REVOKE ALL ON signin_replay FROM qd_app;
-GRANT SELECT, INSERT ON signin_replay TO qd_app;
+REVOKE ALL ON signin_replay FROM hb_app;
+GRANT SELECT, INSERT ON signin_replay TO hb_app;
 
 -- Removes what can no longer be used: sign-in records past their expiry, sessions and administrator
 -- sessions that expired or were revoked, and administrator request keys older than 30 days. The time is
@@ -47,7 +47,7 @@ BEGIN
 END $$;
 
 REVOKE ALL ON FUNCTION purge_expired_sign_ins() FROM PUBLIC;
-GRANT EXECUTE ON FUNCTION purge_expired_sign_ins() TO qd_app;
+GRANT EXECUTE ON FUNCTION purge_expired_sign_ins() TO hb_app;
 
 -- ---------------------------------------------------------------------------
 -- Finding 13: shops and trials per person
@@ -96,7 +96,7 @@ BEGIN
 END $$;
 
 REVOKE ALL ON FUNCTION claim_owned_shop(uuid, boolean) FROM PUBLIC;
-GRANT EXECUTE ON FUNCTION claim_owned_shop(uuid, boolean) TO qd_app;
+GRANT EXECUTE ON FUNCTION claim_owned_shop(uuid, boolean) TO hb_app;
 
 -- ---------------------------------------------------------------------------
 -- Finding 11: platform settings are changed only through the administrator's function
@@ -135,7 +135,7 @@ BEGIN
 END $$;
 
 REVOKE ALL ON FUNCTION admin_set_platform_setting(uuid, text, jsonb, text, jsonb, timestamptz) FROM PUBLIC;
-GRANT EXECUTE ON FUNCTION admin_set_platform_setting(uuid, text, jsonb, text, jsonb, timestamptz) TO qd_app;
+GRANT EXECUTE ON FUNCTION admin_set_platform_setting(uuid, text, jsonb, text, jsonb, timestamptz) TO hb_app;
 
 -- ---------------------------------------------------------------------------
 -- Finding 11: per table, what the application does and nothing else
@@ -143,50 +143,50 @@ GRANT EXECUTE ON FUNCTION admin_set_platform_setting(uuid, text, jsonb, text, js
 
 -- Settings are read everywhere (the price, the card number owners are told to pay to, the switches) and
 -- written only by the function above.
-REVOKE ALL ON platform_setting FROM qd_app;
-GRANT SELECT ON platform_setting TO qd_app;
+REVOKE ALL ON platform_setting FROM hb_app;
+GRANT SELECT ON platform_setting TO hb_app;
 
 -- People: created at first sight, then only the language and the chosen shop change. The Telegram
 -- identifier is what binds a person to an account, and the trial mark is what finding 13 stands on;
 -- neither can be rewritten, and no person can be deleted.
-REVOKE ALL ON app_user FROM qd_app;
-GRANT SELECT, INSERT ON app_user TO qd_app;
-GRANT UPDATE (lang, active_shop) ON app_user TO qd_app;
+REVOKE ALL ON app_user FROM hb_app;
+GRANT SELECT, INSERT ON app_user TO hb_app;
+GRANT UPDATE (lang, active_shop) ON app_user TO hb_app;
 
 -- Sessions: opened, looked up, revoked. Expiry, owner and token cannot be changed afterwards; removal is
 -- the purge function's.
-REVOKE ALL ON user_session FROM qd_app;
-GRANT SELECT, INSERT ON user_session TO qd_app;
-GRANT UPDATE (revoked_at) ON user_session TO qd_app;
+REVOKE ALL ON user_session FROM hb_app;
+GRANT SELECT, INSERT ON user_session TO hb_app;
+GRANT UPDATE (revoked_at) ON user_session TO hb_app;
 
-REVOKE ALL ON admin_session FROM qd_app;
-GRANT SELECT, INSERT ON admin_session TO qd_app;
-GRANT UPDATE (revoked_at) ON admin_session TO qd_app;
+REVOKE ALL ON admin_session FROM hb_app;
+GRANT SELECT, INSERT ON admin_session TO hb_app;
+GRANT UPDATE (revoked_at) ON admin_session TO hb_app;
 
 -- Administrator accounts: enrolment and the second factor's counters. Not the status (who is disabled is
 -- decided outside the application), and no deletion.
-REVOKE ALL ON admin_account FROM qd_app;
-GRANT SELECT, INSERT ON admin_account TO qd_app;
-GRANT UPDATE (totp_secret, confirmed_at, failed_codes, locked_until, last_step) ON admin_account TO qd_app;
+REVOKE ALL ON admin_account FROM hb_app;
+GRANT SELECT, INSERT ON admin_account TO hb_app;
+GRANT UPDATE (totp_secret, confirmed_at, failed_codes, locked_until, last_step) ON admin_account TO hb_app;
 
 -- Administrator request keys are written once and read; old ones go with the purge function.
-REVOKE ALL ON admin_request_key FROM qd_app;
-GRANT SELECT, INSERT ON admin_request_key TO qd_app;
+REVOKE ALL ON admin_request_key FROM hb_app;
+GRANT SELECT, INSERT ON admin_request_key TO hb_app;
 
 -- The outbox: queued, claimed, marked. A queued message's recipient and text cannot be rewritten, and a
 -- message cannot be removed (a shop's messages go with the shop, in erase_shop).
-REVOKE ALL ON outbox_message FROM qd_app;
-GRANT SELECT, INSERT ON outbox_message TO qd_app;
-GRANT UPDATE (status, attempts, next_try_at, sent_at) ON outbox_message TO qd_app;
+REVOKE ALL ON outbox_message FROM hb_app;
+GRANT SELECT, INSERT ON outbox_message TO hb_app;
+GRANT UPDATE (status, attempts, next_try_at, sent_at) ON outbox_message TO hb_app;
 
 -- Telegram updates already handled: remembered, never forgotten.
-REVOKE ALL ON processed_update FROM qd_app;
-GRANT SELECT, INSERT ON processed_update TO qd_app;
+REVOKE ALL ON processed_update FROM hb_app;
+GRANT SELECT, INSERT ON processed_update TO hb_app;
 
 -- The migration tool's own table was caught by the first migration's grant on every table. The
 -- application never reads it and must not be able to rewrite which migrations count as applied.
 DO $$ BEGIN
   IF to_regclass('public.alembic_version') IS NOT NULL THEN
-    REVOKE ALL ON alembic_version FROM qd_app;
+    REVOKE ALL ON alembic_version FROM hb_app;
   END IF;
 END $$;

@@ -9,13 +9,13 @@ from datetime import UTC, date, datetime, timedelta
 
 import pytest
 
-from qarz.domain import ledger
-from qarz.domain.chat_entry import EntryKind as ChatKind
-from qarz.domain.chat_entry import ParsedEntry, ParseError, ParseErrorCode, parse_amount, parse_entry, parse_money
-from qarz.domain.ledger import Entry, EntryKind, LedgerIntegrityError, Refusal
-from qarz.domain.money import Currency
-from qarz.domain.payment_notices import NoticeRefusal, may_send, valid_amount
-from qarz.domain.reminders import ReminderKind, plan_automatic, plan_manual
+from hiso_box.domain import ledger
+from hiso_box.domain.chat_entry import EntryKind as ChatKind
+from hiso_box.domain.chat_entry import ParsedEntry, ParseError, ParseErrorCode, parse_amount, parse_entry, parse_money
+from hiso_box.domain.ledger import Entry, EntryKind, LedgerIntegrityError, Refusal
+from hiso_box.domain.money import Currency
+from hiso_box.domain.payment_notices import NoticeRefusal, may_send, valid_amount
+from hiso_box.domain.reminders import ReminderKind, plan_automatic, plan_manual
 
 UZS, USD = Currency.UZS, Currency.USD
 AT = datetime(2050, 1, 1, tzinfo=UTC)

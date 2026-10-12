@@ -12,7 +12,7 @@ import type { Deletion } from "./backoffice";
 import "./messages";
 import { useOffice } from "./office";
 
-/** How long a shop goes on after its deletion is asked for (backend/src/qarz/domain/shop_deletion.py). */
+/** How long a shop goes on after its deletion is asked for (backend/src/hiso_box/domain/shop_deletion.py). */
 export const WAITING_DAYS = 30;
 const MAX_NAME_INPUT = 200;
 

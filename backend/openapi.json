@@ -4393,7 +4393,7 @@
         "title": "WebAppSignIn",
         "type": "object"
       },
-      "qarz__interface__payment_notices_api__Accept": {
+      "hiso_box__interface__payment_notices_api__Accept": {
         "additionalProperties": false,
         "properties": {
           "amount": {
@@ -4423,7 +4423,7 @@
         "title": "Accept",
         "type": "object"
       },
-      "qarz__interface__staff_api__Accept": {
+      "hiso_box__interface__staff_api__Accept": {
         "additionalProperties": false,
         "properties": {
           "token": {
@@ -14419,7 +14419,7 @@
               "schema": {
                 "anyOf": [
                   {
-                    "$ref": "#/components/schemas/qarz__interface__payment_notices_api__Accept"
+                    "$ref": "#/components/schemas/hiso_box__interface__payment_notices_api__Accept"
                   },
                   {
                     "type": "null"
@@ -18632,7 +18632,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/qarz__interface__staff_api__Accept"
+                "$ref": "#/components/schemas/hiso_box__interface__staff_api__Accept"
               }
             }
           },

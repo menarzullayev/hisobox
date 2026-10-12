@@ -2,7 +2,7 @@ import { MAX_QTY_THOUSANDTHS, parseQty, QTY_SCALE, type QtyProblem, qtyToApi } f
 import { type AmountResult, type Currency, parseMoney } from "../money";
 
 /**
- * Quantities and costs of the stock as a person types them (backend/src/qarz/domain/stock.py is the
+ * Quantities and costs of the stock as a person types them (backend/src/hiso_box/domain/stock.py is the
  * authority). A quantity has at most three decimals and is held as a whole number of thousandths; a
  * cost is a whole number of the currency's minor unit. Nothing here is a fraction: a line's total is
  * computed on whole numbers and rounded half up once, as the server does.

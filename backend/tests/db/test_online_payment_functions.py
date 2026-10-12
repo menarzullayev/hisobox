@@ -37,7 +37,7 @@ def _pending(owner: psycopg.Connection, shop: Shop, provider: str, txn: str, tim
 @pytest.mark.parametrize("function", FUNCTIONS)
 def test_only_the_application_role_may_call_them(owner: psycopg.Connection, function: str) -> None:
     row = owner.execute(
-        "SELECT has_function_privilege('qd_app', %s, 'EXECUTE'), has_function_privilege('public', %s, 'EXECUTE'), "
+        "SELECT has_function_privilege('hb_app', %s, 'EXECUTE'), has_function_privilege('public', %s, 'EXECUTE'), "
         "(SELECT prosecdef FROM pg_proc WHERE oid = %s::regprocedure)",
         (function, function, function),
     ).fetchone()

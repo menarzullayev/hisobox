@@ -6,9 +6,9 @@ invented; nothing of the real seed is in the repository.
 
 import pytest
 
-from qarz.application.shared_catalog_import import sections_of, seed_item
-from qarz.domain import shared_catalog
-from qarz.domain.catalog import MAX_NAME_LENGTH
+from hiso_box.application.shared_catalog_import import sections_of, seed_item
+from hiso_box.domain import shared_catalog
+from hiso_box.domain.catalog import MAX_NAME_LENGTH
 
 SECTIONS = {"Ichimliklar": "drinks", "Сладкий ряд": "sweets"}
 

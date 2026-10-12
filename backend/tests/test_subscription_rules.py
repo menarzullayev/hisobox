@@ -3,7 +3,7 @@ from datetime import date, timedelta
 
 import pytest
 
-from qarz.domain.subscription import (
+from hiso_box.domain.subscription import (
     add_months,
     effective_state,
     extend_paid_through,
@@ -13,7 +13,7 @@ from qarz.domain.subscription import (
     warning_days,
     with_free_plan,
 )
-from qarz.interface.errors import error_response
+from hiso_box.interface.errors import error_response
 
 TODAY = date(2026, 10, 7)
 YESTERDAY, TOMORROW = TODAY - timedelta(days=1), TODAY + timedelta(days=1)

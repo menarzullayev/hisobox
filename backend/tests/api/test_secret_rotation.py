@@ -16,20 +16,20 @@ import pytest
 from cryptography.hazmat.primitives.ciphers.aead import AESGCM
 from fastapi.testclient import TestClient
 
-from qarz.application.admin_access import AdminAccess
-from qarz.application.auth import AuthService
-from qarz.application.ports import SecretUnreadable
-from qarz.application.secret_rotation import RotationResult, rotate_admin_secrets
-from qarz.domain import totp
-from qarz.domain.file_links import derive_key as link_key
-from qarz.domain.file_links import expiry, sign
-from qarz.domain.files import object_key
-from qarz.infrastructure.db import Database
-from qarz.infrastructure.file_store import FilesystemFileStore
-from qarz.infrastructure.secret_box import SecretBox, derive_key
-from qarz.infrastructure.settings import Settings
-from qarz.interface import rotate_secrets
-from qarz.interface.http import create_app
+from hiso_box.application.admin_access import AdminAccess
+from hiso_box.application.auth import AuthService
+from hiso_box.application.ports import SecretUnreadable
+from hiso_box.application.secret_rotation import RotationResult, rotate_admin_secrets
+from hiso_box.domain import totp
+from hiso_box.domain.file_links import derive_key as link_key
+from hiso_box.domain.file_links import expiry, sign
+from hiso_box.domain.files import object_key
+from hiso_box.infrastructure.db import Database
+from hiso_box.infrastructure.file_store import FilesystemFileStore
+from hiso_box.infrastructure.secret_box import SecretBox, derive_key
+from hiso_box.infrastructure.settings import Settings
+from hiso_box.interface import rotate_secrets
+from hiso_box.interface.http import create_app
 
 from .conftest import (
     ADMIN_API,
@@ -200,9 +200,9 @@ def test_the_command_prints_three_counts_and_who_must_enrol_again_but_never_a_se
     moved, secret = _account(owner, SecretBox(OLD).encrypt)
     _account(owner, SecretBox(NEW).encrypt)
     lost, lost_secret = _account(owner, SecretBox(WRONG).encrypt)
-    monkeypatch.setenv("QD_ADMIN_DATABASE_URL", admin_database_url)
-    monkeypatch.setenv("QD_SECRETS_KEY", NEW)
-    monkeypatch.setenv("QD_SECRETS_KEY_PREVIOUS", OLD)
+    monkeypatch.setenv("HB_ADMIN_DATABASE_URL", admin_database_url)
+    monkeypatch.setenv("HB_SECRETS_KEY", NEW)
+    monkeypatch.setenv("HB_SECRETS_KEY_PREVIOUS", OLD)
     monkeypatch.setattr("sys.argv", ["rotate_secrets"])
 
     with pytest.raises(SystemExit) as stopped:
@@ -245,9 +245,9 @@ def test_the_command_refuses_an_unusable_key_before_it_touches_anything(
 ) -> None:
     _account(owner, SecretBox(OLD).encrypt)
     before = _stored(owner)
-    monkeypatch.setenv("QD_ADMIN_DATABASE_URL", admin_database_url)
-    monkeypatch.setenv("QD_SECRETS_KEY", current)
-    monkeypatch.setenv("QD_SECRETS_KEY_PREVIOUS", previous)
+    monkeypatch.setenv("HB_ADMIN_DATABASE_URL", admin_database_url)
+    monkeypatch.setenv("HB_SECRETS_KEY", current)
+    monkeypatch.setenv("HB_SECRETS_KEY_PREVIOUS", previous)
     monkeypatch.setattr("sys.argv", ["rotate_secrets"])
     with pytest.raises(SystemExit) as stopped:
         rotate_secrets.main()

@@ -95,20 +95,20 @@ export function themeToCssVariables(theme: unknown): BaseColors | Record<string,
   const button = color(theme["button_color"]);
   const buttonText = color(theme["button_text_color"]);
   return {
-    "--qd-bg": background,
-    "--qd-text": text,
-    "--qd-surface": color(theme["secondary_bg_color"]) ?? background,
-    "--qd-muted": color(theme["hint_color"]) ?? text,
-    "--qd-link": color(theme["link_color"]) ?? text,
-    "--qd-border": color(theme["hint_color"]) ?? text,
-    "--qd-focus": color(theme["link_color"]) ?? text,
-    "--qd-accent": button && buttonText ? button : text,
-    "--qd-on-accent": button && buttonText ? buttonText : background,
+    "--hb-bg": background,
+    "--hb-text": text,
+    "--hb-surface": color(theme["secondary_bg_color"]) ?? background,
+    "--hb-muted": color(theme["hint_color"]) ?? text,
+    "--hb-link": color(theme["link_color"]) ?? text,
+    "--hb-border": color(theme["hint_color"]) ?? text,
+    "--hb-focus": color(theme["link_color"]) ?? text,
+    "--hb-accent": button && buttonText ? button : text,
+    "--hb-on-accent": button && buttonText ? buttonText : background,
   };
 }
 
 function isMapped(variables: BaseColors | Record<string, never>): variables is BaseColors {
-  return "--qd-bg" in variables;
+  return "--hb-bg" in variables;
 }
 
 /**

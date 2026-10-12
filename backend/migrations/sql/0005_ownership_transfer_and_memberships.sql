@@ -17,12 +17,12 @@ CREATE TABLE ownership_transfer (
 );
 CREATE UNIQUE INDEX one_pending_transfer_per_shop ON ownership_transfer (shop_id) WHERE status = 'pending';
 
-GRANT SELECT, INSERT, UPDATE ON ownership_transfer TO qd_app;
+GRANT SELECT, INSERT, UPDATE ON ownership_transfer TO hb_app;
 ALTER TABLE ownership_transfer ENABLE ROW LEVEL SECURITY;
 ALTER TABLE ownership_transfer FORCE ROW LEVEL SECURITY;
 CREATE POLICY tenant ON ownership_transfer
-  USING (shop_id = nullif(current_setting('qd.shop_id', true), '')::uuid)
-  WITH CHECK (shop_id = nullif(current_setting('qd.shop_id', true), '')::uuid);
+  USING (shop_id = nullif(current_setting('hb.shop_id', true), '')::uuid)
+  WITH CHECK (shop_id = nullif(current_setting('hb.shop_id', true), '')::uuid);
 
 -- Cross-tenant read listed in the technical specification: the shops a user is an active member of.
 -- The application passes the authenticated user's identifier; the function returns nothing else.
@@ -43,4 +43,4 @@ AS $$
 $$;
 
 REVOKE ALL ON FUNCTION my_memberships(uuid) FROM PUBLIC;
-GRANT EXECUTE ON FUNCTION my_memberships(uuid) TO qd_app;
+GRANT EXECUTE ON FUNCTION my_memberships(uuid) TO hb_app;

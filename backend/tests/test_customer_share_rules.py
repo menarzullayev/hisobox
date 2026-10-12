@@ -1,11 +1,11 @@
-"""A read-only link's token and what the page may say of a name (qarz.domain.customer_share)."""
+"""A read-only link's token and what the page may say of a name (hiso_box.domain.customer_share)."""
 
 import hashlib
 from datetime import timedelta
 
 import pytest
 
-from qarz.domain.customer_share import (
+from hiso_box.domain.customer_share import (
     SHARE_LIFETIME,
     SWITCH,
     TOKEN_BYTES,
@@ -16,7 +16,7 @@ from qarz.domain.customer_share import (
     same_hash,
     token_hash,
 )
-from qarz.domain.platform_settings import SETTINGS, effective
+from hiso_box.domain.platform_settings import SETTINGS, effective
 
 
 def test_a_token_is_256_random_bits_in_url_safe_text() -> None:

@@ -1,5 +1,5 @@
-"""The pure rules of the territory reference and of a customer's address (qarz.domain.territories) and how
-a row of the seed is read (qarz.application.territories_import). Each rule has the case that must work
+"""The pure rules of the territory reference and of a customer's address (hiso_box.domain.territories) and how
+a row of the seed is read (hiso_box.application.territories_import). Each rule has the case that must work
 and the case that must be refused. The places are invented.
 """
 
@@ -7,11 +7,11 @@ import uuid
 
 import pytest
 
-from qarz.application.customer_address import parse_address
-from qarz.application.errors import ValidationFailed
-from qarz.application.territories_import import seed_district, seed_mahalla, seed_region
-from qarz.domain import territories
-from qarz.domain.territories import Address, Chain, check_address
+from hiso_box.application.customer_address import parse_address
+from hiso_box.application.errors import ValidationFailed
+from hiso_box.application.territories_import import seed_district, seed_mahalla, seed_region
+from hiso_box.domain import territories
+from hiso_box.domain.territories import Address, Chain, check_address
 
 REGION, OTHER_REGION = uuid.uuid4(), uuid.uuid4()
 DISTRICT, OTHER_DISTRICT = uuid.uuid4(), uuid.uuid4()

@@ -15,13 +15,13 @@ import psycopg
 import pytest
 from fastapi.testclient import TestClient
 
-from qarz.application.admin_access import AdminAccess
-from qarz.application.admin_sign_in import KEY_PREFIX, AdminSignIn, NotAnAdministrator
-from qarz.application.admin_sign_in_ports import ServiceKey
-from qarz.application.auth import AuthService
-from qarz.domain import admin_password as rules
-from qarz.infrastructure.db import Database
-from qarz.interface.http import create_app
+from hiso_box.application.admin_access import AdminAccess
+from hiso_box.application.admin_sign_in import KEY_PREFIX, AdminSignIn, NotAnAdministrator
+from hiso_box.application.admin_sign_in_ports import ServiceKey
+from hiso_box.application.auth import AuthService
+from hiso_box.domain import admin_password as rules
+from hiso_box.infrastructure.db import Database
+from hiso_box.interface.http import create_app
 
 from .conftest import ADMIN_API, TEST_BOT_TOKEN, AdminEnv, World, make_admin
 
@@ -166,7 +166,7 @@ def test_a_key_is_a_bearer_token_for_its_administrator(
 
 def test_a_key_is_never_a_cookie(client: TestClient, tool: Tool, tg_id: int) -> None:
     key = tool.create_key(tg_id, "ci")
-    client.cookies.set("qd_session", key)
+    client.cookies.set("hb_session", key)
     assert client.get(ME).status_code == 401
 
 

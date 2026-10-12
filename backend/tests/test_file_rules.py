@@ -4,7 +4,7 @@ from datetime import UTC, datetime, timedelta
 
 import pytest
 
-from qarz.domain.files import (
+from hiso_box.domain.files import (
     MAX_FILE_BYTES,
     RECEIPT_RETENTION,
     FileRefusal,

@@ -27,11 +27,11 @@ CREATE INDEX export_job_waiting ON export_job (created_at) WHERE status IN ('que
 ALTER TABLE export_job ENABLE ROW LEVEL SECURITY;
 ALTER TABLE export_job FORCE ROW LEVEL SECURITY;
 CREATE POLICY tenant ON export_job
-  USING (shop_id = nullif(current_setting('qd.shop_id', true), '')::uuid)
-  WITH CHECK (shop_id = nullif(current_setting('qd.shop_id', true), '')::uuid);
+  USING (shop_id = nullif(current_setting('hb.shop_id', true), '')::uuid)
+  WITH CHECK (shop_id = nullif(current_setting('hb.shop_id', true), '')::uuid);
 -- A job is never deleted by the application: its history is the shop's, and goes with the shop.
-REVOKE ALL ON export_job FROM qd_app;
-GRANT SELECT, INSERT, UPDATE ON export_job TO qd_app;
+REVOKE ALL ON export_job FROM hb_app;
+GRANT SELECT, INSERT, UPDATE ON export_job TO hb_app;
 
 -- The file store keeps export workbooks too. The specification's schema lists three purposes; this adds
 -- the fourth.
@@ -64,7 +64,7 @@ AS $$
   RETURNING j.id, j.shop_id, j.attempts;
 $$;
 REVOKE ALL ON FUNCTION claim_export_job(timestamptz, timestamptz) FROM PUBLIC;
-GRANT EXECUTE ON FUNCTION claim_export_job(timestamptz, timestamptz) TO qd_app;
+GRANT EXECUTE ON FUNCTION claim_export_job(timestamptz, timestamptz) TO hb_app;
 
 -- The hourly cleanup of stored files now also finds export workbooks whose time has run out.
 CREATE OR REPLACE FUNCTION shops_with_receipt_work(p_stale_before timestamptz, p_now timestamptz)

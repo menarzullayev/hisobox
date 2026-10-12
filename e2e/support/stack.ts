@@ -14,7 +14,7 @@ const ENV_FILE =
  * an authenticator shows as the issuer of the administrator's second factor.
  */
 export const BRAND_NAME = (
-  JSON.parse(readFileSync(resolve(import.meta.dirname, "../../backend/src/qarz/domain/brand.json"), "utf8")) as { name: string }
+  JSON.parse(readFileSync(resolve(import.meta.dirname, "../../backend/src/hiso_box/domain/brand.json"), "utf8")) as { name: string }
 ).name;
 
 function readEnvFile(): Map<string, string> {
@@ -48,10 +48,10 @@ export const stack = {
   /** Everything goes through the proxy, as a browser on the internet would. */
   baseURL: `https://127.0.0.1:${setting("DEPLOY_HTTPS_PORT")}`,
   /** A made-up token of the right shape: it signs what Telegram would sign, and reaches nobody. */
-  botToken: setting("QD_BOT_TOKEN"),
-  webhookSecret: setting("QD_WEBHOOK_SECRET"),
-  adminTgIds: setting("QD_ADMIN_TG_IDS").split(",").map(Number),
-  dbContainer: process.env["E2E_DB_CONTAINER"] ?? "qd-e2e-db-1",
+  botToken: setting("HB_BOT_TOKEN"),
+  webhookSecret: setting("HB_WEBHOOK_SECRET"),
+  adminTgIds: setting("HB_ADMIN_TG_IDS").split(",").map(Number),
+  dbContainer: process.env["E2E_DB_CONTAINER"] ?? "hb-e2e-db-1",
 };
 
 const FIELD = "\u001f";

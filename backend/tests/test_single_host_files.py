@@ -33,11 +33,11 @@ RETENTION = (
 # Each calendar job: what its systemd timer of deploy/backup says, and the scheduler's line for it
 # (days of the week counted from Sunday = 0).
 SCHEDULE = {
-    "qd-backup-full": ("Sun *-*-* 01:30:00 Asia/Tashkent", 'full) weekly_slot "$2" "0" 01:30 ;;'),
-    "qd-backup-diff": ("Mon..Sat *-*-* 01:30:00 Asia/Tashkent", 'diff) weekly_slot "$2" "1 2 3 4 5 6" 01:30 ;;'),
-    "qd-restore-test": ("Wed *-*-* 02:30:00 Asia/Tashkent", 'restore-test) weekly_slot "$2" "3" 02:30 ;;'),
-    "qd-backup-expire": ("*-*-* 03:30:00 Asia/Tashkent", 'expire) weekly_slot "$2" "0 1 2 3 4 5 6" 03:30 ;;'),
-    "qd-backup-monthly": ("*-*-01 04:30:00 Asia/Tashkent", 'monthly) monthly_slot "$2" 04:30 ;;'),
+    "hb-backup-full": ("Sun *-*-* 01:30:00 Asia/Tashkent", 'full) weekly_slot "$2" "0" 01:30 ;;'),
+    "hb-backup-diff": ("Mon..Sat *-*-* 01:30:00 Asia/Tashkent", 'diff) weekly_slot "$2" "1 2 3 4 5 6" 01:30 ;;'),
+    "hb-restore-test": ("Wed *-*-* 02:30:00 Asia/Tashkent", 'restore-test) weekly_slot "$2" "3" 02:30 ;;'),
+    "hb-backup-expire": ("*-*-* 03:30:00 Asia/Tashkent", 'expire) weekly_slot "$2" "0 1 2 3 4 5 6" 03:30 ;;'),
+    "hb-backup-monthly": ("*-*-01 04:30:00 Asia/Tashkent", 'monthly) monthly_slot "$2" 04:30 ;;'),
 }
 
 
@@ -140,7 +140,7 @@ def test_a_proxy_that_does_not_check_the_address_is_reported() -> None:
 
 def test_both_forms_of_the_proxy_share_their_limits_routes_and_log() -> None:
     """A limit or a route changed for one form is changed for the other: they are the same files."""
-    for main, server in (("nginx.conf", "conf.d/qarz.conf"), ("nginx.single-host.conf", "single-host.d/qarz.conf")):
+    for main, server in (("nginx.conf", "conf.d/hiso-box.conf"), ("nginx.single-host.conf", "single-host.d/hiso-box.conf")):
         assert "include /etc/nginx/snippets/http-common.conf;" in read(NGINX / main)
         block = read(NGINX / server)
         assert "include /etc/nginx/snippets/limit-zones.conf;" in block
@@ -149,42 +149,42 @@ def test_both_forms_of_the_proxy_share_their_limits_routes_and_log() -> None:
         code = re.sub(r"#.*", "", block)
         assert not re.search(r"\b(limit_req_zone|limit_conn_zone|proxy_pass|log_format)\b", code), server
     zones = read(NGINX / "snippets" / "limit-zones.conf")
-    assert set(re.findall(r"zone=(qd_[a-z]+):", zones)) == {
-        "qd_general",
-        "qd_auth",
-        "qd_pay",
-        "qd_share",
-        "qd_webhook",
-        "qd_static",
-        "qd_conn",
+    assert set(re.findall(r"zone=(hb_[a-z]+):", zones)) == {
+        "hb_general",
+        "hb_auth",
+        "hb_pay",
+        "hb_share",
+        "hb_webhook",
+        "hb_static",
+        "hb_conn",
     }
     # Every limit counts by the one address the proxy settled on.
     assert re.findall(r"^limit_(?:req|conn)_zone (\S+)", zones, flags=re.MULTILINE) == ["$binary_remote_addr"] * 7
 
 
 def test_behind_the_tunnel_the_api_is_told_https_and_the_visitors_address() -> None:
-    block = read(NGINX / "single-host.d" / "qarz.conf")
-    assert "set $qd_forwarded_proto https;" in block
-    assert 'map "$qd_from_tunnel:$http_x_forwarded_proto" $qd_visitor_https' in block
+    block = read(NGINX / "single-host.d" / "hiso-box.conf")
+    assert "set $hb_forwarded_proto https;" in block
+    assert 'map "$hb_from_tunnel:$http_x_forwarded_proto" $hb_visitor_https' in block
     assert "return 301 https://$host$request_uri;" in block
     assert "listen 8080 default_server;" in block and "ssl" not in re.sub(r"#.*", "", block)
     handed = read(NGINX / "snippets" / "api-proxy.conf")
     assert "proxy_set_header X-Forwarded-For $remote_addr;" in handed
-    assert "proxy_set_header X-Forwarded-Proto $qd_forwarded_proto;" in handed
-    assert "set $qd_forwarded_proto $scheme;" in read(NGINX / "conf.d" / "qarz.conf")
+    assert "proxy_set_header X-Forwarded-Proto $hb_forwarded_proto;" in handed
+    assert "set $hb_forwarded_proto $scheme;" in read(NGINX / "conf.d" / "hiso-box.conf")
     assert https_is_believed_from(block) == ['"1:https"']
 
 
 def https_is_believed_from(block: str) -> list[str]:
     """The keys of the map that says "this visitor spoke HTTPS": who says it, and what they said."""
-    body = re.search(r"map \"\$qd_from_tunnel:\$http_x_forwarded_proto\" \$qd_visitor_https \{(.*?)\}", block, re.S)
+    body = re.search(r"map \"\$hb_from_tunnel:\$http_x_forwarded_proto\" \$hb_visitor_https \{(.*?)\}", block, re.S)
     assert body is not None
     entries = [line.split() for line in re.sub(r"#.*", "", body.group(1)).splitlines() if line.strip()]
     return [key for key, value in entries if value == "1;"]
 
 
 def test_a_scheme_believed_from_anybody_is_reported() -> None:
-    block = read(NGINX / "single-host.d" / "qarz.conf").replace('"1:https" 1;', '"~:https$" 1;')
+    block = read(NGINX / "single-host.d" / "hiso-box.conf").replace('"1:https" 1;', '"~:https$" 1;')
     assert https_is_believed_from(block) != ['"1:https"']
 
 
@@ -196,7 +196,7 @@ def test_the_repository_is_encrypted_and_in_a_bucket() -> None:
     # Neither the key nor the passphrase is in a file of the repository.
     assert not [name for name in conf if "key" in name or "pass" in name]
     env = read(SINGLE / "scripts" / "env.sh")
-    assert 'export PGBACKREST_REPO1_CIPHER_PASS="$QD_BACKUP_PASSPHRASE"' in env
+    assert 'export PGBACKREST_REPO1_CIPHER_PASS="$HB_BACKUP_PASSPHRASE"' in env
     assert "RCLONE_CONFIG_QDCRYPT_TYPE=crypt" in env
     assert "RCLONE_CONFIG_QDCRYPT_FILENAME_ENCRYPTION=standard" in env
 
@@ -260,13 +260,13 @@ def test_the_check_writes_its_status_under_a_name_of_its_own() -> None:
     job = read(SINGLE / "scripts" / "job.sh")
     for script in sorted((SINGLE / "scripts").glob("*.sh")):
         assert _shares_a_temporary_name(read(script)) == [], script.name
-    assert 'status="$(mktemp "$QD_STATE_DIR/.check.status.XXXXXX")"' in job
-    assert 'mv -f "$status" "$QD_STATE_DIR/check.status"' in job
+    assert 'status="$(mktemp "$HB_STATE_DIR/.check.status.XXXXXX")"' in job
+    assert 'mv -f "$status" "$HB_STATE_DIR/check.status"' in job
     # What the script was: both of its lines are found.
     before = (
-        'printf \'%s %s\n\' "$code" "$(date +%s)" > "$QD_STATE_DIR/check.status.tmp"\n'
-        'mv -f "$QD_STATE_DIR/check.status.tmp" "$QD_STATE_DIR/check.status"\n'
+        'printf \'%s %s\n\' "$code" "$(date +%s)" > "$HB_STATE_DIR/check.status.tmp"\n'
+        'mv -f "$HB_STATE_DIR/check.status.tmp" "$HB_STATE_DIR/check.status"\n'
     )
     assert len(_shares_a_temporary_name(before)) == 2
     proof = read(PRODUCTION / "scripts" / "single-host-proof.sh")
-    assert "step checks-at-once 0" in proof and "/opt/qarz-single/job.sh check --quiet > /dev/null &" in proof
+    assert "step checks-at-once 0" in proof and "/opt/hiso-box-single/job.sh check --quiet > /dev/null &" in proof

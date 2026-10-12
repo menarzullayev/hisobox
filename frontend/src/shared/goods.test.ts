@@ -20,7 +20,7 @@ const qty = (text: string): number => {
   return result.thousandths;
 };
 
-describe("line total (a port of backend/src/qarz/domain/rounding.py)", () => {
+describe("line total (a port of backend/src/hiso_box/domain/rounding.py)", () => {
   // The cases of backend/tests/test_rounding.py, with the values that module's tests expect.
   it.each([
     ["1", 4_000, 4_000],

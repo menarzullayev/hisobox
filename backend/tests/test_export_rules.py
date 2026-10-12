@@ -5,8 +5,8 @@ from datetime import UTC, datetime, timedelta
 
 import pytest
 
-from qarz.application.export_texts import RU, UZ, header, word
-from qarz.domain.exports import (
+from hiso_box.application.export_texts import RU, UZ, header, word
+from hiso_box.domain.exports import (
     DAILY_LIMIT,
     EXPORT_RETENTION,
     MAX_ATTEMPTS,
@@ -133,10 +133,10 @@ def test_every_value_the_database_allows_has_its_word() -> None:
 def test_the_file_store_hands_back_objects_as_large_as_an_export(monkeypatch: pytest.MonkeyPatch) -> None:
     """A receipt is at most 5 MB, a workbook of a large shop is tens of megabytes: the deployed store's own
     limit on what it returns must be the export's, or a large export could be written and never fetched."""
-    from qarz.domain.exports import MAX_EXPORT_BYTES
-    from qarz.domain.files import MAX_FILE_BYTES
-    from qarz.infrastructure.settings import Settings
-    from qarz.interface import asgi
+    from hiso_box.domain.exports import MAX_EXPORT_BYTES
+    from hiso_box.domain.files import MAX_FILE_BYTES
+    from hiso_box.infrastructure.settings import Settings
+    from hiso_box.interface import asgi
 
     seen: list[int] = []
 
@@ -144,6 +144,6 @@ def test_the_file_store_hands_back_objects_as_large_as_an_export(monkeypatch: py
         seen.append(max_object_bytes)
 
     monkeypatch.setattr(asgi, "build_file_store", capture)
-    asgi.build(Settings(database_url="postgresql://qd_app:unused@127.0.0.1:1/unused", bot_token="123:test"))
+    asgi.build(Settings(database_url="postgresql://hb_app:unused@127.0.0.1:1/unused", bot_token="123:test"))
     assert seen == [MAX_EXPORT_BYTES]
     assert MAX_EXPORT_BYTES == 256 * 1024 * 1024 > 40 * 1024 * 1024 > MAX_FILE_BYTES

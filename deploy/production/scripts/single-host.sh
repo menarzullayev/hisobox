@@ -9,7 +9,7 @@
 #   single-host.sh start | stop           start everything at the current release / stop everything
 #   single-host.sh status                 what runs, how old the newest backup and WAL segment are,
 #                                         and what the operations watch has firing
-#   single-host.sh alert-test             send one TEST alert to QD_ALERT_CHAT_IDS and say whether
+#   single-host.sh alert-test             send one TEST alert to HB_ALERT_CHAT_IDS and say whether
 #                                         Telegram took it (runbook 16; launch criterion 9)
 #   single-host.sh catalog-import <dir>   load the seed of the shared product catalogue from <dir>
 #                                         (source.json, categories.json, img/) into the database and the
@@ -32,15 +32,15 @@
 #   single-host.sh smoke                  smoke.sh against https://$DEPLOY_PUBLIC_HOST
 #   single-host.sh logs [<service>...]    the last lines of the logs
 #
-# Environment: DEPLOY_ENV_FILE (default ~/.qarz/single-host.env), DEPLOY_PROJECT (default qarz),
-# DEPLOY_STATE_DIR (default ~/.qarz/deploy). Runs in bash on Linux or in Git Bash on Windows, beside
+# Environment: DEPLOY_ENV_FILE (default ~/.hisobox/single-host.env), DEPLOY_PROJECT (default hiso-box),
+# DEPLOY_STATE_DIR (default ~/.hiso_box/deploy). Runs in bash on Linux or in Git Bash on Windows, beside
 # Docker Desktop; it changes nothing on the host but those two paths and Docker's own objects of the
 # project. No command here removes a volume that holds data, and none prints a value from the env file.
 set -euo pipefail
 
-export DEPLOY_ENV_FILE="${DEPLOY_ENV_FILE:-$HOME/.qarz/single-host.env}"
-export DEPLOY_PROJECT="${DEPLOY_PROJECT:-qarz}"
-export DEPLOY_STATE_DIR="${DEPLOY_STATE_DIR:-$HOME/.qarz/deploy}"
+export DEPLOY_ENV_FILE="${DEPLOY_ENV_FILE:-$HOME/.hisobox/single-host.env}"
+export DEPLOY_PROJECT="${DEPLOY_PROJECT:-hiso-box}"
+export DEPLOY_STATE_DIR="${DEPLOY_STATE_DIR:-$HOME/.hiso_box/deploy}"
 export DEPLOY_COMPOSE_OVERLAY
 DEPLOY_COMPOSE_OVERLAY="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)/compose.single-host.yml"
 # shellcheck source-path=SCRIPTDIR source=lib.sh
@@ -51,8 +51,8 @@ dce() { MSYS_NO_PATHCONV=1 compose "$@"; }
 
 # Names that must have a value before anything is started. Names only: a value is never printed.
 REQUIRED="CLOUDFLARE_TUNNEL_TOKEN DEPLOY_R2_ENDPOINT DEPLOY_R2_BUCKET DEPLOY_R2_ACCESS_KEY_ID
-DEPLOY_R2_SECRET_ACCESS_KEY DEPLOY_BACKUP_PASSPHRASE QD_MIGRATION_URL QD_DATABASE_URL QD_WORKER_DATABASE_URL
-QD_BOT_TOKEN QD_WEBHOOK_SECRET QD_SECRETS_KEY"
+DEPLOY_R2_SECRET_ACCESS_KEY DEPLOY_BACKUP_PASSPHRASE HB_MIGRATION_URL HB_DATABASE_URL HB_WORKER_DATABASE_URL
+HB_BOT_TOKEN HB_WEBHOOK_SECRET HB_SECRETS_KEY"
 
 # The release and the database image that run now, for the commands that need a running stack.
 use_current() {
@@ -121,30 +121,30 @@ VITE_BOT_USERNAME=
 # canonical link, its sharing card and its sitemap are made from it. Empty: the page carries no canonical
 # link and no sitemap (a canonical pointing at the wrong host is worse than none).
 VITE_PUBLIC_ORIGIN=
-QD_BOT_TOKEN=
-QD_ADMIN_TG_IDS=
+HB_BOT_TOKEN=
+HB_ADMIN_TG_IDS=
 # The administrators' second factor: required, or off (no code is asked for anywhere; SINGLE-HOST.md).
-QD_ADMIN_SECOND_FACTOR=required
+HB_ADMIN_SECOND_FACTOR=required
 # The host administrators' passkeys are made for: the same name as DEPLOY_PUBLIC_HOST. Empty: none.
-QD_PASSKEY_HOST=
+HB_PASSKEY_HOST=
 # Whom the operations watch tells (your Telegram identifier, or a group's). Empty: nobody is told.
-QD_ALERT_CHAT_IDS=
+HB_ALERT_CHAT_IDS=
 
 # --- Generated. Copy DEPLOY_BACKUP_PASSPHRASE to two places that are NOT this machine, now. ----------
 # Without it the backups in the bucket cannot be read by anybody, you included.
 DEPLOY_BACKUP_PASSPHRASE=$(openssl rand -hex 32)
-QD_MIGRATION_URL=postgresql://postgres:$owner@db:5432/qarz
-QD_DATABASE_URL=postgresql://qd_app:$app@db:5432/qarz
-QD_ADMIN_DATABASE_URL=postgresql://qd_admin:$admin@db:5432/qarz
-QD_WORKER_DATABASE_URL=postgresql://qd_worker:$worker@db:5432/qarz
-QD_WEBHOOK_SECRET=$(openssl rand -hex 32)
-QD_SECRETS_KEY=$(openssl rand -base64 32)
-QD_METRICS_TOKEN=$(openssl rand -hex 24)
+HB_MIGRATION_URL=postgresql://postgres:$owner@db:5432/hiso_box
+HB_DATABASE_URL=postgresql://hb_app:$app@db:5432/hiso_box
+HB_ADMIN_DATABASE_URL=postgresql://hb_admin:$admin@db:5432/hiso_box
+HB_WORKER_DATABASE_URL=postgresql://hb_worker:$worker@db:5432/hiso_box
+HB_WEBHOOK_SECRET=$(openssl rand -hex 32)
+HB_SECRETS_KEY=$(openssl rand -base64 32)
+HB_METRICS_TOKEN=$(openssl rand -hex 24)
 EOF
   )
   say "written: $target"
   say "generated: the backup passphrase, four database passwords, the webhook secret, the server secret, the metrics token"
-  say "next: 1. copy DEPLOY_BACKUP_PASSPHRASE and QD_SECRETS_KEY from that file to your password manager and one more place off this machine"
+  say "next: 1. copy DEPLOY_BACKUP_PASSPHRASE and HB_SECRETS_KEY from that file to your password manager and one more place off this machine"
   say "      2. fill in the names at the top of the file (deploy/production/SINGLE-HOST.md)"
 }
 
@@ -194,15 +194,15 @@ status() {
   use_current
   compose ps --format 'table {{.Service}}\t{{.Status}}'
   say "--- backups (repository in the bucket) ---"
-  dce exec -T backup /opt/qarz-single/job.sh check || say "backups: something is too old or missing (see above)"
+  dce exec -T backup /opt/hiso-box-single/job.sh check || say "backups: something is too old or missing (see above)"
   say "--- stored files (copy in the bucket) ---"
   # shellcheck disable=SC2016  # expanded in the container
-  dce exec -T files-backup bash -c 'at="$(cat /var/lib/qarz-files-backup/sync.last-success 2>/dev/null || echo 0)"; if [ "$at" = 0 ]; then echo "no successful copy yet"; else echo "last successful copy: $(( $(date +%s) - at )) s ago"; fi' \
+  dce exec -T files-backup bash -c 'at="$(cat /var/lib/hiso-box-files-backup/sync.last-success 2>/dev/null || echo 0)"; if [ "$at" = 0 ]; then echo "no successful copy yet"; else echo "last successful copy: $(( $(date +%s) - at )) s ago"; fi' \
     || say "the files-backup service is not running"
   say "--- disk (the Docker disk that holds the database) ---"
   dce exec -T db df -h /var/lib/postgresql/data | tail -n 1 || true
   say "--- operations watch (what is firing now; nothing below this line means nothing is) ---"
-  dce exec -T db psql -X -qAt -U postgres -d qarz -c "select key || '  since ' || to_char(since, 'YYYY-MM-DD HH24:MI') || '  ' || case when firing_since is null then 'not yet firing' when resolved_at is not null then 'stopped, not yet said' when notified_at is null then 'FIRING, nobody told (' || coalesce(last_outcome, 'not tried') || ')' else 'FIRING, told ' || to_char(notified_at, 'YYYY-MM-DD HH24:MI') end from ops_alert order by key" \
+  dce exec -T db psql -X -qAt -U postgres -d hiso_box -c "select key || '  since ' || to_char(since, 'YYYY-MM-DD HH24:MI') || '  ' || case when firing_since is null then 'not yet firing' when resolved_at is not null then 'stopped, not yet said' when notified_at is null then 'FIRING, nobody told (' || coalesce(last_outcome, 'not tried') || ')' else 'FIRING, told ' || to_char(notified_at, 'YYYY-MM-DD HH24:MI') end from ops_alert order by key" \
     || say "the watch's state could not be read"
 }
 
@@ -239,23 +239,23 @@ case "${1:-}" in
   status) status ;;
   backup)
     case "${2:-}" in full | diff) ;; *) die "usage: single-host.sh backup <full|diff>" ;; esac
-    use_current; dce exec -T backup /opt/qarz-single/job.sh "$2" ;;
-  restore-test) use_current; dce exec -T backup /opt/qarz-single/job.sh restore-test ;;
-  alert-test) use_current; dce exec -T worker python -m qarz.interface.alert_test ;;
+    use_current; dce exec -T backup /opt/hiso-box-single/job.sh "$2" ;;
+  restore-test) use_current; dce exec -T backup /opt/hiso-box-single/job.sh restore-test ;;
+  alert-test) use_current; dce exec -T worker python -m hiso_box.interface.alert_test ;;
   catalog-import)
     { [ $# -eq 2 ] && [ -d "$2" ]; } || die "usage: single-host.sh catalog-import <directory>"
     # A one-off container of the API's image, with the API's settings and its volume of files. The seed
     # is mounted read-only: the photos are many times the 64 MB the API's own /tmp holds.
     use_current
     seed="$(native_path "$(cd "$2" && pwd)")"
-    dce run --rm --no-deps --volume "$seed:/seed:ro" api python -m qarz.interface.import_shared_catalog /seed ;;
+    dce run --rm --no-deps --volume "$seed:/seed:ro" api python -m hiso_box.interface.import_shared_catalog /seed ;;
   territories-import)
     { [ $# -eq 2 ] && [ -d "$2" ]; } || die "usage: single-host.sh territories-import <directory>"
     # A one-off container of the API's image, with the API's settings. The seed is mounted read-only; it
     # holds places and no person, and nothing of it is copied anywhere but the database.
     use_current
     seed="$(native_path "$(cd "$2" && pwd)")"
-    dce run --rm --no-deps --volume "$seed:/seed:ro" api python -m qarz.interface.import_territories /seed ;;
+    dce run --rm --no-deps --volume "$seed:/seed:ro" api python -m hiso_box.interface.import_territories /seed ;;
   admin-key)
     use_current
     case "${2:-}" in
@@ -265,15 +265,15 @@ case "${1:-}" in
         # reads, and the file is never written over.
         out="$(dirname "$DEPLOY_ENV_FILE")/admin-key.$4"
         [ ! -e "$out" ] || die "$out exists: revoke that key and remove the file, or choose another label"
-        key="$(dce exec -T api python -m qarz.interface.admin_sign_in key-create "$3" "$4" | head -n 1)"
+        key="$(dce exec -T api python -m hiso_box.interface.admin_sign_in key-create "$3" "$4" | head -n 1)"
         case "$key" in qdk_*) ;; *) die "no key was made" ;; esac
         (umask 077 && printf '%s\n' "$key" > "$out")
         unset key
         echo "key '$4' written to $out; it is kept nowhere else. Send it as:  Authorization: Bearer <key>" ;;
-      list) dce exec -T api python -m qarz.interface.admin_sign_in key-list ;;
+      list) dce exec -T api python -m hiso_box.interface.admin_sign_in key-list ;;
       revoke)
         [ $# -eq 3 ] || die "usage: single-host.sh admin-key revoke <label>"
-        dce exec -T api python -m qarz.interface.admin_sign_in key-revoke "$3" ;;
+        dce exec -T api python -m hiso_box.interface.admin_sign_in key-revoke "$3" ;;
       *) die "usage: single-host.sh admin-key create <telegram-id> <label> | list | revoke <label>" ;;
     esac ;;
   admin-password)
@@ -281,7 +281,7 @@ case "${1:-}" in
     # Asked for on this terminal, twice; it is never an argument and nothing here prints it.
     [ -t 0 ] || die "run this in a terminal: the password is typed, not passed"
     use_current
-    dce exec api python -m qarz.interface.admin_sign_in password-set "$2" "$3" ;;
+    dce exec api python -m hiso_box.interface.admin_sign_in password-set "$2" "$3" ;;
   restore) shift; restore "$@" ;;
   restore-files) use_current_or_head; compose run --rm --no-deps restore-files ;;
   pitr) pitr "${2:-}" ;;

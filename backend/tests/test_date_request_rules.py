@@ -2,7 +2,7 @@ from datetime import UTC, date, datetime, timedelta
 
 import pytest
 
-from qarz.domain.date_requests import (
+from hiso_box.domain.date_requests import (
     REASON_MAX,
     REPEAT_AFTER_DECLINE,
     DateRequestRefusal,
@@ -13,8 +13,8 @@ from qarz.domain.date_requests import (
     request_is_met,
     tidy_reason,
 )
-from qarz.domain.ledger import EntryKind
-from qarz.domain.promise import PromiseDateError
+from hiso_box.domain.ledger import EntryKind
+from hiso_box.domain.promise import PromiseDateError
 
 NOW = datetime(2026, 10, 7, 12, 0, tzinfo=UTC)
 SALE = date(2026, 10, 1)

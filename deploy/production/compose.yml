@@ -1,15 +1,15 @@
 # The application host: proxy, API, worker, and the one-shot migration.
 #
 # NOT here, by design (ADR-014, ADR-015, ADR-020): PostgreSQL and the file store. They live on the
-# database hosts; these services reach them through QD_DATABASE_URL, QD_ADMIN_DATABASE_URL,
-# QD_WORKER_DATABASE_URL, QD_MIGRATION_URL and QD_S3_*.
+# database hosts; these services reach them through HB_DATABASE_URL, HB_ADMIN_DATABASE_URL,
+# HB_WORKER_DATABASE_URL, HB_MIGRATION_URL and HB_S3_*.
 #
 # Settings come from an env file that is not in the repository (see .env.example), given with
 # `docker compose --env-file`. The scripts in scripts/ do that; run them, not compose by hand.
 # Each service is given only the names it reads: the owner connection goes to `migrate` alone, and
 # each part of the application gets the connection of its own database role and no other (the API:
-# qd_app, and qd_admin for the administrators' side; the worker: qd_worker).
-name: qarz
+# hb_app, and hb_admin for the administrators' side; the worker: hb_worker).
+name: hiso-box
 
 x-defaults: &defaults
   init: true
@@ -27,20 +27,20 @@ x-defaults: &defaults
       max-file: "10"
 
 x-backend-image: &backend-image
-  image: ${DEPLOY_BACKEND_IMAGE:-qarz-daftari/backend}:${DEPLOY_RELEASE:?set DEPLOY_RELEASE to the commit to run}
+  image: ${DEPLOY_BACKEND_IMAGE:-hiso_box/backend}:${DEPLOY_RELEASE:?set DEPLOY_RELEASE to the commit to run}
   build:
     context: ../../backend
 
 # Read by both the API and the worker. No database connection is shared: each has its own role.
 x-shared-env: &shared-env
-  QD_BOT_TOKEN: ${QD_BOT_TOKEN:-}
-  QD_FILE_STORE: ${QD_FILE_STORE:-}
-  QD_FILE_ROOT: ${QD_FILE_ROOT:-}
-  QD_S3_ENDPOINT: ${QD_S3_ENDPOINT:-}
-  QD_S3_BUCKET: ${QD_S3_BUCKET:-}
-  QD_S3_REGION: ${QD_S3_REGION:-us-east-1}
-  QD_S3_ACCESS_KEY: ${QD_S3_ACCESS_KEY:-}
-  QD_S3_SECRET_KEY: ${QD_S3_SECRET_KEY:-}
+  HB_BOT_TOKEN: ${HB_BOT_TOKEN:-}
+  HB_FILE_STORE: ${HB_FILE_STORE:-}
+  HB_FILE_ROOT: ${HB_FILE_ROOT:-}
+  HB_S3_ENDPOINT: ${HB_S3_ENDPOINT:-}
+  HB_S3_BUCKET: ${HB_S3_BUCKET:-}
+  HB_S3_REGION: ${HB_S3_REGION:-us-east-1}
+  HB_S3_ACCESS_KEY: ${HB_S3_ACCESS_KEY:-}
+  HB_S3_SECRET_KEY: ${HB_S3_SECRET_KEY:-}
 
 services:
   migrate:
@@ -50,7 +50,7 @@ services:
     healthcheck:
       disable: true
     environment:
-      QD_MIGRATION_URL: ${QD_MIGRATION_URL:?QD_MIGRATION_URL is not set}
+      HB_MIGRATION_URL: ${HB_MIGRATION_URL:?HB_MIGRATION_URL is not set}
     networks: [egress]
     deploy:
       resources:
@@ -67,30 +67,30 @@ services:
     stop_grace_period: 30s
     environment:
       <<: *shared-env
-      QD_DATABASE_URL: ${QD_DATABASE_URL:?QD_DATABASE_URL is not set}
-      # The administrators' side. Needed as soon as QD_ADMIN_TG_IDS names somebody: the API then
+      HB_DATABASE_URL: ${HB_DATABASE_URL:?HB_DATABASE_URL is not set}
+      # The administrators' side. Needed as soon as HB_ADMIN_TG_IDS names somebody: the API then
       # refuses to start without it.
-      QD_ADMIN_DATABASE_URL: ${QD_ADMIN_DATABASE_URL:-}
-      QD_WEBHOOK_SECRET: ${QD_WEBHOOK_SECRET:-}
-      QD_SECRETS_KEY: ${QD_SECRETS_KEY:-}
-      QD_SECRETS_KEY_PREVIOUS: ${QD_SECRETS_KEY_PREVIOUS:-}
-      QD_ADMIN_TG_IDS: ${QD_ADMIN_TG_IDS:-}
+      HB_ADMIN_DATABASE_URL: ${HB_ADMIN_DATABASE_URL:-}
+      HB_WEBHOOK_SECRET: ${HB_WEBHOOK_SECRET:-}
+      HB_SECRETS_KEY: ${HB_SECRETS_KEY:-}
+      HB_SECRETS_KEY_PREVIOUS: ${HB_SECRETS_KEY_PREVIOUS:-}
+      HB_ADMIN_TG_IDS: ${HB_ADMIN_TG_IDS:-}
       # `required` unless the env file says `off`; anything else and the API refuses to start.
-      QD_ADMIN_SECOND_FACTOR: ${QD_ADMIN_SECOND_FACTOR:-required}
+      HB_ADMIN_SECOND_FACTOR: ${HB_ADMIN_SECOND_FACTOR:-required}
       # The public host administrators' passkeys are made for. Empty: there are no passkeys.
-      QD_PASSKEY_HOST: ${QD_PASSKEY_HOST:-}
-      QD_METRICS_TOKEN: ${QD_METRICS_TOKEN:-}
-      QD_RATE_USER_PER_MINUTE: ${QD_RATE_USER_PER_MINUTE:-120}
-      QD_RATE_USER_BURST: ${QD_RATE_USER_BURST:-60}
-      QD_RATE_SHOP_PER_MINUTE: ${QD_RATE_SHOP_PER_MINUTE:-600}
-      QD_RATE_SHOP_BURST: ${QD_RATE_SHOP_BURST:-200}
-      QD_WEB_LOGIN_MAX_AGE_SECONDS: ${QD_WEB_LOGIN_MAX_AGE_SECONDS:-300}
-      QD_STATEMENT_TIMEOUT_MS: ${QD_STATEMENT_TIMEOUT_MS:-5000}
-      QD_PAYME_MERCHANT_ID: ${QD_PAYME_MERCHANT_ID:-}
-      QD_PAYME_SECRET_KEY: ${QD_PAYME_SECRET_KEY:-}
-      QD_CLICK_SERVICE_ID: ${QD_CLICK_SERVICE_ID:-}
-      QD_CLICK_MERCHANT_ID: ${QD_CLICK_MERCHANT_ID:-}
-      QD_CLICK_SECRET_KEY: ${QD_CLICK_SECRET_KEY:-}
+      HB_PASSKEY_HOST: ${HB_PASSKEY_HOST:-}
+      HB_METRICS_TOKEN: ${HB_METRICS_TOKEN:-}
+      HB_RATE_USER_PER_MINUTE: ${HB_RATE_USER_PER_MINUTE:-120}
+      HB_RATE_USER_BURST: ${HB_RATE_USER_BURST:-60}
+      HB_RATE_SHOP_PER_MINUTE: ${HB_RATE_SHOP_PER_MINUTE:-600}
+      HB_RATE_SHOP_BURST: ${HB_RATE_SHOP_BURST:-200}
+      HB_WEB_LOGIN_MAX_AGE_SECONDS: ${HB_WEB_LOGIN_MAX_AGE_SECONDS:-300}
+      HB_STATEMENT_TIMEOUT_MS: ${HB_STATEMENT_TIMEOUT_MS:-5000}
+      HB_PAYME_MERCHANT_ID: ${HB_PAYME_MERCHANT_ID:-}
+      HB_PAYME_SECRET_KEY: ${HB_PAYME_SECRET_KEY:-}
+      HB_CLICK_SERVICE_ID: ${HB_CLICK_SERVICE_ID:-}
+      HB_CLICK_MERCHANT_ID: ${HB_CLICK_MERCHANT_ID:-}
+      HB_CLICK_SECRET_KEY: ${HB_CLICK_SECRET_KEY:-}
     # The image's own health check (GET /healthz inside the container) applies.
     networks: [edge, egress]
     deploy:
@@ -102,7 +102,7 @@ services:
 
   worker:
     <<: [*defaults, *backend-image]
-    command: ["python", "-m", "qarz.interface.worker"]
+    command: ["python", "-m", "hiso_box.interface.worker"]
     restart: unless-stopped
     depends_on:
       migrate:
@@ -110,30 +110,30 @@ services:
     stop_grace_period: 30s
     # The worker listens on nothing, so the image's HTTP check does not apply and is switched off. A
     # worker that died is restarted by the restart policy; one that runs but does no work shows in the
-    # API's metrics (qd_job_last_finished_seconds, qd_outbox_oldest_due_seconds), not here. The worker
+    # API's metrics (hb_job_last_finished_seconds, hb_outbox_oldest_due_seconds), not here. The worker
     # watches the rest of the service and tells the operators' chat (DEC-078); nothing watches it.
     healthcheck:
       disable: true
     environment:
       <<: *shared-env
-      QD_WORKER_DATABASE_URL: ${QD_WORKER_DATABASE_URL:?QD_WORKER_DATABASE_URL is not set}
-      QD_WORKER_STATEMENT_TIMEOUT_MS: ${QD_WORKER_STATEMENT_TIMEOUT_MS:-60000}
+      HB_WORKER_DATABASE_URL: ${HB_WORKER_DATABASE_URL:?HB_WORKER_DATABASE_URL is not set}
+      HB_WORKER_STATEMENT_TIMEOUT_MS: ${HB_WORKER_STATEMENT_TIMEOUT_MS:-60000}
       # The administrators' allow-list, as the API has it: the worker sends a subscription receipt's
       # file with its announcement to these people's chats and to the review group, and to nobody else.
       # Without it the administrators get the announcement as text, the group still gets the file.
-      QD_ADMIN_TG_IDS: ${QD_ADMIN_TG_IDS:-}
+      HB_ADMIN_TG_IDS: ${HB_ADMIN_TG_IDS:-}
       # The SMS provider's account. The worker alone sends, so the API is not given it.
-      QD_ESKIZ_EMAIL: ${QD_ESKIZ_EMAIL:-}
-      QD_ESKIZ_PASSWORD: ${QD_ESKIZ_PASSWORD:-}
-      QD_ESKIZ_SENDER: ${QD_ESKIZ_SENDER:-}
+      HB_ESKIZ_EMAIL: ${HB_ESKIZ_EMAIL:-}
+      HB_ESKIZ_PASSWORD: ${HB_ESKIZ_PASSWORD:-}
+      HB_ESKIZ_SENDER: ${HB_ESKIZ_SENDER:-}
       # The operations watch (DEC-078): whom it tells, and what it reads besides the database. The
       # metrics token lets it read the API's counters (error rate, security events); counts only.
-      QD_ALERT_CHAT_IDS: ${QD_ALERT_CHAT_IDS:-}
-      QD_ALERT_API_URL: ${QD_ALERT_API_URL:-}
-      QD_ALERT_BACKUP_FIGURES_DIR: ${QD_ALERT_BACKUP_FIGURES_DIR:-}
-      QD_ALERT_FILES_FIGURES_DIR: ${QD_ALERT_FILES_FIGURES_DIR:-}
-      QD_ALERT_DISK_PATHS: ${QD_ALERT_DISK_PATHS:-}
-      QD_METRICS_TOKEN: ${QD_METRICS_TOKEN:-}
+      HB_ALERT_CHAT_IDS: ${HB_ALERT_CHAT_IDS:-}
+      HB_ALERT_API_URL: ${HB_ALERT_API_URL:-}
+      HB_ALERT_BACKUP_FIGURES_DIR: ${HB_ALERT_BACKUP_FIGURES_DIR:-}
+      HB_ALERT_FILES_FIGURES_DIR: ${HB_ALERT_FILES_FIGURES_DIR:-}
+      HB_ALERT_DISK_PATHS: ${HB_ALERT_DISK_PATHS:-}
+      HB_METRICS_TOKEN: ${HB_METRICS_TOKEN:-}
     networks: [egress]
     deploy:
       resources:
@@ -144,7 +144,7 @@ services:
 
   proxy:
     <<: *defaults
-    image: ${DEPLOY_PROXY_IMAGE:-qarz-daftari/proxy}:${DEPLOY_RELEASE:?set DEPLOY_RELEASE to the commit to run}
+    image: ${DEPLOY_PROXY_IMAGE:-hiso_box/proxy}:${DEPLOY_RELEASE:?set DEPLOY_RELEASE to the commit to run}
     build:
       context: ../..
       dockerfile: deploy/production/nginx/Dockerfile
@@ -164,8 +164,8 @@ services:
       - "${DEPLOY_BIND:-0.0.0.0}:${DEPLOY_HTTP_PORT:-80}:8080"
       - "${DEPLOY_BIND:-0.0.0.0}:${DEPLOY_HTTPS_PORT:-443}:8443"
     volumes:
-      - ${DEPLOY_TLS_DIR:-/etc/qarz/tls}:/etc/nginx/tls:ro
-      - ${DEPLOY_ACME_DIR:-/var/lib/qarz/acme}:/var/www/acme:ro
+      - ${DEPLOY_TLS_DIR:-/etc/hiso_box/tls}:/etc/nginx/tls:ro
+      - ${DEPLOY_ACME_DIR:-/var/lib/hiso_box/acme}:/var/www/acme:ro
     networks: [public, edge]
     deploy:
       resources:

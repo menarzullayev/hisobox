@@ -10,10 +10,10 @@ import psycopg
 import pytest
 from fastapi.testclient import TestClient
 
-from qarz.application.auth import SIGNED_DATA_MAX_AGE, WEB_LOGIN_MAX_AGE, WEBAPP_SESSION, AuthService
-from qarz.infrastructure.db import Database
-from qarz.infrastructure.settings import Settings
-from qarz.interface.http import create_app
+from hiso_box.application.auth import SIGNED_DATA_MAX_AGE, WEB_LOGIN_MAX_AGE, WEBAPP_SESSION, AuthService
+from hiso_box.infrastructure.db import Database
+from hiso_box.infrastructure.settings import Settings
+from hiso_box.interface.http import create_app
 from tests.test_telegram_auth import login_data, webapp_init_data
 
 from .conftest import TEST_BOT_TOKEN, WEBHOOK_SECRET, SessionClient
@@ -54,7 +54,7 @@ def _bearer(token: str) -> dict[str, str]:
 
 
 def _cookie(token: str) -> dict[str, str]:
-    return {"Cookie": f"qd_session={token}"}
+    return {"Cookie": f"hb_session={token}"}
 
 
 def _web_session(app: SessionClient, tg_id: int) -> tuple[str, str]:
@@ -64,7 +64,7 @@ def _web_session(app: SessionClient, tg_id: int) -> tuple[str, str]:
 def _web_session_with(app: SessionClient, data: dict[str, object]) -> tuple[str, str]:
     response = app.http.post(LOGIN, json=data)
     assert response.status_code == 200, response.text
-    token = response.cookies.get("qd_session") or response.headers["set-cookie"].split("qd_session=")[1].split(";")[0]
+    token = response.cookies.get("hb_session") or response.headers["set-cookie"].split("hb_session=")[1].split(";")[0]
     return token, response.json()["csrf_token"]
 
 
@@ -161,7 +161,7 @@ def test_web_sign_in_sets_a_protected_cookie(session_client: SessionClient) -> N
     assert response.status_code == 200, response.text
     cookie = response.headers["set-cookie"]
     lowered = cookie.lower()
-    assert "qd_session=" in cookie
+    assert "hb_session=" in cookie
     assert "httponly" in lowered
     assert "secure" in lowered
     assert "samesite=lax" in lowered
@@ -213,7 +213,7 @@ def test_web_sign_out_needs_the_csrf_token_and_clears_the_cookie(session_client:
     assert http.post("/api/v1/auth/sign-out", headers=_cookie(token)).status_code == 401
     done = http.post("/api/v1/auth/sign-out", headers={**_cookie(token), "X-CSRF-Token": csrf})
     assert done.status_code == 204
-    assert "qd_session=" in done.headers["set-cookie"]
+    assert "hb_session=" in done.headers["set-cookie"]
     assert http.get(ME, headers=_cookie(token)).status_code == 401
 
 
@@ -345,7 +345,7 @@ def test_signing_out_everywhere_from_the_web_needs_the_csrf_token_and_clears_the
     done = http.post(EVERYWHERE, headers={**_cookie(laptop), "X-CSRF-Token": csrf})
     assert done.status_code == 204
     cleared = done.headers["set-cookie"].lower()
-    assert cleared.startswith(('qd_session="";', "qd_session=;"))
+    assert cleared.startswith(('hb_session="";', "hb_session=;"))
     assert "path=/api" in cleared and "max-age=0" in cleared
     assert http.get(ME, headers=_cookie(laptop)).status_code == 401
     assert http.get(ME, headers=_bearer(phone)).status_code == 401, "the Mini App session on the phone ended too"
@@ -386,8 +386,8 @@ def test_one_person_cannot_end_another_persons_sessions(
         {"Authorization": "Bearer"},
         {"Authorization": "Bearer " + "A" * 43},
         {"Authorization": "Basic abc"},
-        {"Cookie": "qd_session=" + "B" * 43},
-        {"Cookie": "qd_session=" + "B" * 43, "X-CSRF-Token": "C" * 43},
+        {"Cookie": "hb_session=" + "B" * 43},
+        {"Cookie": "hb_session=" + "B" * 43, "X-CSRF-Token": "C" * 43},
     ],
     ids=["nothing", "empty bearer", "unknown bearer", "another scheme", "unknown cookie", "unknown cookie and token"],
 )
@@ -618,10 +618,10 @@ def test_the_age_accepted_for_web_login_data_is_a_setting_that_cannot_exceed_the
     app_database_url: str, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     assert Settings().web_login_max_age_seconds == WEB_LOGIN_MAX_AGE.total_seconds() == 300
-    monkeypatch.setenv("QD_WEB_LOGIN_MAX_AGE_SECONDS", "90")
+    monkeypatch.setenv("HB_WEB_LOGIN_MAX_AGE_SECONDS", "90")
     assert Settings().web_login_max_age_seconds == 90
     for bad in ("0", "-5", "3601", "soon"):
-        monkeypatch.setenv("QD_WEB_LOGIN_MAX_AGE_SECONDS", bad)
+        monkeypatch.setenv("HB_WEB_LOGIN_MAX_AGE_SECONDS", bad)
         with pytest.raises(ValueError):
             Settings()
 

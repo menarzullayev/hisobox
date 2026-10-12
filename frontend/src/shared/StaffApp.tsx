@@ -20,6 +20,8 @@ import { CreditSettingsSection } from "./workspace/CreditSettingsSection";
 import { CustomerScreen } from "./workspace/CustomerScreen";
 import { CustomersScreen } from "./workspace/CustomersScreen";
 import { DisputesScreen } from "./workspace/DisputesScreen";
+import { PayableContactScreen } from "./workspace/PayableContactScreen";
+import { PayablesScreen } from "./workspace/PayablesScreen";
 import { EntryScreen } from "./workspace/EntryScreen";
 import { NewCustomerScreen } from "./workspace/NewCustomerScreen";
 import { OverviewScreen } from "./workspace/OverviewScreen";
@@ -127,6 +129,10 @@ function workspaceScreen(
       return <NewCustomerScreen />;
     case "customer":
       return <CustomerRoute customerId={route.customerId} />;
+    case "payables":
+      return <PayablesScreen />;
+    case "payableContact":
+      return <PayableContactScreen key={route.contactId} contactId={route.contactId} />;
     case "entry":
       return <EntryScreen key={`${route.customerId}/${route.kind}`} customerId={route.customerId} kind={route.kind} />;
     case "addGoods":

@@ -9,7 +9,7 @@ import { type Role } from "./navigation";
 import { StaffRoot } from "./StaffRoot";
 import { DOCUMENT_ID, documentBody, stockItemBody, stockSettingsBody } from "./stock/testing";
 
-const ON = { "X-Qarz-Stock": "on" };
+const ON = { "X-Shop-Stock": "on" };
 
 /**
  * The stock in the Telegram Mini App, behind its platform switch (the expansion's module I). The server
@@ -68,7 +68,7 @@ function backend(role: Role, header: Record<string, string>, options: { permissi
         return {
           status: 200,
           body: { items, active_shop: SHOP_ID },
-          headers: { ...header, ...(options.permissions ? { "X-Qarz-Permissions": "on" } : {}) },
+          headers: { ...header, ...(options.permissions ? { "X-Shop-Permissions": "on" } : {}) },
         };
       case "/api/v1/me/accounts":
         return ok({ items: [] });
@@ -131,10 +131,10 @@ describe("the stock switched off", () => {
   });
 
   it.each([
-    ["off", { "X-Qarz-Stock": "off" }],
-    ["true", { "X-Qarz-Stock": "true" }],
-    ["empty", { "X-Qarz-Stock": "" }],
-    ["the cash book's, not the stock's", { "X-Qarz-Cash-Book": "on" }],
+    ["off", { "X-Shop-Stock": "off" }],
+    ["true", { "X-Shop-Stock": "true" }],
+    ["empty", { "X-Shop-Stock": "" }],
+    ["the cash book's, not the stock's", { "X-Shop-Cash-Book": "on" }],
   ])("is also what a member sees when the header is %s: only the word 'on' turns it on", async (_name, header) => {
     const server = backend("owner", header);
     await miniApp(server);

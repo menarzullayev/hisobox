@@ -288,7 +288,7 @@ def test_with_a_switch_off_no_route_of_the_network_exists(
             answers.add(response.text)
     assert len(answers) == 1, "the same answer whoever asks and whatever is asked for"
     assert snapshot(owner, world.shop_a, world.shop_b) == before
-    assert "X-Qarz-Network" not in client.get("/api/v1/me/shops", headers=as_user(world.owner_a)).headers
+    assert "X-Shop-Network" not in client.get("/api/v1/me/shops", headers=as_user(world.owner_a)).headers
 
 
 def test_turning_the_network_on_changes_no_existing_answer(
@@ -316,7 +316,7 @@ def test_turning_the_network_on_changes_no_existing_answer(
     switch(owner, "network_on")
     assert answers() == before
     after = dict(client.get("/api/v1/me/shops", headers=as_user(world.owner_a)).headers)
-    assert after.pop("x-qarz-network") == "on"
+    assert after.pop("x-shop-network") == "on"
     assert {k: v for k, v in after.items() if k != "x-request-id"} == {
         k: v for k, v in headers.items() if k != "x-request-id"
     }
@@ -712,8 +712,8 @@ def test_a_note_is_not_received_when_either_book_would_disagree_with_it_on_a_lin
     from dataclasses import replace
     from decimal import Decimal
 
-    from qarz.application import network_orders
-    from qarz.domain import stock as stock_rules
+    from hiso_box.application import network_orders
+    from hiso_box.domain import stock as stock_rules
 
     receipt = network_orders.NoteService._receipt
     move = network_orders.move

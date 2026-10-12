@@ -136,7 +136,7 @@ describe("Telegram's sign-in button", () => {
   const widget = () =>
     render(
       <I18nProvider initialLanguage="ru">
-        <TelegramLogin botUsername="qarz_daftari_bot" language="ru" />
+        <TelegramLogin botUsername="hiso_box_daftari_bot" language="ru" />
       </I18nProvider>,
     );
   const scripts = () => [...document.querySelectorAll("script")];
@@ -149,7 +149,7 @@ describe("Telegram's sign-in button", () => {
     expect([url.protocol, url.hostname, url.pathname]).toEqual(["https:", "telegram.org", "/js/telegram-widget.js"]);
     expect(script.src).toBe(WIDGET_SRC);
     expect(script.async).toBe(true);
-    expect(script.getAttribute("data-telegram-login")).toBe("qarz_daftari_bot");
+    expect(script.getAttribute("data-telegram-login")).toBe("hiso_box_daftari_bot");
     expect(script.getAttribute("data-lang")).toBe("ru");
     // Redirect mode. A callback in `data-onauth` is what Telegram's script would build with eval().
     expect(script.getAttribute("data-auth-url")).toBe(authUrl());
@@ -173,7 +173,7 @@ describe("Telegram's sign-in button", () => {
     const view = widget();
     view.rerender(
       <I18nProvider initialLanguage="ru">
-        <TelegramLogin botUsername="qarz_daftari_bot" language="uz" />
+        <TelegramLogin botUsername="hiso_box_daftari_bot" language="uz" />
       </I18nProvider>,
     );
     expect(scripts().map((script) => script.getAttribute("data-lang"))).toEqual(["uz"]);
@@ -184,7 +184,7 @@ describe("Telegram's sign-in button", () => {
     const host = screen.getByRole("group", { name: "Вход через Telegram" });
     // What Telegram's script does once it has loaded: a frame of its own in the place of the script.
     const frame = document.createElement("iframe");
-    frame.id = "telegram-login-qarz_daftari_bot";
+    frame.id = "telegram-login-hiso_box_daftari_bot";
     expect(frame.title).toBe("");
     host.append(frame);
     await waitFor(() => expect(frame.title).toBe("Вход через Telegram"));
@@ -193,7 +193,7 @@ describe("Telegram's sign-in button", () => {
     // A frame the script puts there later (it replaces its own) is named as well, in the language of the day.
     view.rerender(
       <I18nProvider initialLanguage="ru">
-        <TelegramLogin botUsername="qarz_daftari_bot" language="ru" />
+        <TelegramLogin botUsername="hiso_box_daftari_bot" language="ru" />
       </I18nProvider>,
     );
     const second = document.createElement("iframe");

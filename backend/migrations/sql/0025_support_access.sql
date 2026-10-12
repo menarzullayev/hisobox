@@ -13,9 +13,9 @@ CREATE INDEX support_access_admin ON support_access (admin_id, ends_at DESC);
 
 -- A row is never removed by the application and only its ending is ever written: the history the owner
 -- reads must not be something the application can rewrite.
-REVOKE ALL ON support_access FROM qd_app;
-GRANT SELECT, INSERT ON support_access TO qd_app;
-GRANT UPDATE (closed_at, closed_by) ON support_access TO qd_app;
+REVOKE ALL ON support_access FROM hb_app;
+GRANT SELECT, INSERT ON support_access TO hb_app;
+GRANT UPDATE (closed_at, closed_by) ON support_access TO hb_app;
 
 -- ---------------------------------------------------------------------------
 -- The administrator's side of it. `support_access` is a tenant table, and an administrator has no tenant,
@@ -153,7 +153,7 @@ REVOKE ALL ON FUNCTION admin_open_shop(uuid, uuid, timestamptz) FROM PUBLIC;
 REVOKE ALL ON FUNCTION admin_support_open(uuid, uuid, uuid, text, timestamptz, timestamptz) FROM PUBLIC;
 REVOKE ALL ON FUNCTION admin_support_close(uuid, uuid, timestamptz) FROM PUBLIC;
 REVOKE ALL ON FUNCTION admin_support_list(uuid, uuid, boolean, timestamptz, timestamptz, uuid, integer) FROM PUBLIC;
-GRANT EXECUTE ON FUNCTION admin_open_shop(uuid, uuid, timestamptz) TO qd_app;
-GRANT EXECUTE ON FUNCTION admin_support_open(uuid, uuid, uuid, text, timestamptz, timestamptz) TO qd_app;
-GRANT EXECUTE ON FUNCTION admin_support_close(uuid, uuid, timestamptz) TO qd_app;
-GRANT EXECUTE ON FUNCTION admin_support_list(uuid, uuid, boolean, timestamptz, timestamptz, uuid, integer) TO qd_app;
+GRANT EXECUTE ON FUNCTION admin_open_shop(uuid, uuid, timestamptz) TO hb_app;
+GRANT EXECUTE ON FUNCTION admin_support_open(uuid, uuid, uuid, text, timestamptz, timestamptz) TO hb_app;
+GRANT EXECUTE ON FUNCTION admin_support_close(uuid, uuid, timestamptz) TO hb_app;
+GRANT EXECUTE ON FUNCTION admin_support_list(uuid, uuid, boolean, timestamptz, timestamptz, uuid, integer) TO hb_app;

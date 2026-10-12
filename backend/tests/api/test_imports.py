@@ -18,17 +18,17 @@ import psycopg
 import pytest
 from fastapi.testclient import TestClient
 
-from qarz.application.chat_texts import day, money, say
-from qarz.application.files import FileService
-from qarz.application.imports import ImportService, apply_in, check_in, undo_in
-from qarz.application.reminders import ReminderService
-from qarz.application.scheduler import Scheduler
-from qarz.application.xlsx import MIME as XLSX_MIME
-from qarz.application.xlsx import Workbook
-from qarz.domain import imports
-from qarz.domain.files import MAX_FILE_BYTES
-from qarz.infrastructure.db import Database
-from qarz.infrastructure.file_store import FilesystemFileStore
+from hiso_box.application.chat_texts import day, money, say
+from hiso_box.application.files import FileService
+from hiso_box.application.imports import ImportService, apply_in, check_in, undo_in
+from hiso_box.application.reminders import ReminderService
+from hiso_box.application.scheduler import Scheduler
+from hiso_box.application.xlsx import MIME as XLSX_MIME
+from hiso_box.application.xlsx import Workbook
+from hiso_box.domain import imports
+from hiso_box.domain.files import MAX_FILE_BYTES
+from hiso_box.infrastructure.db import Database
+from hiso_box.infrastructure.file_store import FilesystemFileStore
 
 from .conftest import World, as_user, stored_objects
 from .test_customer_account import ME, link_of
@@ -229,7 +229,7 @@ def test_a_manager_downloads_the_template_in_their_language(
     response = client.get(f"{shop(world)}/imports/template", headers=as_user(world.manager_a))
     assert response.status_code == 200
     assert response.headers["content-type"] == XLSX_MIME == imports.XLSX_MIME
-    assert response.headers["content-disposition"] == 'attachment; filename="qarz-daftari-import.xlsx"'
+    assert response.headers["content-disposition"] == 'attachment; filename="hiso-box-import.xlsx"'
     assert imports.read_xlsx(response.content) == [(1, HEAD.split(","))]
 
     owner.execute("UPDATE app_user SET lang = 'ru' WHERE id = %s", (world.owner_a,))

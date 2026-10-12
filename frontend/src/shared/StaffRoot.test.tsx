@@ -349,7 +349,7 @@ describe("what the workspace offers when the server keeps permissions per member
         return {
           status: 200,
           body: { items: [membership(role)], active_shop: SHOP_ID },
-          headers: { "X-Qarz-Permissions": "on" },
+          headers: { "X-Shop-Permissions": "on" },
         };
       }
       if (sent.path === MINE) {
@@ -431,7 +431,7 @@ describe("what the workspace offers when the server keeps permissions per member
         return {
           status: 200,
           body: { items: [membership("manager")], active_shop: SHOP_ID },
-          headers: { "X-Qarz-Permissions": "on" },
+          headers: { "X-Shop-Permissions": "on" },
         };
       }
       return sent.path === MINE ? answer.promise : null;
@@ -467,7 +467,7 @@ describe("what the workspace offers when the server keeps permissions per member
         return {
           status: 200,
           body: { items: [membership("owner")], active_shop: SHOP_ID },
-          headers: { "X-Qarz-Permissions": "on" },
+          headers: { "X-Shop-Permissions": "on" },
         };
       }
       if (sent.path === MINE) {
@@ -502,7 +502,7 @@ describe("what the workspace offers when the server keeps permissions per member
         return {
           status: 200,
           body: { items: [membership("seller")], active_shop: SHOP_ID },
-          headers: { "X-Qarz-Permissions": "on" },
+          headers: { "X-Shop-Permissions": "on" },
         };
       }
       return sent.path === MINE ? refusal(404, "NOT_FOUND", "") : null;
@@ -523,7 +523,7 @@ describe("the cash book in the workspace", () => {
         return {
           status: 200,
           body: { items: [membership(role)], active_shop: SHOP_ID },
-          headers: { "X-Qarz-Cash-Book": "on" },
+          headers: { "X-Shop-Cash-Book": "on" },
         };
       }
       if (sent.path === `${SHOP_BASE}/cash/categories`) {

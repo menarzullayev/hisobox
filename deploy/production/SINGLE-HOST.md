@@ -135,7 +135,7 @@ Nothing in this repository creates or changes anything in Cloudflare.
 ### 4. The env file (you run the command; the script generates)
 
 ```sh
-deploy/production/scripts/single-host.sh env-init        # writes ~/.qarz/single-host.env, mode 600
+deploy/production/scripts/single-host.sh env-init        # writes ~/.hiso_box/single-host.env, mode 600
 ```
 
 **Script:** generates the backup passphrase, the four database passwords and their connection strings,
@@ -149,11 +149,11 @@ none of them and refuses to overwrite an existing file.
 | `DEPLOY_PUBLIC_HOST` | step 1 |
 | `CLOUDFLARE_TUNNEL_TOKEN` | step 3.3 |
 | `DEPLOY_R2_ENDPOINT`, `DEPLOY_R2_BUCKET`, `DEPLOY_R2_ACCESS_KEY_ID`, `DEPLOY_R2_SECRET_ACCESS_KEY` | steps 3.1 and 3.2 |
-| `VITE_BOT_USERNAME`, `QD_BOT_TOKEN` | BotFather: the production bot's username without `@`, and its token |
-| `QD_ADMIN_TG_IDS` | the numeric Telegram identifiers of the administrators, separated by commas |
-| `QD_ADMIN_SECOND_FACTOR` | already written as `required`; leave it. `off` switches the administrators' second factor off for this installation: see "The administrators' second factor" in runbook 7 before changing it |
-| `QD_PASSKEY_HOST` | the same name as `DEPLOY_PUBLIC_HOST`, for administrators' passkeys; empty means there are none |
-| `QD_ALERT_CHAT_IDS` | whom the worker's watch tells when something is wrong: your numeric Telegram identifier, or a group's (negative; the bot must be in it). See "What is watched". Empty: nobody is told |
+| `VITE_BOT_USERNAME`, `HB_BOT_TOKEN` | BotFather: the production bot's username without `@`, and its token |
+| `HB_ADMIN_TG_IDS` | the numeric Telegram identifiers of the administrators, separated by commas |
+| `HB_ADMIN_SECOND_FACTOR` | already written as `required`; leave it. `off` switches the administrators' second factor off for this installation: see "The administrators' second factor" in runbook 7 before changing it |
+| `HB_PASSKEY_HOST` | the same name as `DEPLOY_PUBLIC_HOST`, for administrators' passkeys; empty means there are none |
+| `HB_ALERT_CHAT_IDS` | whom the worker's watch tells when something is wrong: your numeric Telegram identifier, or a group's (negative; the bot must be in it). See "What is watched". Empty: nobody is told |
 
 A value that contains `$` goes in single quotes. The file is never committed, never pasted into a chat,
 and never printed by the scripts.
@@ -166,8 +166,8 @@ and never printed by the scripts.
   included.** There is no recovery and no back door. The copy in the env file exists only so that the
   nightly backup can encrypt; it is lost together with the machine.
 - Put a copy of the whole env file into the password manager as well. Moving to another machine needs
-  the passphrase, the R2 key, the tunnel token, the bot token, `QD_SECRETS_KEY` (without it the
-  administrators must enrol their second factor again) and `QD_WEBHOOK_SECRET`.
+  the passphrase, the R2 key, the tunnel token, the bot token, `HB_SECRETS_KEY` (without it the
+  administrators must enrol their second factor again) and `HB_WEBHOOK_SECRET`.
 
 ### 6. Start (script)
 
@@ -198,10 +198,10 @@ Nothing in this repository calls Telegram.
 3. The webhook. In a terminal on the machine, so that the token is in no chat and no history:
 
    ```sh
-   ( set -a; . ~/.qarz/single-host.env; set +a
-     curl -sS "https://api.telegram.org/bot${QD_BOT_TOKEN}/setWebhook" \
+   ( set -a; . ~/.hiso_box/single-host.env; set +a
+     curl -sS "https://api.telegram.org/bot${HB_BOT_TOKEN}/setWebhook" \
        --data-urlencode "url=https://${DEPLOY_PUBLIC_HOST}/tg/webhook" \
-       --data-urlencode "secret_token=${QD_WEBHOOK_SECRET}" )
+       --data-urlencode "secret_token=${HB_WEBHOOK_SECRET}" )
    ```
 
    Telegram answers `{"ok":true,...}`. `getWebhookInfo` in the same way shows the last error, if any.
@@ -215,13 +215,13 @@ deploy/production/scripts/single-host.sh restore-test # "outcome":"ok"
 deploy/production/scripts/single-host.sh alert-test   # ACCEPTED, and the TEST message is in your chat
 ```
 
-- `docker compose -p qarz logs proxy | tail`: `remote_addr` must be visitors' own addresses (yours, when
+- `docker compose -p hisobox logs proxy | tail`: `remote_addr` must be visitors' own addresses (yours, when
   you open the site from a phone on mobile data) and `peer` the tunnel's (`10.99.240.2`). If
   `remote_addr` is `10.99.240.2` for everybody, the proxy is not being told the visitor's address and the
   limits by address count all visitors as one: stop and find out why before going on.
 - In the R2 dashboard the bucket holds two folders, `pgbackrest` and `crypt`, and no readable name.
 - Send `/start` to the bot; open `/panel/` and sign in; open the Mini App in Telegram.
-- The test alert arrived in the chat of `QD_ALERT_CHAT_IDS` (launch criterion 9, "alerts triggered and
+- The test alert arrived in the chat of `HB_ALERT_CHAT_IDS` (launch criterion 9, "alerts triggered and
   received"). If the command says `NOT DELIVERED`, it says why.
 - **Turn on Cloudflare's notification for the tunnel** ("What is watched", "The honest limit"): the
   worker's watch says nothing when the machine itself is down. An outside check of
@@ -262,13 +262,13 @@ When something is wrong, the runbooks are in `docs/10-operations/runbooks.md`; e
 ## The proxy behind the tunnel
 
 Every request reaches nginx from one address, the tunnel container's. What nginx believes, and from
-whom (`nginx/single-host.d/qarz.conf`, `nginx/single-host-entrypoint.sh`):
+whom (`nginx/single-host.d/hiso-box.conf`, `nginx/single-host-entrypoint.sh`):
 
 - **The visitor's address** is Cloudflare's `CF-Connecting-IP` header, and only when the connection
   comes from the tunnel container's fixed address on the private network the two share
   (`set_real_ip_from <that one address>`; never a network, the start script refuses anything but an
   address). From any other peer the header is ignored and the peer's own address counts. The limits by
-  address (`limit_req`, `limit_conn`: all six zones, `qd_static` included), the access log
+  address (`limit_req`, `limit_conn`: all six zones, `hb_static` included), the access log
   (`remote_addr`; `peer` is where the connection came from) and the `X-Forwarded-For` given to the API
   all use that one address.
 - **The visitor's scheme** is Cloudflare's `X-Forwarded-Proto`, on the same condition. A request not
@@ -309,8 +309,8 @@ that would remove more than 100 files stops.
 systemd. A job is due when its latest scheduled moment has passed and it has not run since, so a backup
 missed because the machine was off is taken when it comes back. Every job writes one JSON line to the
 container's log (`single-host.sh logs backup`); the same figures the two-server scripts write for
-monitoring are files in the `backup-figures` volume (`qd_backup_last_success_timestamp_seconds{type}`,
-`qd_wal_archive_newest_age_seconds`, `qd_backup_restore_test_last_success_timestamp_seconds`, ...),
+monitoring are files in the `backup-figures` volume (`hb_backup_last_success_timestamp_seconds{type}`,
+`hb_wal_archive_newest_age_seconds`, `hb_backup_restore_test_last_success_timestamp_seconds`, ...),
 which the worker reads for its watch ("What is watched"). The
 `backup` container is **healthy** in `docker ps` only while the newest backup is younger than 26 hours,
 the newest full younger than 8 days and the newest archived WAL segment younger than 5 minutes.
@@ -358,7 +358,7 @@ sends a message through the service's own bot, when it stops it sends another, a
 repeats the message every four hours. Where the rules of `deploy/monitoring/alerts.yml` have a
 threshold, the worker uses that one (a test fails when the two differ).
 
-Whom it tells is `QD_ALERT_CHAT_IDS` in the env file: your own numeric Telegram identifier, or a
+Whom it tells is `HB_ALERT_CHAT_IDS` in the env file: your own numeric Telegram identifier, or a
 group's (a negative number; add the bot to the group first), several separated by commas. It may be the
 group that reviews receipts, and is set apart from it. **Empty: the watch runs, writes to the log, and
 tells nobody** (and calls Telegram for nothing, so the two rules about Telegram itself are not judged). Messages are in Uzbek to a group and in a person's own language to a person, and hold
@@ -372,7 +372,7 @@ never a shop, a person, a phone number or an amount.
 | The WAL archive is older than 5 minutes, there is none, or the check itself has not run for 16 minutes | `WalArchiveStale` | 1 minute |
 | The restore test has not passed for 8 days or never has; its last run failed | `RestoreTestNotPassed`, `RestoreTestFailed` | 10 minutes; 5 minutes |
 | The stored files have not been copied to the bucket for 17 minutes | `FilesCopyStale` | 5 minutes |
-| The Docker disk (it holds every volume, the database's too) is more than 80% full | `DiskAlmostFull:/var/lib/qarz/files` | 10 minutes |
+| The Docker disk (it holds every volume, the database's too) is more than 80% full | `DiskAlmostFull:/var/lib/hiso_box/files` | 10 minutes |
 | A message that is due has waited more than 10 minutes | `OutboxOld:telegram`, `OutboxOld:sms` | 2 minutes |
 | The dispatcher has not finished a round for 5 minutes | `DispatcherFailing` | at once |
 | Telegram refuses the bot's token; Telegram cannot be reached | `TelegramRefusesBot`, `TelegramUnreachable` | at once; 5 minutes (see below) |
@@ -384,7 +384,7 @@ never a shop, a person, a phone number or an amount.
 | An SMS was refused or given up within the hour; SMS are queued and not accepted | `SmsRefused`, `SmsNotGoingOut` | at once; 30 minutes |
 | The API does not answer `/healthz` inside the Compose network | `ApiDown` | 2 minutes |
 | The API's counters cannot be read | `MetricsMissing` | 3 minutes |
-| The API runs with the administrators' second factor switched off (`QD_ADMIN_SECOND_FACTOR=off`): a standing warning, repeated every four hours while it stays | `AdminSecondFactorOff` | at once |
+| The API runs with the administrators' second factor switched off (`HB_ADMIN_SECOND_FACTOR=off`): a standing warning, repeated every four hours while it stays | `AdminSecondFactorOff` | at once |
 | More than 2% of the answers of the last 5 minutes are server errors | `ErrorRateHigh` | 5 minutes |
 | A signed-in user asked about a shop that is not theirs; more than 10 invalid signatures in 10 minutes; more than 5 refused administrator second factors in 15 minutes; a support access was opened; an administrator asked for a shop's data without one; a shop's owner was reassigned | `CrossTenantAttempt`, `InvalidSignaturesRepeated:<kind>`, `AdminSecondFactorRepeated`, `SupportAccessOpened`, `AdminWithoutSupportAccess`, `ShopOwnerReassigned` | at once |
 | The worker cannot reach the database for 2 minutes | a message of its own (the state is kept in the database, so this one is kept in memory) | 2 minutes |
@@ -441,11 +441,11 @@ machine, and it is yours to create; nothing here does it:
 single-host.sh alert-test
 ```
 
-sends one message marked as a TEST to every chat of `QD_ALERT_CHAT_IDS`, the way a real alert goes,
+sends one message marked as a TEST to every chat of `HB_ALERT_CHAT_IDS`, the way a real alert goes,
 and prints for each chat `ACCEPTED` or `NOT DELIVERED` with the reason (exit code 0 only when every
 chat took it). Then look in the chat: the criterion is "triggered **and received**". Run it after the
 first deployment and after any change of the bot's token or of the chats. To see a real alert arrive
-and resolve, stop the copy of the files for half an hour (`docker compose -p qarz stop files-backup`,
+and resolve, stop the copy of the files for half an hour (`docker compose -p hisobox stop files-backup`,
 wait for `FilesCopyStale`, then `start` it and wait for the "resolved").
 
 ## What you should know before relying on it

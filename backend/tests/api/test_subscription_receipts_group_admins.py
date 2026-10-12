@@ -21,9 +21,9 @@ import psycopg
 import pytest
 from fastapi.testclient import TestClient
 
-from qarz.application.chat import CALLBACK_NOTICE_MAX
-from qarz.application.chat_texts import CATALOGS, day, money, say
-from qarz.domain.subscription import add_months
+from hiso_box.application.chat import CALLBACK_NOTICE_MAX
+from hiso_box.application.chat_texts import CATALOGS, day, money, say
+from hiso_box.domain.subscription import add_months
 
 from .conftest import ADMIN_API, AdminEnv, FakeChatMembers, World, as_user, elevate, make_admin
 from .test_chat import SECRET, Chat, _update_ids

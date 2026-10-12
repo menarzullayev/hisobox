@@ -86,23 +86,23 @@ def pytest_report_collectionfinish(config: pytest.Config) -> list[str]:
 
 
 def _admin_url() -> str:
-    url = os.environ.get("QD_TEST_ADMIN_URL")
+    url = os.environ.get("HB_TEST_ADMIN_URL")
     if not url:
         # Fail loudly: silently skipping the database suite would let schema regressions through CI.
-        pytest.fail("QD_TEST_ADMIN_URL is not set; start PostgreSQL (docker compose -f docker-compose.dev.yml up -d)")
+        pytest.fail("HB_TEST_ADMIN_URL is not set; start PostgreSQL (docker compose -f docker-compose.dev.yml up -d)")
     return url
 
 
 @pytest.fixture(scope="session")
 def database_url() -> Iterator[str]:
     admin_url = _admin_url()
-    name = f"qd_test_{uuid.uuid4().hex[:12]}"
+    name = f"hb_test_{uuid.uuid4().hex[:12]}"
     with psycopg.connect(admin_url, autocommit=True) as admin:
         admin.execute(f'CREATE DATABASE "{name}"')
     url = admin_url.rsplit("/", 1)[0] + "/" + name
 
-    previous = os.environ.get("QD_MIGRATION_URL")
-    os.environ["QD_MIGRATION_URL"] = url
+    previous = os.environ.get("HB_MIGRATION_URL")
+    os.environ["HB_MIGRATION_URL"] = url
     try:
         config = Config(str(BACKEND / "alembic.ini"))
         config.set_main_option("script_location", str(BACKEND / "migrations"))
@@ -110,9 +110,9 @@ def database_url() -> Iterator[str]:
         yield url
     finally:
         if previous is None:
-            os.environ.pop("QD_MIGRATION_URL", None)
+            os.environ.pop("HB_MIGRATION_URL", None)
         else:
-            os.environ["QD_MIGRATION_URL"] = previous
+            os.environ["HB_MIGRATION_URL"] = previous
         with psycopg.connect(admin_url, autocommit=True) as admin:
             admin.execute(f'DROP DATABASE IF EXISTS "{name}" WITH (FORCE)')
 
@@ -121,7 +121,7 @@ def _login_url(database_url: str, role: str) -> str:
     """Give one of the three application roles a login and return its connection string."""
     # A role is shared by every database of the server, so two test sessions running at once (two
     # agents, or two terminals) must set the same password or they lock each other out.
-    password = os.environ.get("QD_TEST_APP_PASSWORD", "test-only-qd-app-password")
+    password = os.environ.get("HB_TEST_APP_PASSWORD", "test-only-hb-app-password")
     statement = psycopg.sql.SQL("ALTER ROLE {} LOGIN PASSWORD {}").format(
         psycopg.sql.Identifier(role), psycopg.sql.Literal(password)
     )
@@ -144,20 +144,20 @@ def _login_url(database_url: str, role: str) -> str:
 
 @pytest.fixture(scope="session")
 def app_database_url(database_url: str) -> str:
-    """Connection string for qd_app itself, so the API runs under the same restrictions as in production."""
-    return _login_url(database_url, "qd_app")
+    """Connection string for hb_app itself, so the API runs under the same restrictions as in production."""
+    return _login_url(database_url, "hb_app")
 
 
 @pytest.fixture(scope="session")
 def admin_database_url(database_url: str) -> str:
-    """Connection string for qd_admin, the role of the administrators' side."""
-    return _login_url(database_url, "qd_admin")
+    """Connection string for hb_admin, the role of the administrators' side."""
+    return _login_url(database_url, "hb_admin")
 
 
 @pytest.fixture(scope="session")
 def worker_database_url(database_url: str) -> str:
-    """Connection string for qd_worker, the role of the worker."""
-    return _login_url(database_url, "qd_worker")
+    """Connection string for hb_worker, the role of the worker."""
+    return _login_url(database_url, "hb_worker")
 
 
 @pytest.fixture
@@ -209,7 +209,7 @@ def _as_role(database_url: str, role: str) -> AppSession:
         with psycopg.connect(database_url) as conn:
             conn.execute(psycopg.sql.SQL("SET ROLE {}").format(psycopg.sql.Identifier(role)))
             if shop_id is not None:
-                conn.execute("SELECT set_config('qd.shop_id', %s, true)", (str(shop_id),))
+                conn.execute("SELECT set_config('hb.shop_id', %s, true)", (str(shop_id),))
             yield conn
 
     return _session
@@ -223,23 +223,23 @@ def refused(session: AppSession, statement: str, shop_id: uuid.UUID | None = Non
 
 @pytest.fixture
 def as_app(database_url: str) -> AppSession:
-    """Open a transaction as the application role qd_app, with the tenant set to the given shop.
+    """Open a transaction as the application role hb_app, with the tenant set to the given shop.
 
     Leaving the block commits, so deferred constraints fire; an exception rolls back.
     """
-    return _as_role(database_url, "qd_app")
+    return _as_role(database_url, "hb_app")
 
 
 @pytest.fixture
 def as_admin(database_url: str) -> AppSession:
-    """The same as the role of the administrators' side, qd_admin."""
-    return _as_role(database_url, "qd_admin")
+    """The same as the role of the administrators' side, hb_admin."""
+    return _as_role(database_url, "hb_admin")
 
 
 @pytest.fixture
 def as_worker(database_url: str) -> AppSession:
-    """The same as the role of the worker, qd_worker."""
-    return _as_role(database_url, "qd_worker")
+    """The same as the role of the worker, hb_worker."""
+    return _as_role(database_url, "hb_worker")
 
 
 def add_entry(

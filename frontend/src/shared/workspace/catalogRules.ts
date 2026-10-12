@@ -4,7 +4,7 @@ import { MAX_PRICE, MIN_PRICE, type QtyProblem } from "../goods";
 
 /**
  * What a good's name, unit and price must look like before they are sent. A port of the length rules of
- * backend/src/qarz/domain/catalog.py, which is the authority and also folds unit spellings ("кг", "kilo").
+ * backend/src/hiso_box/domain/catalog.py, which is the authority and also folds unit spellings ("кг", "kilo").
  */
 
 export const MAX_ITEM_NAME = 80;

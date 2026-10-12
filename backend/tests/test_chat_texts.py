@@ -5,10 +5,10 @@ from datetime import date
 
 import pytest
 
-from qarz.application.chat import _PARSE_TEXTS, _QUICK, callback
-from qarz.application.chat_texts import LANGUAGE_NAMES, RU, UZ, day, money, say
-from qarz.domain.languages import LANGUAGES
-from qarz.interface.errors import _STATUS
+from hiso_box.application.chat import _PARSE_TEXTS, _QUICK, callback
+from hiso_box.application.chat_texts import LANGUAGE_NAMES, RU, UZ, day, money, say
+from hiso_box.domain.languages import LANGUAGES
+from hiso_box.interface.errors import _STATUS
 
 
 def _placeholders(template: str) -> set[str]:

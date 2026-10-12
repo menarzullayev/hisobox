@@ -244,8 +244,8 @@ def erase(as_worker: AppSession, shop_id: uuid.UUID) -> bool:
 @pytest.mark.parametrize("function", ["erase_shop(uuid)", "shops_to_erase()"])
 def test_the_erasure_functions_are_for_the_worker_role_only(owner: psycopg.Connection, function: str) -> None:
     row = owner.execute(
-        "SELECT has_function_privilege('qd_worker', %s, 'EXECUTE'), has_function_privilege('public', %s, 'EXECUTE'), "
-        "has_function_privilege('qd_app', %s, 'EXECUTE'), has_function_privilege('qd_admin', %s, 'EXECUTE')",
+        "SELECT has_function_privilege('hb_worker', %s, 'EXECUTE'), has_function_privilege('public', %s, 'EXECUTE'), "
+        "has_function_privilege('hb_app', %s, 'EXECUTE'), has_function_privilege('hb_admin', %s, 'EXECUTE')",
         (function, function, function, function),
     ).fetchone()
     # Since migration 0031 erasure is the worker's: the ordinary application asks for a deletion and can

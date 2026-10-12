@@ -11,7 +11,7 @@ from uuid import UUID
 
 import pytest
 
-from qarz.domain.ledger import (
+from hiso_box.domain.ledger import (
     Entry,
     EntryKind,
     LedgerIntegrityError,
@@ -25,8 +25,8 @@ from qarz.domain.ledger import (
     payment_timeliness,
     validate_new_entry,
 )
-from qarz.domain.money import Currency
-from qarz.domain.promise import TASHKENT
+from hiso_box.domain.money import Currency
+from hiso_box.domain.promise import TASHKENT
 
 CREDIT, OPENING, PAYMENT, REVERSAL = EntryKind.CREDIT, EntryKind.OPENING, EntryKind.PAYMENT, EntryKind.REVERSAL
 BASE = datetime(2026, 3, 2, 9, 0, tzinfo=TASHKENT)
@@ -288,7 +288,7 @@ def test_property_with_advances_what_is_owed_minus_what_is_held_is_the_balance(s
 @pytest.mark.parametrize("cell", ["-45000", "-1", "- 45 000"])
 def test_an_imported_opening_balance_cannot_be_an_advance(cell: str) -> None:
     """Kept refused in this pass: an opening balance is a debt. Advances are recorded as payments."""
-    from qarz.domain.imports import RowProblem, parse_amount, parse_amount_in
+    from hiso_box.domain.imports import RowProblem, parse_amount, parse_amount_in
 
     assert parse_amount(cell) in (RowProblem.AMOUNT_TOO_SMALL, RowProblem.AMOUNT_INVALID)
     assert isinstance(parse_amount_in(Currency.USD, cell), RowProblem)

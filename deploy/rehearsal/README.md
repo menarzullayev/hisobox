@@ -15,11 +15,11 @@ Measured results of the first rehearsal: `docs/10-operations/rehearsals/2026-10-
 | `pg-primary` | PostgreSQL 16 primary; archives WAL with `archive_timeout = 60` seconds | 55532 |
 | `pg-standby` | Streaming standby, asynchronous; built by restoring the first base backup | 55533 |
 | `pg-pitr` | Started only by `pitr.sh`; a fresh instance restored from the backup repository | 55534 |
-| `filestore` | Garage, an S3-compatible object store; one node, bucket `qd-files` | 55900 |
+| `filestore` | Garage, an S3-compatible object store; one node, bucket `hb-files` | 55900 |
 
 Volumes: one data volume per database, one shared pgBackRest repository (`backup-repo`, encrypted with AES-256), one small `fence` volume, two for the file store.
 
-Ports can be changed with `QD_PORT_PRIMARY`, `QD_PORT_STANDBY`, `QD_PORT_PITR`, and `QD_PORT_FILESTORE`. The defaults avoid 54329 (the development database). On Windows a port can fall inside a range reserved by the system (`netsh interface ipv4 show excludedportrange protocol=tcp`); Docker then reports "An attempt was made to access a socket in a way forbidden by its access permissions". Pick another port in that case.
+Ports can be changed with `HB_PORT_PRIMARY`, `HB_PORT_STANDBY`, `HB_PORT_PITR`, and `HB_PORT_FILESTORE`. The defaults avoid 54329 (the development database). On Windows a port can fall inside a range reserved by the system (`netsh interface ipv4 show excludedportrange protocol=tcp`); Docker then reports "An attempt was made to access a socket in a way forbidden by its access permissions". Pick another port in that case.
 
 ## Requirements
 
@@ -46,7 +46,7 @@ bash deploy/rehearsal/scripts/down.sh      # removes everything
 | `pitr.sh '<timestamp>'` | Restores the backup repository into a new instance up to the given moment. Refuses a target that is not after the first base backup or is in the future (exit 5). Prints the elapsed seconds | Damage can be undone into a separate database without touching the live ones |
 | `pitr.sh --archive-end --timeline 1` | Restores everything the archive holds for that timeline | How much survives if both database servers are lost and only the repository is left |
 | `verify.sh` | Runs all checks below in order and prints `PASS`, `FAIL`, and `MEASURE` lines; saves the output to `deploy/rehearsal/.out/` | See the list below |
-| `down.sh` | Removes the containers, volumes, network, and locally built images of the Compose project `qd-rehearsal`, and the generated `.env`. `--all` also removes the result logs. Base images pulled from registries stay in the local image cache | Nothing is left running |
+| `down.sh` | Removes the containers, volumes, network, and locally built images of the Compose project `hb-rehearsal`, and the generated `.env`. `--all` also removes the result logs. Base images pulled from registries stay in the local image cache | Nothing is left running |
 
 Checks in `verify.sh`:
 
@@ -61,13 +61,13 @@ Checks in `verify.sh`:
 9. **Old primary restarted (negative).** The old primary container must refuse to start; a second `failover.sh` must exit 4.
 10. **File store.** An object is stored and read back with signed requests; an unsigned read must be refused.
 
-`QD_WRITER_SECONDS` (default 75) sets how long the writer runs before the kill. Changing it moves the kill to a different point of the 60-second archiving cycle.
+`HB_WRITER_SECONDS` (default 75) sets how long the writer runs before the kill. Changing it moves the kill to a different point of the 60-second archiving cycle.
 
 ## Split brain: what the tooling does
 
 - `failover.sh` probes the primary three times from the standby and refuses to promote while it answers.
-- Before promoting, `failover.sh` writes the promoted node's name into a file on the shared `fence` volume. The database entrypoint (`postgres/qd-entrypoint.sh`) reads it on every start and exits with code 78 if another node was promoted.
-- Without the fence the old primary starts as a normal writable database on the old timeline. It accepts writes that the promoted standby never sees, and pgBackRest accepts its WAL into the shared archive. This was observed once by setting `QD_IGNORE_FENCE=1`; the variable exists only for that observation.
+- Before promoting, `failover.sh` writes the promoted node's name into a file on the shared `fence` volume. The database entrypoint (`postgres/hb-entrypoint.sh`) reads it on every start and exits with code 78 if another node was promoted.
+- Without the fence the old primary starts as a normal writable database on the old timeline. It accepts writes that the promoted standby never sees, and pgBackRest accepts its WAL into the shared archive. This was observed once by setting `HB_IGNORE_FENCE=1`; the variable exists only for that observation.
 
 ## Limits of a local rehearsal
 
@@ -78,5 +78,5 @@ Checks in `verify.sh`:
 - A dead container and a broken link look the same to the probe in `failover.sh`. The script cannot tell them apart; the operator must.
 - `failover.sh` promotes the database and nothing else. Starting the API and worker on the standby, repointing DNS and the Telegram webhook, and rebuilding a standby are not rehearsed.
 - The file store is one node. Replication of files to the standby is not rehearsed. Garage was used because the MinIO community images could not be pulled on 2026-10-06; this does not choose the production file store.
-- Only one full backup is taken here. The weekly and daily backups, the restore test, expiry and the copy of the file store are in `deploy/backup/`, whose proof (`deploy/backup/proof/run.sh`) runs this stack under its own Compose project through `QD_COMPOSE_PROJECT` and `QD_COMPOSE_OVERLAY` (read by `scripts/lib.sh`). Retention over weeks is not rehearsed anywhere.
+- Only one full backup is taken here. The weekly and daily backups, the restore test, expiry and the copy of the file store are in `deploy/backup/`, whose proof (`deploy/backup/proof/run.sh`) runs this stack under its own Compose project through `HB_COMPOSE_PROJECT` and `HB_COMPOSE_OVERLAY` (read by `scripts/lib.sh`). Retention over weeks is not rehearsed anywhere.
 - Scripts were run from Git Bash on Windows 11 with Docker Desktop, and from a Linux bash inside a container that talked to the same Docker engine. They were not run on a native Linux host.

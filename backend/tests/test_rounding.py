@@ -2,7 +2,7 @@ from decimal import Decimal
 
 import pytest
 
-from qarz.domain.rounding import line_total
+from hiso_box.domain.rounding import line_total
 
 
 @pytest.mark.parametrize(

@@ -21,7 +21,7 @@ import "./workspace/workspace.css";
  */
 
 /** When the page last loaded itself again because of a file it could not fetch (milliseconds, as text). */
-export const RELOAD_MARK = "qd.reloadedAt";
+export const RELOAD_MARK = "hb.reloadedAt";
 /** One automatic reload in this long: a file that is still missing after it is shown as a message. */
 export const RELOAD_EVERY_MS = 10 * 60 * 1000;
 

@@ -20,10 +20,10 @@ import psycopg
 import pytest
 from fastapi.testclient import TestClient
 
-from qarz.application.chat_texts import both, money, say
-from qarz.domain.money import NBSP, Currency
-from qarz.domain.promise import tashkent_date
-from qarz.interface.errors import message_text
+from hiso_box.application.chat_texts import both, money, say
+from hiso_box.domain.money import NBSP, Currency
+from hiso_box.domain.promise import tashkent_date
+from hiso_box.interface.errors import message_text
 
 from .conftest import World, as_user
 from .test_chat import chat_of

@@ -36,10 +36,10 @@ import pytest
 from fastapi.routing import APIRoute
 from fastapi.testclient import TestClient
 
-from qarz.application.operations import all_operations
-from qarz.domain import passkey
-from qarz.domain.access import Role, lowest_role_with
-from qarz.domain.promise import tashkent_date
+from hiso_box.application.operations import all_operations
+from hiso_box.domain import passkey
+from hiso_box.domain.access import Role, lowest_role_with
+from hiso_box.domain.promise import tashkent_date
 
 from ..receipt_samples import JPEG
 from .conftest import (
@@ -1430,7 +1430,7 @@ ALLOWED_ROLES: dict[str, set[Role]] = {
     "shop.share_contact.read": {Role.MANAGER, Role.OWNER},
     "shop.share_contact.update": {Role.OWNER},
     # The cash book is the shop's money: read, written and arranged by managers and the owner
-    # (qarz.application.cash_book). Copying the ledger's past into it is the owner's decision alone.
+    # (hiso_box.application.cash_book). Copying the ledger's past into it is the owner's decision alone.
     "cash.day": {Role.MANAGER, Role.OWNER},
     "cash.summary": {Role.MANAGER, Role.OWNER},
     "cash.export": {Role.MANAGER, Role.OWNER},
@@ -1550,9 +1550,9 @@ ALLOWED_ROLES: dict[str, set[Role]] = {
     "suppliers.entries.create": {Role.MANAGER, Role.OWNER},
     "suppliers.entries.cancel": {Role.MANAGER, Role.OWNER},
     # What the shop owes is its money: contacts, their accounts and the summary are read and written by
-    # managers and the owner (qarz.application.payables). The folders a shop groups its customers into
+    # managers and the owner (hiso_box.application.payables). The folders a shop groups its customers into
     # are seen by every member -- a seller assigns them -- but named and deleted by a manager
-    # (qarz.application.folders).
+    # (hiso_box.application.folders).
     "contacts.list": {Role.MANAGER, Role.OWNER},
     "contacts.read": {Role.MANAGER, Role.OWNER},
     "contacts.create": {Role.MANAGER, Role.OWNER},

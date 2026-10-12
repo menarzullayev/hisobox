@@ -41,22 +41,22 @@ def test_real_code_respects_the_layers(project_copy: Path) -> None:
 
 
 def test_domain_importing_the_interface_is_caught(project_copy: Path) -> None:
-    (project_copy / "src/qarz/domain/bad.py").write_text("import qarz.interface.http  # noqa\n", encoding="utf-8")
+    (project_copy / "src/hiso_box/domain/bad.py").write_text("import hiso_box.interface.http  # noqa\n", encoding="utf-8")
     result = _lint_imports(project_copy)
     assert result.returncode != 0
     assert "Layers" in result.stdout
 
 
 def test_domain_importing_a_framework_is_caught(project_copy: Path) -> None:
-    (project_copy / "src/qarz/domain/bad.py").write_text("import sqlalchemy  # noqa\n", encoding="utf-8")
+    (project_copy / "src/hiso_box/domain/bad.py").write_text("import sqlalchemy  # noqa\n", encoding="utf-8")
     result = _lint_imports(project_copy)
     assert result.returncode != 0
     assert "no framework" in result.stdout
 
 
 def test_application_importing_infrastructure_is_caught(project_copy: Path) -> None:
-    (project_copy / "src/qarz/application/bad.py").write_text(
-        "import qarz.infrastructure.settings  # noqa\n", encoding="utf-8"
+    (project_copy / "src/hiso_box/application/bad.py").write_text(
+        "import hiso_box.infrastructure.settings  # noqa\n", encoding="utf-8"
     )
     result = _lint_imports(project_copy)
     assert result.returncode != 0

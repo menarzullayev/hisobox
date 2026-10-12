@@ -6,16 +6,16 @@
 #
 # Runs on the repository host, where the repository is a local directory. It reads the repository,
 # not the database: it answers "what could be restored", whatever the primary believes it archived.
-# Also writes the figures for the monitoring system (qd_backup_repo.prom).
+# Also writes the figures for the monitoring system (hb_backup_repo.prom).
 #
 # Where the repository is not a directory of this host (an S3 bucket: the single-host deployment),
-# set QD_REPO_LISTING=pgbackrest. The newest WAL segment is then found by asking pgBackRest to list
+# set HB_REPO_LISTING=pgbackrest. The newest WAL segment is then found by asking pgBackRest to list
 # the repository (`repo-ls`, three listings a run), and its age is the time the bucket received it.
 #
 # Thresholds (seconds), each changeable through the environment:
-#   QD_MAX_WAL_AGE_SECONDS     300     operations document, Monitoring: "Log archive age older than 5 minutes"
-#   QD_MAX_BACKUP_AGE_SECONDS  93600   a backup of any type is taken daily; 26 hours allows a slow night
-#   QD_MAX_FULL_AGE_SECONDS    691200  a full backup is taken weekly; 8 days
+#   HB_MAX_WAL_AGE_SECONDS     300     operations document, Monitoring: "Log archive age older than 5 minutes"
+#   HB_MAX_BACKUP_AGE_SECONDS  93600   a backup of any type is taken daily; 26 hours allows a slow night
+#   HB_MAX_FULL_AGE_SECONDS    691200  a full backup is taken weekly; 8 days
 #
 # Exit codes: 0 all fresh, 1 something is older than its threshold or missing, 2 the repository could not be read.
 set -euo pipefail
@@ -26,17 +26,17 @@ quiet=0
 [ "${1:-}" = "--quiet" ] && quiet=1
 need pgbackrest jq find sort awk
 
-: "${QD_MAX_WAL_AGE_SECONDS:=300}"
-: "${QD_MAX_BACKUP_AGE_SECONDS:=93600}"
-: "${QD_MAX_FULL_AGE_SECONDS:=691200}"
+: "${HB_MAX_WAL_AGE_SECONDS:=300}"
+: "${HB_MAX_BACKUP_AGE_SECONDS:=93600}"
+: "${HB_MAX_FULL_AGE_SECONDS:=691200}"
 
 info="$(repo_info)" || {
     note "ERROR: pgBackRest could not read the repository"
     exit 2
 }
-: "${QD_REPO_LISTING:=find}"
-archive_dir="$QD_REPO_PATH/archive/$QD_STANZA"
-case "$QD_REPO_LISTING" in
+: "${HB_REPO_LISTING:=find}"
+archive_dir="$HB_REPO_PATH/archive/$HB_STANZA"
+case "$HB_REPO_LISTING" in
 find)
     [ -d "$archive_dir" ] || {
         note "ERROR: $archive_dir is not a directory; check.sh runs on the repository host"
@@ -45,7 +45,7 @@ find)
     ;;
 pgbackrest) ;;
 *)
-    note "ERROR: QD_REPO_LISTING must be find or pgbackrest"
+    note "ERROR: HB_REPO_LISTING must be find or pgbackrest"
     exit 2
     ;;
 esac
@@ -84,8 +84,8 @@ judge() {
 read -r any_stop any_label any_type <<< "$(newest_of any)"
 read -r full_stop full_label _ <<< "$(newest_of full)"
 read -r diff_stop _ _ <<< "$(newest_of diff)"
-judge "newest backup" "$any_stop" "$QD_MAX_BACKUP_AGE_SECONDS" "$any_label ($any_type)"
-judge "newest full backup" "$full_stop" "$QD_MAX_FULL_AGE_SECONDS" "$full_label"
+judge "newest backup" "$any_stop" "$HB_MAX_BACKUP_AGE_SECONDS" "$any_label ($any_type)"
+judge "newest full backup" "$full_stop" "$HB_MAX_FULL_AGE_SECONDS" "$full_label"
 
 # WAL segments lie in <archive>/<stanza>/<version-id>/<16 hex digits>/<24 hex digits>-<checksum>[.ext].
 # The modification time of the newest one is when the repository received it.
@@ -96,7 +96,7 @@ newest_wal_in_directory() {
 # The same answer from a listing by pgBackRest: the newest archive of the stanza (<version>-<n>), its
 # newest directory of segments (16 hex digits) that holds one, and in it the segment stored last.
 newest_wal_listed() {
-    local base="archive/$QD_STANZA" id dir found
+    local base="archive/$HB_STANZA" id dir found
     id="$(pgbr repo-ls --output=json "$base" | jq -r '
         [to_entries[] | select(.value.type == "path" and (.key | test("^[0-9.]+-[0-9]+$"))) | .key]
         | sort_by(split("-") | last | tonumber) | last // empty')"
@@ -113,7 +113,7 @@ newest_wal_listed() {
         [to_entries[] | select(.value.type == "path" and (.key | test("^[0-9A-F]{16}$"))) | .key]
         | sort | reverse | .[0:2] | .[]')
 }
-if [ "$QD_REPO_LISTING" = pgbackrest ]; then
+if [ "$HB_REPO_LISTING" = pgbackrest ]; then
     wal_found="$(newest_wal_listed)" || {
         note "ERROR: pgBackRest could not list the WAL archive"
         exit 2
@@ -123,22 +123,22 @@ else
 fi
 read -r wal_stop wal_name <<< "$wal_found"
 wal_stop="${wal_stop:-0}"
-judge "newest archived WAL segment" "$wal_stop" "$QD_MAX_WAL_AGE_SECONDS" "${wal_name:--}"
+judge "newest archived WAL segment" "$wal_stop" "$HB_MAX_WAL_AGE_SECONDS" "${wal_name:--}"
 
 wal_age=-1
 [ "$wal_stop" = 0 ] || wal_age=$((at - wal_stop))
 
 {
-    echo "# HELP qd_backup_last_success_timestamp_seconds When the newest backup of this type in the repository ended."
-    echo "# TYPE qd_backup_last_success_timestamp_seconds gauge"
-    echo "qd_backup_last_success_timestamp_seconds{type=\"full\"} $full_stop"
-    echo "qd_backup_last_success_timestamp_seconds{type=\"diff\"} $diff_stop"
-    echo "# HELP qd_wal_archive_newest_age_seconds Age of the newest WAL segment in the repository when it was last checked; -1 when there is none."
-    echo "# TYPE qd_wal_archive_newest_age_seconds gauge"
-    echo "qd_wal_archive_newest_age_seconds $wal_age"
-    echo "# HELP qd_backup_check_timestamp_seconds When the repository was last checked."
-    echo "# TYPE qd_backup_check_timestamp_seconds gauge"
-    echo "qd_backup_check_timestamp_seconds $at"
-} | write_metrics qd_backup_repo
+    echo "# HELP hb_backup_last_success_timestamp_seconds When the newest backup of this type in the repository ended."
+    echo "# TYPE hb_backup_last_success_timestamp_seconds gauge"
+    echo "hb_backup_last_success_timestamp_seconds{type=\"full\"} $full_stop"
+    echo "hb_backup_last_success_timestamp_seconds{type=\"diff\"} $diff_stop"
+    echo "# HELP hb_wal_archive_newest_age_seconds Age of the newest WAL segment in the repository when it was last checked; -1 when there is none."
+    echo "# TYPE hb_wal_archive_newest_age_seconds gauge"
+    echo "hb_wal_archive_newest_age_seconds $wal_age"
+    echo "# HELP hb_backup_check_timestamp_seconds When the repository was last checked."
+    echo "# TYPE hb_backup_check_timestamp_seconds gauge"
+    echo "hb_backup_check_timestamp_seconds $at"
+} | write_metrics hb_backup_repo
 
 exit "$stale"

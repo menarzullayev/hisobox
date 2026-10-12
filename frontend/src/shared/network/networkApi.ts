@@ -5,7 +5,7 @@ import type { Currency } from "../money";
  * The network between shops (the expansion's module J): two shops of the platform linked as buyer and
  * supplier, their orders, delivery notes and payments. Built on the shop API's `send` in a module that
  * is loaded apart, so none of it is part of the first load. Shapes follow
- * backend/src/qarz/application/network.py, network_orders.py and network_payments.py.
+ * backend/src/hiso_box/application/network.py, network_orders.py and network_payments.py.
  *
  * Quantities are the API's decimal strings (up to three decimals) and stay strings; money is a whole
  * number of the currency's minor unit with its currency beside it, and two currencies are never added.

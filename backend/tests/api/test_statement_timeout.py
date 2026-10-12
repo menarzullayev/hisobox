@@ -15,11 +15,11 @@ import psycopg
 import pytest
 from fastapi.testclient import TestClient
 
-from qarz.application.auth import AuthService
-from qarz.application.errors import StorageTimeout
-from qarz.infrastructure.db import Database
-from qarz.infrastructure.settings import Settings
-from qarz.interface.http import create_app
+from hiso_box.application.auth import AuthService
+from hiso_box.application.errors import StorageTimeout
+from hiso_box.infrastructure.db import Database
+from hiso_box.infrastructure.settings import Settings
+from hiso_box.interface.http import create_app
 
 from .conftest import TEST_BOT_TOKEN, WEBHOOK_SECRET, HeaderAuthenticator, World, as_user
 
@@ -163,28 +163,28 @@ def test_the_limit_is_a_setting_of_the_applications_connections_only(
             await database.dispose()
 
     assert asyncio.run(scenario()) == f"{TIMEOUT_MS}ms"
-    # Nothing was written to the role: a fresh connection as qd_app, made any other way, has no limit.
+    # Nothing was written to the role: a fresh connection as hb_app, made any other way, has no limit.
     with psycopg.connect(app_database_url) as conn:
         assert conn.execute("SHOW statement_timeout").fetchone() == ("0",)
-        assert conn.execute("SELECT rolconfig FROM pg_roles WHERE rolname = 'qd_app'").fetchone() == (None,)
+        assert conn.execute("SELECT rolconfig FROM pg_roles WHERE rolname = 'hb_app'").fetchone() == (None,)
 
 
 def test_a_negative_limit_is_refused() -> None:
     with pytest.raises(ValueError):
-        Database("postgresql://qd_app:unused@127.0.0.1:1/unused", statement_timeout_ms=-1)
+        Database("postgresql://hb_app:unused@127.0.0.1:1/unused", statement_timeout_ms=-1)
 
 
 def test_the_defaults_and_the_environment(monkeypatch: pytest.MonkeyPatch) -> None:
     settings = Settings()
     assert (settings.statement_timeout_ms, settings.worker_statement_timeout_ms) == (5000, 60000)
-    monkeypatch.setenv("QD_STATEMENT_TIMEOUT_MS", "1500")
-    monkeypatch.setenv("QD_WORKER_STATEMENT_TIMEOUT_MS", "0")
+    monkeypatch.setenv("HB_STATEMENT_TIMEOUT_MS", "1500")
+    monkeypatch.setenv("HB_WORKER_STATEMENT_TIMEOUT_MS", "0")
     settings = Settings()
     assert (settings.statement_timeout_ms, settings.worker_statement_timeout_ms) == (1500, 0)
 
 
 def test_the_api_and_the_worker_each_connect_with_their_own_limit(monkeypatch: pytest.MonkeyPatch) -> None:
-    from qarz.interface import asgi, worker
+    from hiso_box.interface import asgi, worker
 
     seen: dict[str, int] = {}
 
@@ -199,8 +199,8 @@ def test_the_api_and_the_worker_each_connect_with_their_own_limit(monkeypatch: p
         return database
 
     settings = Settings(
-        database_url="postgresql://qd_app:unused@127.0.0.1:1/unused",
-        worker_database_url="postgresql://qd_worker:unused@127.0.0.1:1/unused",
+        database_url="postgresql://hb_app:unused@127.0.0.1:1/unused",
+        worker_database_url="postgresql://hb_worker:unused@127.0.0.1:1/unused",
         bot_token="123:test",
         statement_timeout_ms=1234,
         worker_statement_timeout_ms=45678,

@@ -29,7 +29,7 @@ import { ApiError, BAD_RESPONSE, createApi } from "./api";
 import { reports } from "./reports/reportsApi";
 
 /**
- * US dollars beside so'm, as the API carries them (backend/src/qarz/application/currencies.py): `usd`
+ * US dollars beside so'm, as the API carries them (backend/src/hiso_box/application/currencies.py): `usd`
  * objects in whole cents beside the so'm figures, and `currency: "USD"` beside an amount in dollars. An
  * answer of a shop without dollars has neither, and is read into exactly what it was read into before.
  */

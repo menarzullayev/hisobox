@@ -5,8 +5,8 @@ from typing import Any
 
 import pytest
 
-from qarz.application.ports import SendFailed
-from qarz.infrastructure.sms_sender import ChannelSender, NoSmsProvider
+from hiso_box.application.ports import SendFailed
+from hiso_box.infrastructure.sms_sender import ChannelSender, NoSmsProvider
 
 TEXT = "Shop A: Ali, 70 000 so'm qarz muddati o'tgan."
 

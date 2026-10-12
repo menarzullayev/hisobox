@@ -1,14 +1,14 @@
-"""The shape of a cash sale, checked before anything is stored (`qarz.application.stock_sales.clean_sale`)."""
+"""The shape of a cash sale, checked before anything is stored (`hiso_box.application.stock_sales.clean_sale`)."""
 
 import uuid
 from decimal import Decimal
 
 import pytest
 
-from qarz.application.errors import ValidationFailed
-from qarz.application.stock_sales import SaleLineRequest, SaleRequest, clean_sale
-from qarz.domain import stock
-from qarz.domain.cash import Method
+from hiso_box.application.errors import ValidationFailed
+from hiso_box.application.stock_sales import SaleLineRequest, SaleRequest, clean_sale
+from hiso_box.domain import stock
+from hiso_box.domain.cash import Method
 
 ITEM = uuid.uuid4()
 

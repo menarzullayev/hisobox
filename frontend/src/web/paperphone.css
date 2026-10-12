@@ -21,15 +21,15 @@
   aspect-ratio: 3 / 4;
   overflow: hidden;
   border-radius: 3px 6px 6px 3px;
-  background-color: var(--qd-paper);
+  background-color: var(--hb-paper);
   /* The squares, drawn as two sets of lines rather than an image. */
   background-image:
-    repeating-linear-gradient(to right, var(--qd-paper-line) 0 1px, transparent 1px 18px),
-    repeating-linear-gradient(to bottom, var(--qd-paper-line) 0 1px, transparent 1px 18px);
+    repeating-linear-gradient(to right, var(--hb-paper-line) 0 1px, transparent 1px 18px),
+    repeating-linear-gradient(to bottom, var(--hb-paper-line) 0 1px, transparent 1px 18px);
   background-size:
     18px 18px,
     18px 18px;
-  box-shadow: var(--qd-shadow-lg);
+  box-shadow: var(--hb-shadow-lg);
 }
 
 /* The margin rule a shop's notebook has down the left of every page. */
@@ -39,7 +39,7 @@
   inset-block: 0;
   inset-inline-start: 3.25rem;
   width: 1.5px;
-  background: var(--qd-paper-margin);
+  background: var(--hb-paper-margin);
 }
 
 /* The grain of the paper: a filter the browser runs, blended into the sheet's own colour. */
@@ -60,7 +60,7 @@
   inset-inline-end: 1rem;
   font-family: "Bradley Hand", Noteworthy, "Segoe Print", "Segoe Script", "Comic Sans MS", "Chalkboard SE", cursive;
   font-size: 0.95rem;
-  color: var(--qd-ink);
+  color: var(--hb-ink);
   opacity: 0.75;
 }
 
@@ -89,7 +89,7 @@
   line-height: 1.35;
   letter-spacing: 0.01em;
   white-space: nowrap;
-  color: var(--qd-ink);
+  color: var(--hb-ink);
 }
 
 /* --- the phone ---------------------------------------------------------------------------------------- */
@@ -106,8 +106,8 @@
   height: 100%;
   padding: 2.44cqw;
   border-radius: 14.15cqw;
-  background: var(--qd-device-frame);
-  box-shadow: var(--qd-shadow-lg);
+  background: var(--hb-device-frame);
+  box-shadow: var(--hb-shadow-lg);
 }
 
 .pp__screen {
@@ -117,8 +117,8 @@
   flex-direction: column;
   overflow: hidden;
   border-radius: 11.71cqw;
-  background: var(--qd-surface);
-  color: var(--qd-text);
+  background: var(--hb-surface);
+  color: var(--hb-text);
 }
 
 .pp__status {
@@ -142,8 +142,8 @@
 .pp__island {
   width: 27.32cqw;
   height: 7.32cqw;
-  border-radius: var(--qd-radius-pill);
-  background: var(--qd-device-frame);
+  border-radius: var(--hb-radius-pill);
+  background: var(--hb-device-frame);
 }
 
 .pp__app {
@@ -174,9 +174,9 @@
   place-items: center;
   width: 9.27cqw;
   height: 9.27cqw;
-  border-radius: var(--qd-radius-pill);
-  background: var(--qd-accent);
-  color: var(--qd-on-accent);
+  border-radius: var(--hb-radius-pill);
+  background: var(--hb-accent);
+  color: var(--hb-on-accent);
   font-size: 5.37cqw;
   font-weight: 600;
   line-height: 1;
@@ -189,8 +189,8 @@
   align-items: center;
   padding-inline: 3.41cqw;
   border-radius: 2.44cqw;
-  background: var(--qd-surface-2);
-  color: var(--qd-faint);
+  background: var(--hb-surface-2);
+  color: var(--hb-faint);
   font-size: 3.41cqw;
 }
 
@@ -213,7 +213,7 @@
   align-items: center;
   gap: 2.93cqw;
   padding-block: 3.9cqw;
-  border-block-start: 1px solid var(--qd-line);
+  border-block-start: 1px solid var(--hb-line);
 }
 
 .pp__row:first-child {
@@ -226,9 +226,9 @@
   place-items: center;
   width: 12.68cqw;
   height: 12.68cqw;
-  border-radius: var(--qd-radius-pill);
-  background: var(--qd-accent-soft);
-  color: var(--qd-accent-ink);
+  border-radius: var(--hb-radius-pill);
+  background: var(--hb-accent-soft);
+  color: var(--hb-accent-ink);
   font-size: 3.9cqw;
   font-weight: 700;
 }
@@ -252,25 +252,25 @@
 .pp__state {
   align-self: flex-start;
   padding: 0.73cqw 2.2cqw;
-  border-radius: var(--qd-radius-pill);
+  border-radius: var(--hb-radius-pill);
   font-size: 2.93cqw;
   font-weight: 600;
   white-space: nowrap;
 }
 
 .pp__state--late {
-  background: var(--qd-bad-soft);
-  color: var(--qd-bad);
+  background: var(--hb-bad-soft);
+  color: var(--hb-bad);
 }
 
 .pp__state--today {
-  background: var(--qd-pending-soft);
-  color: var(--qd-pending);
+  background: var(--hb-pending-soft);
+  color: var(--hb-pending);
 }
 
 .pp__state--soon {
-  background: var(--qd-ok-soft);
-  color: var(--qd-ok);
+  background: var(--hb-ok-soft);
+  color: var(--hb-ok);
 }
 
 .pp__amount {
@@ -323,25 +323,25 @@
   display: flex;
   flex-direction: column;
   gap: 0.45rem;
-  border: 1px solid var(--qd-line);
-  border-radius: var(--qd-radius-lg);
-  background: var(--qd-surface);
-  box-shadow: var(--qd-shadow-lg);
+  border: 1px solid var(--hb-line);
+  border-radius: var(--hb-radius-lg);
+  background: var(--hb-surface);
+  box-shadow: var(--hb-shadow-lg);
 }
 
 .pp__card-where {
   margin: 0;
-  font: var(--qd-type-caption);
-  letter-spacing: var(--qd-tracking-label);
+  font: var(--hb-type-caption);
+  letter-spacing: var(--hb-tracking-label);
   text-transform: uppercase;
-  color: var(--qd-faint);
+  color: var(--hb-faint);
 }
 
 .pp__card-said {
   margin: 0;
-  font: var(--qd-type-small);
+  font: var(--hb-type-small);
   font-size: 0.875rem;
-  color: var(--qd-text);
+  color: var(--hb-text);
 }
 
 .pp__card-done {
@@ -349,10 +349,10 @@
   display: flex;
   align-items: center;
   gap: 0.4rem;
-  font: var(--qd-type-small);
+  font: var(--hb-type-small);
   font-size: 0.8125rem;
   font-weight: 600;
-  color: var(--qd-ok);
+  color: var(--hb-ok);
 }
 
 .pp__card-done::before {
@@ -360,15 +360,15 @@
   flex: none;
   width: 0.45rem;
   height: 0.45rem;
-  border-radius: var(--qd-radius-pill);
-  background: var(--qd-ok);
+  border-radius: var(--hb-radius-pill);
+  background: var(--hb-ok);
 }
 
 /* --- the later section's arrangement: the two side by side, each with its label ---------------------- */
 
 .pp-pair {
   display: grid;
-  gap: var(--qd-space-8);
+  gap: var(--hb-space-8);
   align-items: end;
   grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
 }
@@ -377,14 +377,14 @@
   margin: 0;
   display: flex;
   flex-direction: column;
-  gap: var(--qd-space-4);
+  gap: var(--hb-space-4);
 }
 
 .pp-pair__caption {
-  font: var(--qd-type-label);
-  letter-spacing: var(--qd-tracking-label);
+  font: var(--hb-type-label);
+  letter-spacing: var(--hb-tracking-label);
   text-transform: uppercase;
-  color: var(--qd-muted);
+  color: var(--hb-muted);
   text-align: center;
 }
 
@@ -402,10 +402,10 @@
 @media (prefers-reduced-motion: no-preference) {
   /* The message settles over the phone and stays; nothing turns or pulses on its own. */
   .pp__card {
-    animation: qd-pp-settle 7s var(--qd-ease-in-out) infinite alternate;
+    animation: hb-pp-settle 7s var(--hb-ease-in-out) infinite alternate;
   }
 
-  @keyframes qd-pp-settle {
+  @keyframes hb-pp-settle {
     from {
       translate: 0 -0.35rem;
     }

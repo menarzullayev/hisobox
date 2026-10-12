@@ -16,7 +16,7 @@ import { MAX_NOTE, tidy } from "./quantity";
 import type { PaymentMethod, Supplier, SupplierBalance, SupplierEntry, SupplierInput } from "./stockApi";
 
 const MAX_NAME = 80;
-/** One entry of a supplier's account, in the currency's minor unit (backend/src/qarz/domain/suppliers.py). */
+/** One entry of a supplier's account, in the currency's minor unit (backend/src/hiso_box/domain/suppliers.py). */
 const ENTRY_RANGE = { min: 1, max: 1_000_000_000_000 };
 
 /**

@@ -1,4 +1,4 @@
-"""The deployment setting that switches the administrators' second factor off (`QD_ADMIN_SECOND_FACTOR`,
+"""The deployment setting that switches the administrators' second factor off (`HB_ADMIN_SECOND_FACTOR`,
 the owner's decision of 2026-10-10; ADR-017).
 
 Required is the default and is what every other test of the administrators' side runs with. Here: the
@@ -15,13 +15,13 @@ import psycopg
 import pytest
 from fastapi.testclient import TestClient
 
-from qarz.application.admin_access import AdminAccess
-from qarz.application.auth import AuthService
-from qarz.infrastructure.db import Database
-from qarz.infrastructure.settings import Settings
-from qarz.interface import asgi
-from qarz.interface.http import create_app
-from qarz.interface.observability import Metrics
+from hiso_box.application.admin_access import AdminAccess
+from hiso_box.application.auth import AuthService
+from hiso_box.infrastructure.db import Database
+from hiso_box.infrastructure.settings import Settings
+from hiso_box.interface import asgi
+from hiso_box.interface.http import create_app
+from hiso_box.interface.observability import Metrics
 
 from .conftest import (
     ADMIN_API,
@@ -42,7 +42,7 @@ pytestmark = pytest.mark.db
 AUTH = f"{ADMIN_API}/auth"
 SETTINGS = f"{ADMIN_API}/settings"
 METRICS_TOKEN = "metrics-token-for-second-factor-tests"
-GAUGE = "qd_admin_second_factor_off"
+GAUGE = "hb_admin_second_factor_off"
 REASON = "The owner lost the Telegram account; decision of the founder."
 
 
@@ -77,7 +77,7 @@ def _app(app_url: str, admin_url: str, env: AdminEnv, *, required: bool) -> Iter
 
 @pytest.fixture
 def off(app_database_url: str, admin_database_url: str, admin_env: AdminEnv) -> Iterator[TestClient]:
-    """The application of a deployment with QD_ADMIN_SECOND_FACTOR=off."""
+    """The application of a deployment with HB_ADMIN_SECOND_FACTOR=off."""
     yield from _app(app_database_url, admin_database_url, admin_env, required=False)
 
 
@@ -124,19 +124,19 @@ def _gauge(client: TestClient) -> str | None:
 def test_the_setting_is_required_unless_it_says_off_and_any_other_value_refuses_to_start(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    monkeypatch.delenv("QD_ADMIN_SECOND_FACTOR", raising=False)
+    monkeypatch.delenv("HB_ADMIN_SECOND_FACTOR", raising=False)
     assert Settings().second_factor_required() is True
-    monkeypatch.setenv("QD_ADMIN_SECOND_FACTOR", "required")
+    monkeypatch.setenv("HB_ADMIN_SECOND_FACTOR", "required")
     assert Settings().second_factor_required() is True
-    monkeypatch.setenv("QD_ADMIN_SECOND_FACTOR", "off")
+    monkeypatch.setenv("HB_ADMIN_SECOND_FACTOR", "off")
     assert Settings().second_factor_required() is False
     # Nothing is read as either value: not another case, not a synonym, not an empty value.
     for bad in ("", "OFF", "Off", "on", "false", "0", "no", "disabled", " off", "optional"):
-        monkeypatch.setenv("QD_ADMIN_SECOND_FACTOR", bad)
-        with pytest.raises(ValueError, match="QD_ADMIN_SECOND_FACTOR"):
+        monkeypatch.setenv("HB_ADMIN_SECOND_FACTOR", bad)
+        with pytest.raises(ValueError, match="HB_ADMIN_SECOND_FACTOR"):
             Settings().second_factor_required()
         # And the API itself does not start with it, whether or not it serves administrators.
-        with pytest.raises(ValueError, match="QD_ADMIN_SECOND_FACTOR"):
+        with pytest.raises(ValueError, match="HB_ADMIN_SECOND_FACTOR"):
             asgi.build()
 
 
@@ -153,15 +153,15 @@ class _Kept(logging.Handler):
 def test_the_api_warns_at_start_when_the_second_factor_is_off_and_only_then(
     admin_database_url: str, monkeypatch: pytest.MonkeyPatch, value: str | None, warned: bool
 ) -> None:
-    monkeypatch.setenv("QD_ADMIN_TG_IDS", "1")
-    monkeypatch.setenv("QD_SECRETS_KEY", TEST_SECRETS_KEY)
-    monkeypatch.setenv("QD_ADMIN_DATABASE_URL", admin_database_url)
+    monkeypatch.setenv("HB_ADMIN_TG_IDS", "1")
+    monkeypatch.setenv("HB_SECRETS_KEY", TEST_SECRETS_KEY)
+    monkeypatch.setenv("HB_ADMIN_DATABASE_URL", admin_database_url)
     if value is None:
-        monkeypatch.delenv("QD_ADMIN_SECOND_FACTOR", raising=False)
+        monkeypatch.delenv("HB_ADMIN_SECOND_FACTOR", raising=False)
     else:
-        monkeypatch.setenv("QD_ADMIN_SECOND_FACTOR", value)
+        monkeypatch.setenv("HB_ADMIN_SECOND_FACTOR", value)
     kept = _Kept()
-    logger = logging.getLogger("qarz.admin")
+    logger = logging.getLogger("hiso_box.admin")
     logger.addHandler(kept)
     try:
         asgi.build()

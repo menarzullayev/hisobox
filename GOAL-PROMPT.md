@@ -2,7 +2,7 @@
 
 Version 2 (2026-10-06). Replaces the first prompt after DEC-020: the build no longer stops before M4, an orchestrating agent runs parallel helpers, and open points are decided by the agent and recorded for later review.
 
-Paste the block below after `/goal` in a session opened in this repository (`D:\Linux\qarz-daftari`).
+Paste the block below after `/goal` in a session opened in this repository (`D:\Linux\hisobox`).
 
 Note: `/goal` accepts at most 4,000 characters and this block is longer (about 4,300), so it was refused when tried on 2026-10-06. The build was started with the short goal "implement all" in a session that already held this brief. To reuse the brief as a goal, give it as an ordinary message and set a short goal such as "implement all".
 
@@ -39,7 +39,7 @@ GIT
 NEVER DO THESE; MARK THE ITEM "BLOCKED ON FOUNDER" AND MOVE ON
 - Order, pay for, or sign up for servers, domains, or any service. Enter passwords, 2FA codes, or payment details. Solve CAPTCHAs.
 - Deploy to production, or onboard any real shop or customer, or store any real person's data.
-- Send messages to anyone except the two project bots (@qarzdaftari_dev_bot, @qarzdaftari_test_bot) and BotFather settings for those two bots.
+- Send messages to anyone except the two project bots (@hiso_box_dev_bot, @hiso_box_test_bot) and BotFather settings for those two bots.
 - Turn on the SMS or online-payment switches, or accept a real payment.
 - Delete data you did not create, rewrite project-alpha event history, or weaken a test to make it pass.
 Where a criterion needs real servers (S1.5, failover, the 1-hour and 5-minute targets, production alerts), build and rehearse it locally with Docker: two database containers, replication, archiving, scripted failover, timed. Record the local result and state plainly that it is not the production measurement.
@@ -68,6 +68,6 @@ Agents will finish with seven launch criteria open. None can be closed by an age
 
 ## Practical notes
 
-- The local `.env` is filled except `QD_PUBLIC_BASE_URL`. Stories that need Telegram to reach the service (webhook, Mini App, Telegram Login) can be built and tested with simulated updates; a live end-to-end check needs a public HTTPS address, which means a tunnel or a server that only the founder can provide.
+- The local `.env` is filled except `HB_PUBLIC_BASE_URL`. Stories that need Telegram to reach the service (webhook, Mini App, Telegram Login) can be built and tested with simulated updates; a live end-to-end check needs a public HTTPS address, which means a tunnel or a server that only the founder can provide.
 - Parallel helpers multiply token spend. The plan's estimate of 92 to 138 focused days is for one builder; parallel work shortens elapsed time, not total effort.
 - Every decision an agent makes alone is recorded as pending. Reviewing that list is the founder's main job while the build runs.

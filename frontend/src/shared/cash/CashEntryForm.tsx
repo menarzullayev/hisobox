@@ -21,7 +21,7 @@ import {
 } from "./cashApi";
 
 export const MAX_NOTE_LENGTH = 200;
-/** How far back an entry may be dated (backend/src/qarz/domain/cash.py, `BACKDATE_DAYS`). */
+/** How far back an entry may be dated (backend/src/hiso_box/domain/cash.py, `BACKDATE_DAYS`). */
 export const BACKDATE_DAYS = 31;
 
 type Problems = { amount: string | null; category: string | null; note: string | null; day: string | null };

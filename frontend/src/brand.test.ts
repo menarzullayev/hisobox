@@ -10,13 +10,13 @@ import { toCyrillic } from "./i18n/uzCyrillic";
 import { BRAND_MARK, BRAND_NAME, BRAND_PLACEHOLDER, BRAND_SHORT_NAME, BRAND_SOURCE, BRAND_TAGLINE } from "./shared/brand";
 
 /**
- * The product's name is written in one place, `backend/src/qarz/domain/brand.json`, and the front end
+ * The product's name is written in one place, `backend/src/hiso_box/domain/brand.json`, and the front end
  * reads that very file. Nothing under `frontend/` or `e2e/` writes the name or a former name out: a text
  * says `{brand}`. The server's twin of this file is `backend/tests/test_brand.py`, which searches the
  * whole repository; the last tests here plant a literal and show this search finds it.
  *
- * Technical identifiers are not the brand and are not looked for: `QD_*` variables, `X-Qarz-*` headers,
- * `qd.*` storage keys, `--qd-*` style variables, the package's name (docs/08-technical-spec, "Brand").
+ * Technical identifiers are not the brand and are not looked for: `HB_*` variables, `X-Shop-*` headers,
+ * `hb.*` storage keys, `--hb-*` style variables, the package's name (docs/08-technical-spec, "Brand").
  */
 const REPO = resolve(import.meta.dirname, "..", "..");
 
@@ -31,7 +31,7 @@ const definition = JSON.parse(readFileSync(resolve(REPO, BRAND_SOURCE), "utf8"))
 
 describe("the one definition", () => {
   it("is the server's file, read as it is", () => {
-    expect(BRAND_SOURCE).toBe("backend/src/qarz/domain/brand.json");
+    expect(BRAND_SOURCE).toBe("backend/src/hiso_box/domain/brand.json");
     expect([BRAND_NAME, BRAND_SHORT_NAME, BRAND_TAGLINE]).toEqual([definition.name, definition.short_name, definition.tagline["uz"]]);
     expect(BRAND_MARK).toEqual(definition.mark);
     // No copy on this side: the only import of a definition is that path.
@@ -137,7 +137,7 @@ describe("the name is written nowhere else", () => {
     `<title>${definition.name.toUpperCase()} — panel</title>`,
     `const BOT = "${definition.name.replace(/\s+/g, "").toLowerCase()}_bot";`,
   ])("a planted %s is found", (planted) => {
-    const clean = 'const KEY = "qd.language";\nheaders["X-Qarz-Shop"] = id;\nconst name = t("app.name");\n';
+    const clean = 'const KEY = "hb.language";\nheaders["X-Shop"] = id;\nconst name = t("app.name");\n';
     expect(literals([["frontend/src/i18n/uz.ts", clean]])).toEqual([]);
     const found = literals([["frontend/src/i18n/uz.ts", clean + planted]]);
     expect(found).toHaveLength(1);
@@ -159,7 +159,7 @@ describe("the name is written nowhere else", () => {
       expect(literals([["frontend/public/panel/manifest.webmanifest", `"name": "${former.name}"`]])).toHaveLength(1);
       expect(literals([["frontend/src/shared/network/testing.ts", `const CODE = "${former.initials}";`]])).toHaveLength(1);
     }
-    for (const technical of ["qarz-daftari-frontend", "QD_TEST", "X-Qarz-Shop", "qd.theme", "--qd-accent"]) {
+    for (const technical of ["hiso-box-frontend", "HB_TEST", "X-Shop", "hb.theme", "--hb-accent"]) {
       expect(literals([["frontend/src/x.ts", technical]]), technical).toEqual([]);
     }
   });

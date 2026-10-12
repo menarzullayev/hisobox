@@ -21,8 +21,8 @@ pytestmark = pytest.mark.db
 # One of the three application roles may call it. Which one is listed, function by function, in
 # tests/db/test_database_roles.py.
 _SOME_ROLE = (
-    "(has_function_privilege('qd_app', oid, 'EXECUTE') OR has_function_privilege('qd_admin', oid, 'EXECUTE') "
-    "OR has_function_privilege('qd_worker', oid, 'EXECUTE'))"
+    "(has_function_privilege('hb_app', oid, 'EXECUTE') OR has_function_privilege('hb_admin', oid, 'EXECUTE') "
+    "OR has_function_privilege('hb_worker', oid, 'EXECUTE'))"
 )
 
 FUNCTIONS = [

@@ -28,7 +28,7 @@ BEGIN
 END $$;
 
 REVOKE ALL ON FUNCTION claim_owned_shop(uuid, boolean) FROM PUBLIC;
-GRANT EXECUTE ON FUNCTION claim_owned_shop(uuid, boolean) TO qd_app;
+GRANT EXECUTE ON FUNCTION claim_owned_shop(uuid, boolean) TO hb_app;
 
 -- The administrator's reassignment of a shop's owner (0028), restated without the limit: the outcome
 -- 'too_many_shops' no longer exists. Nothing else is changed. The answer is one row whose `outcome` is:
@@ -129,4 +129,4 @@ BEGIN
 END $$;
 
 REVOKE ALL ON FUNCTION admin_reassign_owner(uuid, uuid, bigint, text, timestamptz) FROM PUBLIC;
-GRANT EXECUTE ON FUNCTION admin_reassign_owner(uuid, uuid, bigint, text, timestamptz) TO qd_app;
+GRANT EXECUTE ON FUNCTION admin_reassign_owner(uuid, uuid, bigint, text, timestamptz) TO hb_app;

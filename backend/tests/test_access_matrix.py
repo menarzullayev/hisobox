@@ -2,7 +2,7 @@
 
 import pytest
 
-from qarz.domain.access import ROLE_CAPABILITIES, Capability, Role, allows, lowest_role_with
+from hiso_box.domain.access import ROLE_CAPABILITIES, Capability, Role, allows, lowest_role_with
 
 EXPECTED = {
     Capability.RECORD: {Role.SELLER, Role.MANAGER, Role.OWNER},

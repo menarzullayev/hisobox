@@ -54,7 +54,7 @@ export function renderScreen(
 }
 
 /** The bot the test screens link to. */
-export const BOT = "qarz_daftari_bot";
+export const BOT = "hiso_box_daftari_bot";
 
 export function go(hash: string) {
   act(() => {

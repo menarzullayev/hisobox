@@ -5,9 +5,9 @@ from typing import Any
 import pytest
 from cryptography.hazmat.primitives.ciphers.aead import AESGCM
 
-from qarz.application.ports import SecretUnreadable
-from qarz.domain import file_links
-from qarz.infrastructure.secret_box import SecretBox, derive_key, key_id
+from hiso_box.application.ports import SecretUnreadable
+from hiso_box.domain import file_links
+from hiso_box.infrastructure.secret_box import SecretBox, derive_key, key_id
 
 KEY = "a-server-secret-for-tests-0123456789"
 OTHER_KEY = "another-server-secret-0123456789"

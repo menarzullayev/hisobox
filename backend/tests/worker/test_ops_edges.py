@@ -19,13 +19,13 @@ from aiogram.exceptions import (
 )
 from aiogram.methods import SendMessage
 
-from qarz.application.ops_watch import AlertNotDelivered, WorkerHealth
-from qarz.domain import ops_alerts as rules
-from qarz.infrastructure.ops_probes import ApiProbe, disk_shares, read_figure_files
-from qarz.infrastructure.settings import Settings
-from qarz.infrastructure.telegram_alerts import TelegramAlerts
-from qarz.interface import alert_test
-from qarz.interface.worker import build_watch
+from hiso_box.application.ops_watch import AlertNotDelivered, WorkerHealth
+from hiso_box.domain import ops_alerts as rules
+from hiso_box.infrastructure.ops_probes import ApiProbe, disk_shares, read_figure_files
+from hiso_box.infrastructure.settings import Settings
+from hiso_box.infrastructure.telegram_alerts import TelegramAlerts
+from hiso_box.interface import alert_test
+from hiso_box.interface.worker import build_watch
 
 METHOD = SendMessage(chat_id=1, text="x")
 
@@ -108,24 +108,24 @@ def test_whether_telegram_accepts_the_bot(error: BaseException | None, state: st
 
 
 def test_the_figure_files_of_a_directory_are_read(tmp_path: Path) -> None:
-    (tmp_path / "qd_backup_repo.prom").write_text(
-        "# TYPE qd_wal_archive_newest_age_seconds gauge\n"
-        "qd_wal_archive_newest_age_seconds 42\n"
-        'qd_backup_last_success_timestamp_seconds{type="full"} 1790000000\n',
+    (tmp_path / "hb_backup_repo.prom").write_text(
+        "# TYPE hb_wal_archive_newest_age_seconds gauge\n"
+        "hb_wal_archive_newest_age_seconds 42\n"
+        'hb_backup_last_success_timestamp_seconds{type="full"} 1790000000\n',
         encoding="utf-8",
     )
-    (tmp_path / "qd_backup_run_diff.prom").write_text('qd_backup_last_run_success{type="diff"} 0\n', encoding="utf-8")
+    (tmp_path / "hb_backup_run_diff.prom").write_text('hb_backup_last_run_success{type="diff"} 0\n', encoding="utf-8")
     (tmp_path / "sync.last-success").write_text("1790000123\n", encoding="utf-8")
     # Not figures: a file being written, a file of another kind, one that is not a number, one too large.
-    (tmp_path / ".qd_backup_repo.Xy12ab").write_text("qd_wal_archive_newest_age_seconds 9999\n", encoding="utf-8")
+    (tmp_path / ".hb_backup_repo.Xy12ab").write_text("hb_wal_archive_newest_age_seconds 9999\n", encoding="utf-8")
     (tmp_path / "check.status").write_text("0 1790000000\n", encoding="utf-8")
     (tmp_path / "expire.last-success").write_text("never\n", encoding="utf-8")
     (tmp_path / "huge.prom").write_text("x 1\n" * 40_000, encoding="utf-8")
     (tmp_path / "scheduler").mkdir()
     assert read_figure_files(str(tmp_path)) == {
-        "qd_wal_archive_newest_age_seconds": 42.0,
-        'qd_backup_last_success_timestamp_seconds{type="full"}': 1790000000.0,
-        'qd_backup_last_run_success{type="diff"}': 0.0,
+        "hb_wal_archive_newest_age_seconds": 42.0,
+        'hb_backup_last_success_timestamp_seconds{type="full"}': 1790000000.0,
+        'hb_backup_last_run_success{type="diff"}': 0.0,
         "sync.last-success": 1790000123.0,
     }
 
@@ -168,10 +168,10 @@ def test_the_api_is_healthy_only_when_healthz_says_so(answer: Any, healthy: bool
 
 
 def test_the_counters_are_read_with_the_metrics_token() -> None:
-    body = b'# TYPE qd_requests_total counter\nqd_requests_total{method="GET",route="/healthz",status="200"} 7\n'
+    body = b'# TYPE hb_requests_total counter\nhb_requests_total{method="GET",route="/healthz",status="200"} 7\n'
     transport = FakeTransport({"/metrics": (200, body)})
     counters = asyncio.run(ApiProbe("http://api:8000", "a-metrics-token-of-the-proof", transport).counters())
-    assert counters == {'qd_requests_total{method="GET",route="/healthz",status="200"}': 7.0}
+    assert counters == {'hb_requests_total{method="GET",route="/healthz",status="200"}': 7.0}
     assert transport.calls == [("GET", "/metrics", {"Authorization": "Bearer a-metrics-token-of-the-proof"})]
 
 
@@ -182,7 +182,7 @@ def test_counters_that_cannot_be_read_are_none_and_not_an_error(answer: Any) -> 
 
 @pytest.mark.parametrize("url", ["api:8000", "ftp://api", "http://api:8000/healthz", "http://"])
 def test_an_address_of_the_api_that_is_not_a_plain_origin_is_refused(url: str) -> None:
-    with pytest.raises(ValueError, match="QD_ALERT_API_URL"):
+    with pytest.raises(ValueError, match="HB_ALERT_API_URL"):
         ApiProbe(url)
 
 
@@ -201,7 +201,7 @@ def test_the_alert_chats_are_whole_numbers_other_than_zero() -> None:
 @pytest.mark.parametrize("value", ["@operators", "700100;700200", "0", "-0", "7 00100", "１２３", "--5", "1.5"])
 def test_a_chat_that_is_not_a_number_refuses_to_start(value: str) -> None:
     """A typing mistake must not silently mean "tell nobody"."""
-    with pytest.raises(ValueError, match="QD_ALERT_CHAT_IDS"):
+    with pytest.raises(ValueError, match="HB_ALERT_CHAT_IDS"):
         settings(alert_chat_ids=value).alert_chats()
 
 
@@ -214,13 +214,13 @@ def test_the_alert_settings_come_from_the_environment_and_are_empty_by_default(m
         "ALERT_DISK_PATHS",
     )
     for name in names:
-        monkeypatch.delenv(f"QD_{name}", raising=False)
+        monkeypatch.delenv(f"HB_{name}", raising=False)
     empty = Settings(_env_file=None)  # type: ignore[call-arg]
     assert [getattr(empty, name.lower()) for name in names] == [""] * 5
-    monkeypatch.setenv("QD_ALERT_CHAT_IDS", "-1009")
-    monkeypatch.setenv("QD_ALERT_DISK_PATHS", "/var/lib/qarz/files, /data")
+    monkeypatch.setenv("HB_ALERT_CHAT_IDS", "-1009")
+    monkeypatch.setenv("HB_ALERT_DISK_PATHS", "/var/lib/hiso_box/files, /data")
     filled = Settings(_env_file=None)  # type: ignore[call-arg]
-    assert filled.alert_chats() == (-1009,) and filled.alert_disks() == ("/var/lib/qarz/files", "/data")
+    assert filled.alert_chats() == (-1009,) and filled.alert_disks() == ("/var/lib/hiso_box/files", "/data")
     # The chats are not shown when the settings are printed: an identifier of a person may be among them.
     assert "-1009" not in repr(filled)
 
@@ -263,7 +263,7 @@ def test_the_worker_watches_what_is_configured_and_nothing_else(tmp_path: Path) 
 
 def test_a_wrong_chat_setting_stops_the_worker_before_it_watches_anything() -> None:
     health = WorkerHealth(started_at=datetime.now(UTC))
-    with pytest.raises(ValueError, match="QD_ALERT_CHAT_IDS"):
+    with pytest.raises(ValueError, match="HB_ALERT_CHAT_IDS"):
         build_watch(settings(alert_chat_ids="operators"), None, FakeBot(), health)  # type: ignore[arg-type]
 
 
@@ -317,11 +317,11 @@ def test_every_way_of_not_being_delivered_is_explained(outcome: str) -> None:
 
 def test_the_command_says_so_when_nothing_is_configured(capsys: pytest.CaptureFixture[str]) -> None:
     assert asyncio.run(alert_test.run(settings(), FakeChannel())) == 2
-    assert capsys.readouterr().out.startswith("NOT CONFIGURED: QD_ALERT_CHAT_IDS")
+    assert capsys.readouterr().out.startswith("NOT CONFIGURED: HB_ALERT_CHAT_IDS")
     # Without a bot token there is nothing to send with, and no bot is made.
     without_token = Settings(_env_file=None, bot_token="", alert_chat_ids="700100")  # type: ignore[call-arg]
     assert asyncio.run(alert_test.run(without_token)) == 2
-    assert capsys.readouterr().out.startswith("NOT CONFIGURED: QD_BOT_TOKEN")
+    assert capsys.readouterr().out.startswith("NOT CONFIGURED: HB_BOT_TOKEN")
 
 
 def test_the_modules_of_the_watch_read_no_setting_but_through_the_settings() -> None:

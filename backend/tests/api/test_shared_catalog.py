@@ -18,9 +18,9 @@ import psycopg
 import pytest
 from fastapi.testclient import TestClient
 
-from qarz.domain import shared_catalog
-from qarz.infrastructure.settings import Settings
-from qarz.interface.import_shared_catalog import report, run
+from hiso_box.domain import shared_catalog
+from hiso_box.infrastructure.settings import Settings
+from hiso_box.interface.import_shared_catalog import report, run
 
 from ..receipt_samples import EXIF, JPEG, PNG, TEXT, jpeg, png
 from .conftest import ADMIN_API, AdminEnv, World, as_user, elevate, make_admin
@@ -180,7 +180,7 @@ def test_with_the_switch_off_no_route_of_the_catalogue_exists_for_anyone(
             response = client.request(method, path, json=body, headers={**headers, **key()})
             assert response.status_code == 404 and response.json() == NOT_FOUND, (method, path, headers)
     assert counts(owner) == before
-    assert "x-qarz-catalog" not in client.get("/api/v1/me/shops", headers=as_user(world.manager_a)).headers
+    assert "x-shop-catalog" not in client.get("/api/v1/me/shops", headers=as_user(world.manager_a)).headers
 
 
 def test_with_the_switch_off_adding_items_and_barcodes_answers_exactly_as_before_and_proposes_nothing(
@@ -248,9 +248,9 @@ def test_with_the_switch_off_adding_items_and_barcodes_answers_exactly_as_before
 def test_the_shops_list_says_the_catalogue_is_on_only_when_it_is(
     client: TestClient, world: World, owner: psycopg.Connection
 ) -> None:
-    assert "x-qarz-catalog" not in client.get("/api/v1/me/shops", headers=as_user(world.seller_a)).headers
+    assert "x-shop-catalog" not in client.get("/api/v1/me/shops", headers=as_user(world.seller_a)).headers
     switch(owner)
-    assert client.get("/api/v1/me/shops", headers=as_user(world.seller_a)).headers["x-qarz-catalog"] == "on"
+    assert client.get("/api/v1/me/shops", headers=as_user(world.seller_a)).headers["x-shop-catalog"] == "on"
 
 
 # --- searching -----------------------------------------------------------------------------------------------
@@ -843,7 +843,7 @@ def test_the_import_refuses_a_directory_or_a_configuration_it_cannot_use(
 ) -> None:
     directory, _ = seed_directory(tmp_path, tag())
     settings = Settings(admin_database_url=admin_database_url, file_store="filesystem", file_root=str(file_root))
-    with pytest.raises(ValueError, match="QD_ADMIN_DATABASE_URL"):
+    with pytest.raises(ValueError, match="HB_ADMIN_DATABASE_URL"):
         asyncio.run(run(directory, Settings(admin_database_url="")))
     (directory / "categories.json").write_text(
         json.dumps({"categories": {"weapons": {"from": ["Q"]}}}), encoding="utf-8"

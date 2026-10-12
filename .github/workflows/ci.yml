@@ -76,7 +76,7 @@ jobs:
           --health-timeout 2s
           --health-retries 30
     env:
-      QD_TEST_ADMIN_URL: postgresql://postgres:postgres@127.0.0.1:5432/postgres
+      HB_TEST_ADMIN_URL: postgresql://postgres:postgres@127.0.0.1:5432/postgres
     steps:
       - uses: actions/checkout@v5
       - uses: actions/setup-python@v6
@@ -99,15 +99,15 @@ jobs:
       # The description is rebuilt from this commit's code and compared with the committed file, byte
       # for byte. The front end's types are generated from that file (the frontend job checks them).
       - name: API description is current
-        run: python -m qarz.interface.api_description --check
+        run: python -m hiso_box.interface.api_description --check
       # Every text of the server exists in all six languages: a key that Tajik, Karakalpak or English lacks
       # is listed and fails here (tests/test_languages.py holds the same). The front end has a twin.
       - name: Every language has every text
         run: python scripts/i18n_missing.py --strict
       - name: Migrations apply to an empty database
         run: |
-          psql "$QD_TEST_ADMIN_URL" -v ON_ERROR_STOP=1 -c 'CREATE DATABASE qd_migrate_check'
-          QD_MIGRATION_URL=postgresql://postgres:postgres@127.0.0.1:5432/qd_migrate_check alembic upgrade head
+          psql "$HB_TEST_ADMIN_URL" -v ON_ERROR_STOP=1 -c 'CREATE DATABASE hb_migrate_check'
+          HB_MIGRATION_URL=postgresql://postgres:postgres@127.0.0.1:5432/hb_migrate_check alembic upgrade head
       # The suite is collected without --shard and once for each shard of the next job, and the lists are
       # compared: the shards are disjoint, their union is the whole suite, and the counts are printed.
       - name: The shards of the tests are the whole suite, each test once
@@ -145,7 +145,7 @@ jobs:
           --health-timeout 2s
           --health-retries 30
     env:
-      QD_TEST_ADMIN_URL: postgresql://postgres:postgres@127.0.0.1:5432/postgres
+      HB_TEST_ADMIN_URL: postgresql://postgres:postgres@127.0.0.1:5432/postgres
     steps:
       - uses: actions/checkout@v5
       - uses: actions/setup-python@v6
@@ -228,9 +228,9 @@ jobs:
       - name: Compose files are valid
         env:
           DEPLOY_RELEASE: ci
-          QD_DATABASE_URL: postgresql://qd_app@db.invalid/qarz
-          QD_WORKER_DATABASE_URL: postgresql://qd_worker@db.invalid/qarz
-          QD_MIGRATION_URL: postgresql://owner@db.invalid/qarz
+          HB_DATABASE_URL: postgresql://hb_app@db.invalid/hiso_box
+          HB_WORKER_DATABASE_URL: postgresql://hb_worker@db.invalid/hiso_box
+          HB_MIGRATION_URL: postgresql://owner@db.invalid/hiso_box
           LOCAL_POSTGRES_PASSWORD: ci
           LOCAL_APP_PASSWORD: ci
           LOCAL_ADMIN_PASSWORD: ci
@@ -244,7 +244,7 @@ jobs:
         with:
           context: backend
           load: true
-          tags: qarz-daftari/backend:${{ github.sha }}
+          tags: hiso_box/backend:${{ github.sha }}
           cache-from: type=gha,scope=backend
           cache-to: type=gha,scope=backend,mode=max
       - name: Proxy image
@@ -254,16 +254,16 @@ jobs:
           file: deploy/production/nginx/Dockerfile
           load: true
           build-args: |
-            VITE_BOT_USERNAME=qd_local_proof_bot
-            VITE_PUBLIC_ORIGIN=https://qarz.proof.test
-          tags: qarz-daftari/proxy:${{ github.sha }}
+            VITE_BOT_USERNAME=hb_local_proof_bot
+            VITE_PUBLIC_ORIGIN=https://hiso_box.proof.test
+          tags: hiso_box/proxy:${{ github.sha }}
           cache-from: type=gha,scope=proxy
           cache-to: type=gha,scope=proxy,mode=max
       - name: The backend image runs as a non-root user and carries no tools
         run: |
-          docker run --rm "qarz-daftari/backend:$COMMIT" sh -ec '
+          docker run --rm "hiso_box/backend:$COMMIT" sh -ec '
             test "$(id -u)" = 10001
-            python -c "import qarz.interface.asgi, qarz.interface.worker"
+            python -c "import hiso_box.interface.asgi, hiso_box.interface.worker"
             for tool in pip pytest ruff mypy; do
               if python -c "import $tool" 2>/dev/null; then echo "$tool is in the image" >&2; exit 1; fi
             done
@@ -277,7 +277,7 @@ jobs:
           deploy/production/scripts/local.sh smoke
       - name: Logs when it failed
         if: failure()
-        run: docker compose -p qd-deploy-proof logs --no-color --tail 60 || true
+        run: docker compose -p hb-deploy-proof logs --no-color --tail 60 || true
       - name: Remove the stack
         if: always()
         run: deploy/production/scripts/local.sh down || true
@@ -298,9 +298,9 @@ jobs:
       - name: Script and overlay
         env:
           DEPLOY_RELEASE: ci
-          QD_DATABASE_URL: postgresql://qd_app@db.invalid/qarz
-          QD_WORKER_DATABASE_URL: postgresql://qd_worker@db.invalid/qarz
-          QD_MIGRATION_URL: postgresql://owner@db.invalid/qarz
+          HB_DATABASE_URL: postgresql://hb_app@db.invalid/hiso_box
+          HB_WORKER_DATABASE_URL: postgresql://hb_worker@db.invalid/hiso_box
+          HB_MIGRATION_URL: postgresql://owner@db.invalid/hiso_box
           LOCAL_POSTGRES_PASSWORD: ci
           LOCAL_APP_PASSWORD: ci
           LOCAL_ADMIN_PASSWORD: ci
@@ -316,7 +316,7 @@ jobs:
         with:
           context: backend
           load: true
-          tags: qarz-daftari/backend:${{ github.sha }}
+          tags: hiso_box/backend:${{ github.sha }}
           cache-from: type=gha,scope=backend
       - name: Proxy image
         uses: docker/build-push-action@v6
@@ -325,9 +325,9 @@ jobs:
           file: deploy/production/nginx/Dockerfile
           load: true
           build-args: |
-            VITE_BOT_USERNAME=qd_local_proof_bot
-            VITE_PUBLIC_ORIGIN=https://qarz.proof.test
-          tags: qarz-daftari/proxy:${{ github.sha }}
+            VITE_BOT_USERNAME=hb_local_proof_bot
+            VITE_PUBLIC_ORIGIN=https://hiso_box.proof.test
+          tags: hiso_box/proxy:${{ github.sha }}
           cache-from: type=gha,scope=proxy
       - uses: actions/setup-node@v5
         with:
@@ -401,8 +401,8 @@ jobs:
           fi
       - name: Units
         run: |
-          sudo mkdir -p /opt/qarz-backup
-          sudo cp -r deploy/backup/scripts /opt/qarz-backup/
+          sudo mkdir -p /opt/hiso-box-backup
+          sudo cp -r deploy/backup/scripts /opt/hiso-box-backup/
           id postgres > /dev/null 2>&1 || sudo useradd --system postgres
           systemd-analyze verify --man=no deploy/backup/systemd/*.service deploy/backup/systemd/*.timer
           for timer in deploy/backup/systemd/*.timer; do
@@ -412,13 +412,13 @@ jobs:
           done
       - name: The proof's Compose overlay is valid
         env:
-          QD_POSTGRES_PASSWORD: ci
-          QD_REPL_PASSWORD: ci
-          QD_BACKUP_CIPHER_PASS: ci
-          QD_FILESTORE_RPC_SECRET: ci
-          QD_FILESTORE_ADMIN_TOKEN: ci
+          HB_POSTGRES_PASSWORD: ci
+          HB_REPL_PASSWORD: ci
+          HB_BACKUP_CIPHER_PASS: ci
+          HB_FILESTORE_RPC_SECRET: ci
+          HB_FILESTORE_ADMIN_TOKEN: ci
         run: |
-          docker compose -p qd-backup-proof -f deploy/rehearsal/compose.yml \
+          docker compose -p hb-backup-proof -f deploy/rehearsal/compose.yml \
             -f deploy/backup/proof/compose.proof.yml config --quiet
       - name: Alert rules and their tests
         run: |
@@ -447,7 +447,7 @@ jobs:
       - name: Scripts
         run: |
           scripts="deploy/production/scripts/single-host.sh deploy/production/scripts/single-host-proof.sh
-            deploy/production/single-host/postgres/qd-entrypoint.sh
+            deploy/production/single-host/postgres/hb-entrypoint.sh
             $(echo deploy/production/single-host/scripts/*.sh)"
           # shellcheck disable=SC2086
           shellcheck --external-sources --severity=style $scripts deploy/production/nginx/single-host-entrypoint.sh
@@ -473,7 +473,7 @@ jobs:
         with:
           context: backend
           load: true
-          tags: qarz-daftari/backend:${{ github.sha }}
+          tags: hiso_box/backend:${{ github.sha }}
           cache-from: type=gha,scope=backend
       - name: Proxy image
         uses: docker/build-push-action@v6
@@ -482,9 +482,9 @@ jobs:
           file: deploy/production/nginx/Dockerfile
           load: true
           build-args: |
-            VITE_BOT_USERNAME=qd_local_proof_bot
-            VITE_PUBLIC_ORIGIN=https://qarz.proof.test
-          tags: qarz-daftari/proxy:${{ github.sha }}
+            VITE_BOT_USERNAME=hb_local_proof_bot
+            VITE_PUBLIC_ORIGIN=https://hiso_box.proof.test
+          tags: hiso_box/proxy:${{ github.sha }}
           cache-from: type=gha,scope=proxy
       - name: Database image
         uses: docker/build-push-action@v6
@@ -492,7 +492,7 @@ jobs:
           context: deploy
           file: deploy/production/single-host/postgres/Dockerfile
           load: true
-          tags: qarz-daftari/pgbackup:${{ steps.pgbackup.outputs.tag }}
+          tags: hiso_box/pgbackup:${{ steps.pgbackup.outputs.tag }}
           cache-from: type=gha,scope=pgbackup
           cache-to: type=gha,scope=pgbackup,mode=max
       - name: The stack comes up

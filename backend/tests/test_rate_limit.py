@@ -4,7 +4,7 @@ import uuid
 
 import pytest
 
-from qarz.interface.rate_limit import MEMBER_TTL, PRUNE_EVERY, Limit, RateLimited, RateLimiter, RateLimits
+from hiso_box.interface.rate_limit import MEMBER_TTL, PRUNE_EVERY, Limit, RateLimited, RateLimiter, RateLimits
 
 
 class Clock:

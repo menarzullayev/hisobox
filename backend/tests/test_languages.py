@@ -17,14 +17,14 @@ from types import ModuleType
 
 import pytest
 
-from qarz.application import chat_texts, export_texts, texts_en, texts_kaa, texts_tg
-from qarz.application import permissions as permission_answers
-from qarz.application.chat_texts import LANGUAGE_NAMES, UZ, money, say, template
-from qarz.domain import languages, permissions
-from qarz.domain.languages import LANGUAGES, from_telegram, is_language, sms_language
-from qarz.domain.money import Currency, format_money
-from qarz.domain.uz_cyrillic import to_cyrillic
-from qarz.interface.errors import _MESSAGES, _STATUS, _WORDINGS, error_response, message_text
+from hiso_box.application import chat_texts, export_texts, texts_en, texts_kaa, texts_tg
+from hiso_box.application import permissions as permission_answers
+from hiso_box.application.chat_texts import LANGUAGE_NAMES, UZ, money, say, template
+from hiso_box.domain import languages, permissions
+from hiso_box.domain.languages import LANGUAGES, from_telegram, is_language, sms_language
+from hiso_box.domain.money import Currency, format_money
+from hiso_box.domain.uz_cyrillic import to_cyrillic
+from hiso_box.interface.errors import _MESSAGES, _STATUS, _WORDINGS, error_response, message_text
 
 TRAILING = {"tg": texts_tg, "kaa": texts_kaa, "en": texts_en}
 CYRILLIC = languages.UZ_CYRILLIC
@@ -249,7 +249,7 @@ def test_every_chat_text_can_be_said_in_every_language() -> None:
         for key, source in UZ.items():
             said = template(lang, key)
             assert said.strip(), (lang, key)
-            # The name and the line on the product are filled in already (qarz.domain.brand).
+            # The name and the line on the product are filled in already (hiso_box.domain.brand).
             assert _fields(said) == _fields(source) - {"brand", "tagline"}, (lang, key)
             said.format(**dict.fromkeys(_fields(source), "x"))
 

@@ -10,12 +10,12 @@ import psycopg
 import pytest
 from fastapi.testclient import TestClient
 
-from qarz.application.admin_access import AdminAccess
-from qarz.application.auth import AuthService
-from qarz.application.chat_texts import say
-from qarz.domain import totp
-from qarz.infrastructure.db import Database
-from qarz.interface.http import create_app
+from hiso_box.application.admin_access import AdminAccess
+from hiso_box.application.auth import AuthService
+from hiso_box.application.chat_texts import say
+from hiso_box.domain import totp
+from hiso_box.infrastructure.db import Database
+from hiso_box.interface.http import create_app
 
 from .conftest import (
     ADMIN_API,
@@ -599,7 +599,7 @@ def observed(app_database_url: str, admin_database_url: str, admin_env: AdminEnv
 def _events(client: TestClient, kind: str) -> int:
     text = client.get("/metrics", headers={"Authorization": f"Bearer {METRICS_TOKEN}"}).text
     for line in text.splitlines():
-        if line.startswith(f'qd_security_events_total{{kind="{kind}"}}'):
+        if line.startswith(f'hb_security_events_total{{kind="{kind}"}}'):
             return int(line.split()[-1])
     return 0
 

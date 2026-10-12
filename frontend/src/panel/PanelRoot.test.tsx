@@ -152,7 +152,7 @@ function backend({ role = "owner", shops = 1, transfer = null, deletion = NO_DEL
 
 let loaded: { server: ReturnType<typeof backend>; botUsername: string | null } | null = null;
 
-function start(server: ReturnType<typeof backend>, botUsername: string | null = "qarz_daftari_bot", loginReturn: LoginReturn = NO_RETURN) {
+function start(server: ReturnType<typeof backend>, botUsername: string | null = "hiso_box_daftari_bot", loginReturn: LoginReturn = NO_RETURN) {
   loaded = { server, botUsername };
   return render(
     <PanelRoot
@@ -196,7 +196,7 @@ describe("the sign-in screen", () => {
     start(server);
     expect(heading()).toBe("Panelga kirish");
     expect(screen.getByText("Boshqaruv paneliga Telegram hisobingiz orqali kirasiz. Alohida parol yo'q.")).toBeTruthy();
-    expect(screen.getByRole("button", { name: "telegram" }).getAttribute("data-bot")).toBe("qarz_daftari_bot");
+    expect(screen.getByRole("button", { name: "telegram" }).getAttribute("data-bot")).toBe("hiso_box_daftari_bot");
     expect(screen.getByText("Xavfsizlik uchun sahifa yangilanganda qayta kirish so'raladi.")).toBeTruthy();
     expect(screen.queryByRole("navigation")).toBeNull();
     expect(screen.queryByRole("textbox")).toBeNull();
@@ -214,15 +214,15 @@ describe("the sign-in screen", () => {
 
   it("uses Telegram's real widget unless a test replaces it, and only on this screen", async () => {
     const server = backend();
-    render(<PanelRoot initialLanguage="uz" fetch={server.fetch} botUsername="qarz_daftari_bot" now={() => NOON} />);
+    render(<PanelRoot initialLanguage="uz" fetch={server.fetch} botUsername="hiso_box_daftari_bot" now={() => NOON} />);
     const script = document.querySelector("script");
     expect(script?.src.startsWith("https://telegram.org/js/telegram-widget.js")).toBe(true);
-    expect(script?.getAttribute("data-telegram-login")).toBe("qarz_daftari_bot");
+    expect(script?.getAttribute("data-telegram-login")).toBe("hiso_box_daftari_bot");
     // Redirect mode: no callback for Telegram's script to build with eval(), and none left on the page.
     expect(script?.getAttribute("data-auth-url")).toBe(window.location.origin + window.location.pathname);
     expect(script?.hasAttribute("data-onauth")).toBe(false);
     cleanup();
-    render(<PanelRoot initialLanguage="uz" fetch={server.fetch} botUsername="qarz_daftari_bot" loginReturn={RETURNED} now={() => NOON} />);
+    render(<PanelRoot initialLanguage="uz" fetch={server.fetch} botUsername="hiso_box_daftari_bot" loginReturn={RETURNED} now={() => NOON} />);
     // While the returned fields are with the server, and after, Telegram's script is not on the page.
     expect(document.querySelector("script")).toBeNull();
     await screen.findByText("Jami qarz");
@@ -264,7 +264,7 @@ describe("the sign-in screen", () => {
 
   it("sends nothing when what arrives is not Telegram's data, and says to press again", async () => {
     const server = backend();
-    start(server, "qarz_daftari_bot", { status: "refused" });
+    start(server, "hiso_box_daftari_bot", { status: "refused" });
     expect((await screen.findByRole("alert")).textContent).toBe("Telegram ma'lumotlari qabul qilinmadi. Kirish tugmasini qayta bosing.");
     expect(server.sent).toHaveLength(0);
     expect(heading()).toBe("Panelga kirish");
@@ -301,7 +301,7 @@ describe("the sign-in screen", () => {
     const server = backend();
     render(
       <StrictMode>
-        <PanelRoot initialLanguage="uz" fetch={server.fetch} botUsername="qarz_daftari_bot" LoginWidget={StubWidget} loginReturn={RETURNED} now={() => NOON} />
+        <PanelRoot initialLanguage="uz" fetch={server.fetch} botUsername="hiso_box_daftari_bot" LoginWidget={StubWidget} loginReturn={RETURNED} now={() => NOON} />
       </StrictMode>,
     );
     await screen.findAllByText("Jami qarz");

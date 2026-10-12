@@ -4,7 +4,7 @@
 -- up to ten, the setting `payment_cards`: an array of {"number": sixteen digits, "label": a short name
 -- such as the card's kind and bank}, in the order they are offered. The first is the primary one; the
 -- payer chooses whichever suits them. The list is checked by the application
--- (qarz.domain.platform_settings) and written, like every setting, only by admin_set_platform_setting;
+-- (hiso_box.domain.platform_settings) and written, like every setting, only by admin_set_platform_setting;
 -- no right on platform_setting changes here.
 
 -- A card number that was stored becomes a list of that one card. It had no label, so it is given a
@@ -95,5 +95,5 @@ END $$;
 
 REVOKE ALL ON FUNCTION admin_receipts(uuid, text, timestamptz, uuid, integer) FROM PUBLIC;
 REVOKE ALL ON FUNCTION admin_receipt(uuid, uuid, boolean) FROM PUBLIC;
-GRANT EXECUTE ON FUNCTION admin_receipts(uuid, text, timestamptz, uuid, integer) TO qd_admin;
-GRANT EXECUTE ON FUNCTION admin_receipt(uuid, uuid, boolean) TO qd_admin;
+GRANT EXECUTE ON FUNCTION admin_receipts(uuid, text, timestamptz, uuid, integer) TO hb_admin;
+GRANT EXECUTE ON FUNCTION admin_receipt(uuid, uuid, boolean) TO hb_admin;

@@ -12,14 +12,14 @@ import psycopg
 import pytest
 from fastapi.testclient import TestClient
 
-from qarz.application.admin_access import AdminAccess
-from qarz.application.auth import AuthService
-from qarz.application.errors import NotFound
-from qarz.application.online_payment import PaymentKeys
-from qarz.application.ports import AdminAccount, SecretCipher, Storage
-from qarz.infrastructure.db import Database
-from qarz.interface.http import create_app
-from qarz.interface.rate_limit import Limit, RateLimits
+from hiso_box.application.admin_access import AdminAccess
+from hiso_box.application.auth import AuthService
+from hiso_box.application.errors import NotFound
+from hiso_box.application.online_payment import PaymentKeys
+from hiso_box.application.ports import AdminAccount, SecretCipher, Storage
+from hiso_box.infrastructure.db import Database
+from hiso_box.interface.http import create_app
+from hiso_box.interface.rate_limit import Limit, RateLimits
 
 from .conftest import (
     ADMIN_API,
@@ -397,7 +397,7 @@ def observed(app_database_url: str, admin_database_url: str, admin_env: AdminEnv
 def _second_factor_events(client: TestClient) -> int:
     text = client.get("/metrics", headers={"Authorization": f"Bearer {METRICS_TOKEN}"}).text
     for line in text.splitlines():
-        if line.startswith('qd_security_events_total{kind="bad_second_factor"}'):
+        if line.startswith('hb_security_events_total{kind="bad_second_factor"}'):
             return int(line.split()[-1])
     return 0
 
@@ -440,7 +440,7 @@ def test_a_refused_second_factor_is_a_security_event_and_a_rate_limit_is_not(
     # A wrong code on a change that asks for the code again counts too.
     headers = {
         **as_user(world.admin),
-        "Cookie": f"qd_admin={opened.headers['set-cookie'].split('qd_admin=')[1].split(';')[0]}",
+        "Cookie": f"hb_admin={opened.headers['set-cookie'].split('hb_admin=')[1].split(';')[0]}",
     }
     change = {"changes": {"price_uzs": 2_000}, "code": "000000"}
     assert observed.patch(SETTINGS, json=change, headers={**headers, **_key()}).status_code == 403

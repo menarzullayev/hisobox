@@ -17,15 +17,15 @@ CREATE TABLE open_debt (
 CREATE INDEX open_debt_shop_customer ON open_debt (shop_id, customer_id);
 
 -- Read by the application; written only by the functions below, which run with their owner's rights.
-GRANT SELECT ON open_debt TO qd_app;
+GRANT SELECT ON open_debt TO hb_app;
 ALTER TABLE open_debt ENABLE ROW LEVEL SECURITY;
 ALTER TABLE open_debt FORCE ROW LEVEL SECURITY;
 CREATE POLICY tenant ON open_debt
-  USING (shop_id = nullif(current_setting('qd.shop_id', true), '')::uuid)
-  WITH CHECK (shop_id = nullif(current_setting('qd.shop_id', true), '')::uuid);
+  USING (shop_id = nullif(current_setting('hb.shop_id', true), '')::uuid)
+  WITH CHECK (shop_id = nullif(current_setting('hb.shop_id', true), '')::uuid);
 
 -- What the ledger says is open for the given customers. The same allocation as the application's
--- (qarz.domain.ledger.allocate): a debt's unpaid part is what its running total exceeds the customer's
+-- (hiso_box.domain.ledger.allocate): a debt's unpaid part is what its running total exceeds the customer's
 -- payments by, capped at its own amount; reversed entries do not count (INV-2), and a reversal is neither
 -- a debt nor a payment.
 CREATE FUNCTION open_debts_of(p_customers uuid[])

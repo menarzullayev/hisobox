@@ -19,7 +19,7 @@ CREATE INDEX stored_file_receipt_hash ON stored_file (sha256) WHERE purpose = 's
 
 -- A shop sends receipts and reads its own. It never changes one: the decision is the administrator's and
 -- is written only by admin_decide_receipt below (INV-16), and rows go only when the shop is erased.
-REVOKE UPDATE, DELETE, TRUNCATE ON subscription_receipt FROM qd_app;
+REVOKE UPDATE, DELETE, TRUNCATE ON subscription_receipt FROM hb_app;
 
 -- The admin audit names one more kind of thing an administrator acts on.
 ALTER TABLE admin_audit DROP CONSTRAINT admin_audit_target_type_check;
@@ -70,7 +70,7 @@ AS $$
     JOIN subscription_receipt r ON r.file_id = other.id
    WHERE mine.id = p_file
      AND mine.purpose = 'subscription_receipt'
-     AND mine.shop_id = nullif(current_setting('qd.shop_id', true), '')::uuid;
+     AND mine.shop_id = nullif(current_setting('hb.shop_id', true), '')::uuid;
 $$;
 
 -- Receipts of one status across all shops, oldest first: the queue. `copies` counts the other receipts
@@ -245,10 +245,10 @@ REVOKE ALL ON FUNCTION admin_receipt_copies(uuid, uuid) FROM PUBLIC;
 REVOKE ALL ON FUNCTION admin_decide_receipt(uuid, uuid, text, smallint, text, timestamptz) FROM PUBLIC;
 REVOKE ALL ON FUNCTION admin_shop_activity(uuid, uuid, text, uuid) FROM PUBLIC;
 REVOKE ALL ON FUNCTION oldest_waiting_receipt() FROM PUBLIC;
-GRANT EXECUTE ON FUNCTION subscription_receipt_copies(uuid) TO qd_app;
-GRANT EXECUTE ON FUNCTION admin_receipts(uuid, text, timestamptz, uuid, integer) TO qd_app;
-GRANT EXECUTE ON FUNCTION admin_receipt(uuid, uuid, boolean) TO qd_app;
-GRANT EXECUTE ON FUNCTION admin_receipt_copies(uuid, uuid) TO qd_app;
-GRANT EXECUTE ON FUNCTION admin_decide_receipt(uuid, uuid, text, smallint, text, timestamptz) TO qd_app;
-GRANT EXECUTE ON FUNCTION admin_shop_activity(uuid, uuid, text, uuid) TO qd_app;
-GRANT EXECUTE ON FUNCTION oldest_waiting_receipt() TO qd_app;
+GRANT EXECUTE ON FUNCTION subscription_receipt_copies(uuid) TO hb_app;
+GRANT EXECUTE ON FUNCTION admin_receipts(uuid, text, timestamptz, uuid, integer) TO hb_app;
+GRANT EXECUTE ON FUNCTION admin_receipt(uuid, uuid, boolean) TO hb_app;
+GRANT EXECUTE ON FUNCTION admin_receipt_copies(uuid, uuid) TO hb_app;
+GRANT EXECUTE ON FUNCTION admin_decide_receipt(uuid, uuid, text, smallint, text, timestamptz) TO hb_app;
+GRANT EXECUTE ON FUNCTION admin_shop_activity(uuid, uuid, text, uuid) TO hb_app;
+GRANT EXECUTE ON FUNCTION oldest_waiting_receipt() TO hb_app;

@@ -22,7 +22,7 @@ export type AmountResult = { ok: true; amount: number } | { ok: false; problem: 
 
 /*
  * The rules below are a port of the amount part of the chat parser, which is the authority:
- * backend/src/qarz/domain/chat_entry.py (`_split_number`, `_read_amount`). Keep the two in step; the
+ * backend/src/hiso_box/domain/chat_entry.py (`_split_number`, `_read_amount`). Keep the two in step; the
  * cases in money.test.ts are taken from backend/tests/test_chat_entry.py.
  *
  * The field holds an amount only, so three things the chat grammar allows around an amount are refused
@@ -168,7 +168,7 @@ export function parseUzs(input: string): number | null {
  * A shop keeps its debts in so'm and, when its owner turned that on, in US dollars beside them: two
  * books, no exchange rate, and nothing anywhere is a sum of the two. This module is the one place in
  * the client that knows the currencies: their minor units, how an amount of each is written and read,
- * and the ranges the server accepts (backend/src/qarz/domain/money.py, `RULES`; keep the two in step).
+ * and the ranges the server accepts (backend/src/hiso_box/domain/money.py, `RULES`; keep the two in step).
  *
  * So'm are whole so'm. Dollars are whole cents end to end: 12.50 $ is 1250. No amount is ever held or
  * computed as a fraction, so 0.1 + 0.2 cannot happen here.

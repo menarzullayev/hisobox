@@ -24,4 +24,4 @@ AS $$
 $$;
 
 REVOKE ALL ON FUNCTION subscriptions_to_review(date) FROM PUBLIC;
-GRANT EXECUTE ON FUNCTION subscriptions_to_review(date) TO qd_app;
+GRANT EXECUTE ON FUNCTION subscriptions_to_review(date) TO hb_app;

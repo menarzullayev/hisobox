@@ -13,8 +13,8 @@ import psycopg
 import pytest
 from fastapi.testclient import TestClient
 
-from qarz.application.chat_texts import day, money, say
-from qarz.domain.promise import end_of_week, tashkent_date
+from hiso_box.application.chat_texts import day, money, say
+from hiso_box.domain.promise import end_of_week, tashkent_date
 
 from .conftest import WEBHOOK_SECRET, World
 
@@ -641,7 +641,7 @@ def test_the_language_can_be_changed(client: TestClient, world: World, owner: ps
 def test_commands(client: TestClient, world: World, owner: psycopg.Connection) -> None:
     seller = chat_of(client, owner, world.seller_a)
     assert seller.say("/start").text == say("uz", "welcome_staff", shop="Shop A")
-    assert seller.say("/yordam@qarzdaftari_dev_bot").text == say("uz", "help")
+    assert seller.say("/yordam@hiso_box_dev_bot").text == say("uz", "help")
     assert seller.say("/ilova").text == say("uz", "soon")
     assert seller.say("/nimadir").text == say("uz", "help")
 

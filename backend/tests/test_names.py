@@ -1,6 +1,6 @@
 import pytest
 
-from qarz.domain.names import normalize_name, unify_apostrophes
+from hiso_box.domain.names import normalize_name, unify_apostrophes
 
 
 @pytest.mark.parametrize(

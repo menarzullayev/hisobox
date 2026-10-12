@@ -11,7 +11,7 @@ words, no exclamation mark unless the source has one, “curly quotes” where U
 
 | English term | Uzbek source term | Note |
 | --- | --- | --- |
-| `{brand}` | `{brand}` | The product's name, HisoBox: never translated and never typed. A text writes `{brand}` and the name is filled in from `backend/src/qarz/domain/brand.json`. |
+| `{brand}` | `{brand}` | The product's name, HisoBox: never translated and never typed. A text writes `{brand}` and the name is filled in from `backend/src/hiso_box/domain/brand.json`. |
 | debt | qarz | What a customer owes. "Total debt" for *jami qarz*; "debt left" for *qolgan qarz*. Not "balance" in visible text. |
 | credit sale | nasiya | A sale on credit: the entry that adds to the debt. Verb: "record a credit sale". Not "loan", not "credit" alone. |
 | opening debt | boshlang'ich qarz | A debt brought in from before the shop used the product (import). |

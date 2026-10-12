@@ -13,8 +13,8 @@ import pytest
 from fastapi.testclient import TestClient
 from psycopg.types.json import Jsonb
 
-from qarz.application.chat_texts import money, say
-from qarz.domain.files import MAX_FILE_BYTES
+from hiso_box.application.chat_texts import money, say
+from hiso_box.domain.files import MAX_FILE_BYTES
 
 from ..receipt_samples import EXIF, HTML, JPEG, PDF, jpeg
 from .conftest import FakeTelegramFiles, World, as_user, stored_objects

@@ -4,7 +4,7 @@ from datetime import UTC, datetime, timedelta
 
 import pytest
 
-from qarz.domain.support_access import (
+from hiso_box.domain.support_access import (
     ACTIVE,
     CLOSED,
     DEFAULT_HOURS,

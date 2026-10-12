@@ -3,8 +3,8 @@
 #
 #   deploy.sh <git-ref>
 #
-# Environment: DEPLOY_ENV_FILE (default /etc/qarz/production.env), DEPLOY_PROJECT (default qarz),
-# DEPLOY_STATE_DIR (default /var/lib/qarz/deploy). Prints no value from the env file.
+# Environment: DEPLOY_ENV_FILE (default /etc/hiso_box/production.env), DEPLOY_PROJECT (default qarz),
+# DEPLOY_STATE_DIR (default /var/lib/hiso_box/deploy). Prints no value from the env file.
 set -euo pipefail
 # shellcheck source=lib.sh
 . "$(dirname "${BASH_SOURCE[0]}")/lib.sh"

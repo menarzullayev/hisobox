@@ -48,7 +48,7 @@ function door(answer: (sent: Sent) => ReturnType<typeof ok>) {
     <AdminRoot
       initialLanguage="uz"
       fetch={server.fetch}
-      botUsername="qarz_daftari_bot"
+      botUsername="hiso_box_daftari_bot"
       LoginWidget={StubWidget}
       loginReturn={{ status: "none" }}
       now={() => NOW}

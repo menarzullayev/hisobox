@@ -2,7 +2,7 @@ import { createHash, createHmac, randomBytes } from "node:crypto";
 
 /**
  * What Telegram would hand the application, signed with the stack's bot token. The algorithms are the
- * ones `backend/src/qarz/domain/telegram_auth.py` verifies (and `backend/tests/api/conftest.py` signs
+ * ones `backend/src/hiso_box/domain/telegram_auth.py` verifies (and `backend/tests/api/conftest.py` signs
  * with): every field except `hash`, sorted, joined by newlines as `key=value`, then HMAC-SHA256.
  */
 export type Person = {

@@ -1,13 +1,13 @@
-"""Pure rules of the cash book (qarz.domain.cash). No database."""
+"""Pure rules of the cash book (hiso_box.domain.cash). No database."""
 
 from datetime import date, timedelta
 
 import pytest
 
-from qarz.application.cash_feed import default_names
-from qarz.domain import cash
-from qarz.domain.cash import DayProblem, Direction, Line, Method, Sum
-from qarz.domain.money import Currency
+from hiso_box.application.cash_feed import default_names
+from hiso_box.domain import cash
+from hiso_box.domain.cash import DayProblem, Direction, Line, Method, Sum
+from hiso_box.domain.money import Currency
 
 UZS, USD = Currency.UZS, Currency.USD
 IN, OUT = Direction.INCOME, Direction.EXPENSE

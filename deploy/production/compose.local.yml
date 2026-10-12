@@ -7,7 +7,7 @@ services:
     restart: "no"
     environment:
       POSTGRES_USER: postgres
-      POSTGRES_DB: qarz
+      POSTGRES_DB: hiso_box
       POSTGRES_PASSWORD: ${LOCAL_POSTGRES_PASSWORD:?run scripts/local.sh, which generates the env file}
     healthcheck:
       test: ["CMD", "pg_isready", "-h", "127.0.0.1", "-U", "postgres", "-d", "qarz"]
@@ -23,7 +23,7 @@ services:
       db:
         condition: service_healthy
 
-  # The migrations create the roles `qd_app`, `qd_admin` and `qd_worker` without a login; a server gets
+  # The migrations create the roles `hb_app`, `hb_admin` and `hb_worker` without a login; a server gets
   # their passwords from the operator once. Here a one-shot does it, each role with its own.
   local-role:
     image: postgres:16-alpine
@@ -41,9 +41,9 @@ services:
       - |
         psql -q -h db -U postgres -d qarz -v ON_ERROR_STOP=1 \
           -v app="$$LOCAL_APP_PASSWORD" -v admin="$$LOCAL_ADMIN_PASSWORD" -v worker="$$LOCAL_WORKER_PASSWORD" <<'SQL'
-        ALTER ROLE qd_app LOGIN PASSWORD :'app';
-        ALTER ROLE qd_admin LOGIN PASSWORD :'admin';
-        ALTER ROLE qd_worker LOGIN PASSWORD :'worker';
+        ALTER ROLE hb_app LOGIN PASSWORD :'app';
+        ALTER ROLE hb_admin LOGIN PASSWORD :'admin';
+        ALTER ROLE hb_worker LOGIN PASSWORD :'worker';
         SQL
     networks: [egress]
 
@@ -52,14 +52,14 @@ services:
       local-role:
         condition: service_completed_successfully
     volumes:
-      - files:/var/lib/qarz/files
+      - files:/var/lib/hiso_box/files
 
   worker:
     depends_on:
       local-role:
         condition: service_completed_successfully
     volumes:
-      - files:/var/lib/qarz/files
+      - files:/var/lib/hiso_box/files
 
 volumes:
   db: {}

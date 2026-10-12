@@ -12,15 +12,15 @@ export type Scheme = "light" | "dark";
 
 /** The nine base tokens Telegram's theme replaces. */
 export const BASE_TOKENS = [
-  "--qd-bg",
-  "--qd-surface",
-  "--qd-text",
-  "--qd-muted",
-  "--qd-link",
-  "--qd-accent",
-  "--qd-on-accent",
-  "--qd-border",
-  "--qd-focus",
+  "--hb-bg",
+  "--hb-surface",
+  "--hb-text",
+  "--hb-muted",
+  "--hb-link",
+  "--hb-accent",
+  "--hb-on-accent",
+  "--hb-border",
+  "--hb-focus",
 ] as const;
 export type BaseToken = (typeof BASE_TOKENS)[number];
 export type BaseColors = Readonly<Record<BaseToken, string>>;
@@ -32,26 +32,26 @@ export type BaseColors = Readonly<Record<BaseToken, string>>;
  */
 export const DESIGN: Readonly<Record<Scheme, BaseColors>> = {
   light: {
-    "--qd-bg": "#f7f8fc",
-    "--qd-surface": "#ffffff",
-    "--qd-text": "#14162e",
-    "--qd-muted": "#4f5476",
-    "--qd-link": "#4b3fd6",
-    "--qd-accent": "#4b3fd6",
-    "--qd-on-accent": "#ffffff",
-    "--qd-border": "#76829a",
-    "--qd-focus": "#4b3fd6",
+    "--hb-bg": "#f7f8fc",
+    "--hb-surface": "#ffffff",
+    "--hb-text": "#14162e",
+    "--hb-muted": "#4f5476",
+    "--hb-link": "#4b3fd6",
+    "--hb-accent": "#4b3fd6",
+    "--hb-on-accent": "#ffffff",
+    "--hb-border": "#76829a",
+    "--hb-focus": "#4b3fd6",
   },
   dark: {
-    "--qd-bg": "#14152a",
-    "--qd-surface": "#1c1e36",
-    "--qd-text": "#e9ebf5",
-    "--qd-muted": "#a3aac6",
-    "--qd-link": "#8b7cf6",
-    "--qd-accent": "#8b7cf6",
-    "--qd-on-accent": "#14152a",
-    "--qd-border": "#7e8aa0",
-    "--qd-focus": "#a99cf9",
+    "--hb-bg": "#14152a",
+    "--hb-surface": "#1c1e36",
+    "--hb-text": "#e9ebf5",
+    "--hb-muted": "#a3aac6",
+    "--hb-link": "#8b7cf6",
+    "--hb-accent": "#8b7cf6",
+    "--hb-on-accent": "#14152a",
+    "--hb-border": "#7e8aa0",
+    "--hb-focus": "#a99cf9",
   },
 };
 
@@ -103,61 +103,61 @@ function firstThatReads(candidates: readonly string[], last: string, grounds: re
  * `scheme` is what Telegram says its theme is. Without it the ground's own lightness decides.
  */
 export function guardContrast(colors: BaseColors, scheme: Scheme | null = null): BaseColors {
-  const design = DESIGN[scheme ?? (luminance(colors["--qd-bg"]) < DARK_BACKGROUND ? "dark" : "light")];
+  const design = DESIGN[scheme ?? (luminance(colors["--hb-bg"]) < DARK_BACKGROUND ? "dark" : "light")];
 
-  const ownGround = contrast(colors["--qd-text"], colors["--qd-bg"]) >= AA_TEXT;
-  const bg = ownGround ? colors["--qd-bg"] : design["--qd-bg"];
-  const text = ownGround ? colors["--qd-text"] : design["--qd-text"];
+  const ownGround = contrast(colors["--hb-text"], colors["--hb-bg"]) >= AA_TEXT;
+  const bg = ownGround ? colors["--hb-bg"] : design["--hb-bg"];
+  const text = ownGround ? colors["--hb-text"] : design["--hb-text"];
   // The second ground carries the same text: Telegram's, or else the design system's, or else the first.
   const surface = firstThatReads(
-    ownGround ? [colors["--qd-surface"], design["--qd-surface"]] : [design["--qd-surface"]],
+    ownGround ? [colors["--hb-surface"], design["--hb-surface"]] : [design["--hb-surface"]],
     bg,
     [text],
     AA_TEXT,
   );
   const grounds = [bg, surface];
 
-  const muted = firstThatReads([colors["--qd-muted"], design["--qd-muted"]], text, grounds, AA_TEXT);
-  const link = firstThatReads([colors["--qd-link"], design["--qd-link"]], text, grounds, AA_TEXT);
-  const border = firstThatReads([colors["--qd-border"], design["--qd-border"]], text, [bg], AA_NON_TEXT);
-  const focus = firstThatReads([colors["--qd-focus"], design["--qd-focus"]], text, [bg], AA_NON_TEXT);
+  const muted = firstThatReads([colors["--hb-muted"], design["--hb-muted"]], text, grounds, AA_TEXT);
+  const link = firstThatReads([colors["--hb-link"], design["--hb-link"]], text, grounds, AA_TEXT);
+  const border = firstThatReads([colors["--hb-border"], design["--hb-border"]], text, [bg], AA_NON_TEXT);
+  const focus = firstThatReads([colors["--hb-focus"], design["--hb-focus"]], text, [bg], AA_NON_TEXT);
 
   // A button: its label on it, and the button itself against the page. The last resort is the page's
   // own text and ground the other way round, which the first rule made readable.
   const buttons: readonly (readonly [accent: string, onAccent: string])[] = [
-    [colors["--qd-accent"], colors["--qd-on-accent"]],
-    [design["--qd-accent"], design["--qd-on-accent"]],
+    [colors["--hb-accent"], colors["--hb-on-accent"]],
+    [design["--hb-accent"], design["--hb-on-accent"]],
   ];
   const [accent, onAccent] = buttons.find(
     ([ground, label]) => contrast(label, ground) >= AA_TEXT && contrast(ground, bg) >= AA_NON_TEXT,
   ) ?? [text, bg];
 
   return {
-    "--qd-bg": bg,
-    "--qd-surface": surface,
-    "--qd-text": text,
-    "--qd-muted": muted,
-    "--qd-link": link,
-    "--qd-accent": accent,
-    "--qd-on-accent": onAccent,
-    "--qd-border": border,
-    "--qd-focus": focus,
+    "--hb-bg": bg,
+    "--hb-surface": surface,
+    "--hb-text": text,
+    "--hb-muted": muted,
+    "--hb-link": link,
+    "--hb-accent": accent,
+    "--hb-on-accent": onAccent,
+    "--hb-border": border,
+    "--hb-focus": focus,
   };
 }
 
 /** The pairs `guardContrast` promises and a set of colors does not keep (the tests ask). */
 export function failingPairs(colors: BaseColors): string[] {
   const pairs: readonly (readonly [BaseToken, BaseToken, number])[] = [
-    ["--qd-text", "--qd-bg", AA_TEXT],
-    ["--qd-text", "--qd-surface", AA_TEXT],
-    ["--qd-muted", "--qd-bg", AA_TEXT],
-    ["--qd-muted", "--qd-surface", AA_TEXT],
-    ["--qd-link", "--qd-bg", AA_TEXT],
-    ["--qd-link", "--qd-surface", AA_TEXT],
-    ["--qd-on-accent", "--qd-accent", AA_TEXT],
-    ["--qd-accent", "--qd-bg", AA_NON_TEXT],
-    ["--qd-border", "--qd-bg", AA_NON_TEXT],
-    ["--qd-focus", "--qd-bg", AA_NON_TEXT],
+    ["--hb-text", "--hb-bg", AA_TEXT],
+    ["--hb-text", "--hb-surface", AA_TEXT],
+    ["--hb-muted", "--hb-bg", AA_TEXT],
+    ["--hb-muted", "--hb-surface", AA_TEXT],
+    ["--hb-link", "--hb-bg", AA_TEXT],
+    ["--hb-link", "--hb-surface", AA_TEXT],
+    ["--hb-on-accent", "--hb-accent", AA_TEXT],
+    ["--hb-accent", "--hb-bg", AA_NON_TEXT],
+    ["--hb-border", "--hb-bg", AA_NON_TEXT],
+    ["--hb-focus", "--hb-bg", AA_NON_TEXT],
   ];
   return pairs
     .filter(([foreground, background, threshold]) => contrast(colors[foreground], colors[background]) < threshold)

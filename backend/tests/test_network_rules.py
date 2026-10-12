@@ -1,4 +1,4 @@
-"""The rules of the network between shops that need no storage (qarz.domain.network; BR-80 to BR-96).
+"""The rules of the network between shops that need no storage (hiso_box.domain.network; BR-80 to BR-96).
 
 Each step belongs to one side and one state: the table of each machine is written out here, and every
 combination that is not in it is refused.
@@ -10,10 +10,10 @@ from itertools import product
 
 import pytest
 
-from qarz.domain import catalog, permissions
-from qarz.domain import network as n
-from qarz.domain.access import Role
-from qarz.domain.money import Currency
+from hiso_box.domain import catalog, permissions
+from hiso_box.domain import network as n
+from hiso_box.domain.access import Role
+from hiso_box.domain.money import Currency
 
 
 def test_a_link_is_answered_once_by_the_shop_that_invited_and_ended_by_either() -> None:

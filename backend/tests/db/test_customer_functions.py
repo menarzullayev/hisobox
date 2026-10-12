@@ -63,7 +63,7 @@ def _status(owner: psycopg.Connection, link_id: uuid.UUID) -> Any:
 @pytest.mark.parametrize("function", FUNCTIONS)
 def test_only_the_application_role_may_call_them(owner: psycopg.Connection, function: str) -> None:
     row = owner.execute(
-        "SELECT has_function_privilege('qd_app', %s, 'EXECUTE'), has_function_privilege('public', %s, 'EXECUTE'), "
+        "SELECT has_function_privilege('hb_app', %s, 'EXECUTE'), has_function_privilege('public', %s, 'EXECUTE'), "
         "(SELECT prosecdef FROM pg_proc WHERE oid = %s::regprocedure)",
         (function, function, function),
     ).fetchone()
@@ -215,7 +215,7 @@ def test_the_customer_page_functions_are_for_the_application_role_only(
     owner: psycopg.Connection, function: str
 ) -> None:
     row = owner.execute(
-        "SELECT has_function_privilege('qd_app', %s, 'EXECUTE'), has_function_privilege('public', %s, 'EXECUTE')",
+        "SELECT has_function_privilege('hb_app', %s, 'EXECUTE'), has_function_privilege('public', %s, 'EXECUTE')",
         (function, function),
     ).fetchone()
     assert row == (True, False)
@@ -268,7 +268,7 @@ def test_the_reminder_schedule_function_returns_only_shops_that_should_be_served
     owner: psycopg.Connection, as_worker: AppSession, shop_a: Shop, shop_b: Shop
 ) -> None:
     row = owner.execute(
-        "SELECT has_function_privilege('qd_worker', 'shops_due_for_reminders(smallint)', 'EXECUTE'), "
+        "SELECT has_function_privilege('hb_worker', 'shops_due_for_reminders(smallint)', 'EXECUTE'), "
         "has_function_privilege('public', 'shops_due_for_reminders(smallint)', 'EXECUTE')"
     ).fetchone()
     assert row == (True, False)
@@ -300,7 +300,7 @@ def test_the_subscription_review_function_is_for_the_worker_role_and_lists_only_
     owner: psycopg.Connection, as_worker: AppSession, shop_a: Shop, shop_b: Shop
 ) -> None:
     row = owner.execute(
-        "SELECT has_function_privilege('qd_worker', 'subscriptions_to_review(date)', 'EXECUTE'), "
+        "SELECT has_function_privilege('hb_worker', 'subscriptions_to_review(date)', 'EXECUTE'), "
         "has_function_privilege('public', 'subscriptions_to_review(date)', 'EXECUTE')"
     ).fetchone()
     assert row == (True, False)

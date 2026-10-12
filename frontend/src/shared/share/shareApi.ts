@@ -3,7 +3,7 @@ import { reading, type ShopApi } from "../api";
 /**
  * A customer's secret read-only link, for managers and owners (the expansion of 2026-10-09, module B).
  * Built on the shop API's `send` in a module that is loaded apart, so none of it is part of the first
- * load. Shapes follow backend/src/qarz/application/customer_shares.py.
+ * load. Shapes follow backend/src/hiso_box/application/customer_shares.py.
  *
  * All of it is behind a platform switch. While the switch is off every call here is answered 404, the
  * same as for a route that does not exist, and the sections show nothing: they appear only once the
@@ -33,7 +33,7 @@ export type IssuedShare = { token: string | null; expiresAt: string };
 
 export type ShareContact = { phone: string | null };
 
-// 32 random bytes in the URL-safe alphabet (backend/src/qarz/domain/customer_share.py).
+// 32 random bytes in the URL-safe alphabet (backend/src/hiso_box/domain/customer_share.py).
 const TOKEN_SHAPE = /^[A-Za-z0-9_-]{43}$/;
 
 /** The address to hand to the customer. Anything that is not a token is refused, so no other text ends up in a link. */

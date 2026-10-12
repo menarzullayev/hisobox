@@ -177,7 +177,7 @@ Not part of the 7 hours 3 minutes above. The founder took further decisions and 
 |---|---|---|
 | #105 | Leftovers that needed no decision (line-by-line check of a delivery note, phone bottom navigation at 200 % text, searchable pickers, a lock for the dollars setting, the remaining two-language tables) | 0047 |
 | #106 | Advances accepted behind a per-shop setting; a delivery note whose issuer has left is posted in the owner's name; switching the free plan off is previewed and announced | 0048 |
-| #107 | One definition of the product's name (`backend/src/qarz/domain/brand.json`) and the name HisoBox, with a mark chosen by the founder; the `single-host` flake fixed | - |
+| #107 | One definition of the product's name (`backend/src/hiso_box/domain/brand.json`) and the name HisoBox, with a mark chosen by the founder; the `single-host` flake fixed | - |
 | #108 | A sale for cash without a customer | 0049 |
 
 `main` was at `f205323`, migration 0049, when this table was written, and was not deployed then: the CI
@@ -188,7 +188,7 @@ What has happened since:
 
 - **Production was deployed on 2026-10-09 at migration 0049** (it had run `2c638ba`, migration 0037). Every
   switch of the expansion stayed off.
-- **The public host moved to `hisobox.bugvector.uz`**; `qarz.bugvector.uz` answers with a 302 to it.
+- **The public host moved to `hiso_box.bugvector.uz`**; `qarz.bugvector.uz` answers with a 302 to it.
 - **#110 is merged:** the local stack's teardown (`deploy/production/scripts/local.sh down`) removes only
   the images of its own release, so it no longer takes the images production runs, or its rollback
   images, with it (item 2 of the list below).
@@ -209,7 +209,7 @@ In this order, one agent at a time, each told not to start helpers:
    production; every switch stays off.
 2. **`e2e/stack.sh down` removes every tag of the images production uses** (the rollback images too) when
    run on the production machine. Make it remove only what it built. Small; before the next local e2e run.
-3. **The new bot and address:** `@hisoboxbot`, `hisobox.bugvector.uz` (the old address redirects), the two
+3. **The new bot and address:** `@hisoboxbot`, `hiso_box.bugvector.uz` (the old address redirects), the two
    Telegram groups renamed. The founder has yet to say who creates the bot.
 4. **Village shops** (switch `village_on`): family members under a customer with "who took it" on an entry,
    no limit per member; reminders to the head of the household naming the member; a shop's own list of
@@ -279,7 +279,7 @@ Nothing was deployed and nothing was imported into production.
   "not found: add by hand" opens the form there always was. All texts are in six languages. Tajik and
   Karakalpak were written by a model, as before, and wait for the same review
   (`docs/10-operations/translation-review.md`).
-- **Twenty-one categories** (`qarz.domain.shared_catalog.CATEGORIES`), each named in six languages in the
+- **Twenty-one categories** (`hiso_box.domain.shared_catalog.CATEGORIES`), each named in six languages in the
   client. The import maps the seed's own sections to them; a section it does not know is "other".
 
 ### Loading the seed
@@ -288,9 +288,9 @@ The seed is not in the repository and must stay out of it: `source.json` (the ro
 sixteen-digit key), `categories.json` (which section is which category) and `img/<key>.png|jpg|webp`. A
 row without a photo file is an item without a photo.
 
-    python -m qarz.interface.import_shared_catalog DIRECTORY
+    python -m hiso_box.interface.import_shared_catalog DIRECTORY
 
-It connects with `QD_ADMIN_DATABASE_URL` and writes photos to the file store the environment names. It is
+It connects with `HB_ADMIN_DATABASE_URL` and writes photos to the file store the environment names. It is
 not a migration and CI does not run it. Running it again adds nothing: a row is known by its key; names,
 sizes, categories and prices are brought up to date; a photo already kept is not sent again; and an item
 keeps its photo when a later run finds no file for it. It turns no switch on.
@@ -407,9 +407,9 @@ file would read as "this table is now empty", the import refuses to start unless
 The seed is not in the repository and must stay out of it: `regions.csv`, `districts.csv`,
 `mahallas.csv` and `streets.csv`, comma-separated, UTF-8 (a byte order mark is accepted).
 
-    python -m qarz.interface.import_territories DIRECTORY
+    python -m hiso_box.interface.import_territories DIRECTORY
 
-It connects with `QD_ADMIN_DATABASE_URL`. It is not a migration and CI does not run it. Running it again
+It connects with `HB_ADMIN_DATABASE_URL`. It is not a migration and CI does not run it. Running it again
 adds nothing and brings names up to date. It prints counts and no row, and turns no switch on. Run
 against a scratch database on the development machine, twice, it reported: 14 regions, 206 districts,
 9 442 mahallas (8 326 of them with a region and no district) and 298 streets added and nothing skipped
@@ -468,7 +468,7 @@ same attribution is in the repository's `README.md`.
 
 ## The administrators' second factor can be switched off (10 October 2026)
 
-A setting of the deployment, `QD_ADMIN_SECOND_FACTOR`, read from the environment when the API starts:
+A setting of the deployment, `HB_ADMIN_SECOND_FACTOR`, read from the environment when the API starts:
 `required` (the default) or `off`. No migration. One pull request, nothing deployed, and the setting is
 `required` in every file of the repository.
 
@@ -491,7 +491,7 @@ lost by going back: the secrets stay stored and `required` restores the codes wi
 
 - **The setting.** `Settings.admin_second_factor` and `second_factor_required()`; the API reads it at
   start whether or not it serves administrators, and a value that is neither `required` nor `off`
-  refuses to start. It is in both env examples, in `compose.yml` (`${QD_ADMIN_SECOND_FACTOR:-required}`)
+  refuses to start. It is in both env examples, in `compose.yml` (`${HB_ADMIN_SECOND_FACTOR:-required}`)
   and in the file `single-host.sh env-init` writes (`required`).
 - **Off.** `AdminAccess` lets an administrator with a confirmed second factor through with no admin
   session, and `check_code` judges nothing for them. The door's status answers `elevated: true` and
@@ -504,7 +504,7 @@ lost by going back: the secrets stay stored and `required` restores the codes wi
 - **Visible.** A warning in the API's log at start; `second_factor: off` in the audit detail of every
   setting changed without a code, and a row `shop.owner_reassigned_without_code` beside the row of a
   replaced owner (the audit is insert-only and the database writes that row itself); a permanent notice
-  on the settings screen in the six languages; the gauge `qd_admin_second_factor_off` in `/metrics`, and
+  on the settings screen in the six languages; the gauge `hb_admin_second_factor_off` in `/metrics`, and
   the rule `AdminSecondFactorOff` of the worker's watch, said at once and every four hours while it
   stays.
 - **The panel.** It reads what the server says and guesses nothing: no code field on the settings
@@ -559,7 +559,7 @@ same holds for whoever learns the password.
   the second factor is `required`, that includes the code.
 - **Commands**, on the server only:
 
-      single-host.sh admin-key create <telegram-id> <label>    # writes ~/.qarz/admin-key.<label>, prints no key
+      single-host.sh admin-key create <telegram-id> <label>    # writes ~/.hiso_box/admin-key.<label>, prints no key
       single-host.sh admin-key list
       single-host.sh admin-key revoke <label>
       single-host.sh admin-password <telegram-id> <login>      # typed on the terminal, twice
@@ -572,7 +572,7 @@ same holds for whoever learns the password.
 - **Migration 0053.** `admin_passkey` holds a credential's identifier, its public key as the browser
   gives it and the algorithm, the device's own count of signatures, a label, and when it was ended. The
   administrators' role alone reads and writes it; nothing is ever deleted from it.
-- **A deployment setting, `QD_PASSKEY_HOST`**: the bare host name passkeys are made for (a passkey
+- **A deployment setting, `HB_PASSKEY_HOST`**: the bare host name passkeys are made for (a passkey
   belongs to one site). Empty, the default: there are no passkeys and their routes do not exist. Anything
   that is not a bare host name refuses to start. On the single host it is the same name as
   `DEPLOY_PUBLIC_HOST`.

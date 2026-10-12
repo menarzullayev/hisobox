@@ -1,7 +1,7 @@
 """The database stores exactly the languages the application accepts (migration 0044).
 
 A person's choice, a shop's language and the language recorded for a customer are each one of the six
-tags of `qarz.domain.languages.LANGUAGES`, and nothing else.
+tags of `hiso_box.domain.languages.LANGUAGES`, and nothing else.
 """
 
 import re
@@ -10,7 +10,7 @@ import psycopg
 import pytest
 from psycopg import errors
 
-from qarz.domain.languages import LANGUAGES
+from hiso_box.domain.languages import LANGUAGES
 
 from ..conftest import Shop
 

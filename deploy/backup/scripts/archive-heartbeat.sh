@@ -12,6 +12,6 @@ set -euo pipefail
 . "$(dirname "${BASH_SOURCE[0]}")/lib.sh"
 need psql
 
-psql -X -qAt -v ON_ERROR_STOP=1 -U "$QD_PGUSER" -d postgres -c "
-    select pg_logical_emit_message(true, 'qd-archive-heartbeat', '')
+psql -X -qAt -v ON_ERROR_STOP=1 -U "$HB_PGUSER" -d postgres -c "
+    select pg_logical_emit_message(true, 'hb-archive-heartbeat', '')
      where not pg_is_in_recovery()" > /dev/null

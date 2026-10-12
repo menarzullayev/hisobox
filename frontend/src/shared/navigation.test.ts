@@ -19,9 +19,10 @@ const ids = (role: Parameters<typeof staffSections>[0]) => staffSections(role).m
 // A seller reads the catalog (technical specification: "Manager, owner; sellers read"), and a manager
 // reads the shop settings that only the owner changes (the server's READ_SHOP capability).
 const SELLER = ["overview", "customers", "newEntry", "catalog"];
-const MANAGER = [...SELLER, "reminders", "reports", "disputes", "importExport", "shopSettings"];
+const MANAGER = [...SELLER, "payables", "reminders", "reports", "disputes", "importExport", "shopSettings"];
 const OWNER = [
   ...SELLER,
+  "payables",
   "reminders",
   "reports",
   "disputes",

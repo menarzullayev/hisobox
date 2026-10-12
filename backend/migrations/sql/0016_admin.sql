@@ -23,8 +23,8 @@ CREATE TABLE admin_session (
   CHECK (expires_at <= created_at + interval '8 hours')  -- specification: "session valid 8 hours"
 );
 CREATE INDEX admin_session_user ON admin_session (user_id);
-REVOKE ALL ON admin_session FROM qd_app;
-GRANT SELECT, INSERT, UPDATE ON admin_session TO qd_app;
+REVOKE ALL ON admin_session FROM hb_app;
+GRANT SELECT, INSERT, UPDATE ON admin_session TO hb_app;
 
 -- Every administrator action (REQ-058). Insert-only for the application, like the ledger: the role that
 -- serves the administrator can add and read rows but can never change or remove one.
@@ -43,8 +43,8 @@ CREATE TABLE admin_audit (
 );
 CREATE INDEX admin_audit_time ON admin_audit (at DESC, id DESC);
 CREATE INDEX admin_audit_shop ON admin_audit (target_shop, at DESC) WHERE target_shop IS NOT NULL;
-REVOKE ALL ON admin_audit FROM qd_app;
-GRANT SELECT, INSERT ON admin_audit TO qd_app;
+REVOKE ALL ON admin_audit FROM hb_app;
+GRANT SELECT, INSERT ON admin_audit TO hb_app;
 
 -- Idempotency for administrator writes (ADR-006). `request_key` belongs to a shop; these belong to the
 -- administrator who made the request.
@@ -59,8 +59,8 @@ CREATE TABLE admin_request_key (
   PRIMARY KEY (admin_id, key)
 );
 CREATE INDEX admin_request_key_shop ON admin_request_key (about_shop) WHERE about_shop IS NOT NULL;
-REVOKE ALL ON admin_request_key FROM qd_app;
-GRANT SELECT, INSERT, DELETE ON admin_request_key TO qd_app;
+REVOKE ALL ON admin_request_key FROM hb_app;
+GRANT SELECT, INSERT, DELETE ON admin_request_key TO hb_app;
 
 -- ---------------------------------------------------------------------------
 -- Cross-tenant functions. The application role sees no shop without a tenant, so what an administrator
@@ -71,7 +71,7 @@ GRANT SELECT, INSERT, DELETE ON admin_request_key TO qd_app;
 
 -- Shops with their subscription, the owner's Telegram identifier and two counts. `p_state` filters by
 -- what applies on `p_today` (a period includes its last day), which must agree with
--- qarz.domain.subscription.effective_state; tests/db/test_admin_functions.py compares the two.
+-- hiso_box.domain.subscription.effective_state; tests/db/test_admin_functions.py compares the two.
 -- `p_shop` narrows to one shop. Newest first, paged by the last row's (created_at, shop_id).
 CREATE FUNCTION admin_shop_search(
   p_admin uuid, p_today date, p_query text, p_state text, p_shop uuid,
@@ -186,10 +186,10 @@ REVOKE ALL ON FUNCTION admin_shop_search(uuid, date, text, text, uuid, timestamp
 REVOKE ALL ON FUNCTION admin_shop_receipts(uuid, uuid) FROM PUBLIC;
 REVOKE ALL ON FUNCTION admin_lock_subscription(uuid, uuid) FROM PUBLIC;
 REVOKE ALL ON FUNCTION admin_store_subscription(uuid, uuid, text, date, date, text, timestamptz) FROM PUBLIC;
-GRANT EXECUTE ON FUNCTION admin_shop_search(uuid, date, text, text, uuid, timestamptz, uuid, integer) TO qd_app;
-GRANT EXECUTE ON FUNCTION admin_shop_receipts(uuid, uuid) TO qd_app;
-GRANT EXECUTE ON FUNCTION admin_lock_subscription(uuid, uuid) TO qd_app;
-GRANT EXECUTE ON FUNCTION admin_store_subscription(uuid, uuid, text, date, date, text, timestamptz) TO qd_app;
+GRANT EXECUTE ON FUNCTION admin_shop_search(uuid, date, text, text, uuid, timestamptz, uuid, integer) TO hb_app;
+GRANT EXECUTE ON FUNCTION admin_shop_receipts(uuid, uuid) TO hb_app;
+GRANT EXECUTE ON FUNCTION admin_lock_subscription(uuid, uuid) TO hb_app;
+GRANT EXECUTE ON FUNCTION admin_store_subscription(uuid, uuid, text, date, date, text, timestamptz) TO hb_app;
 
 -- Erasing a shop erases the stored answers of administrator requests about it too: the function of
 -- 0019 with one more table. The audit keeps its rows; they name the shop only by its identifier.

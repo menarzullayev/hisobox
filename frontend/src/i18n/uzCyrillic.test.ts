@@ -10,7 +10,7 @@ import { BRANDS, CODES, PRODUCT, STEMS, toCyrillic, UPPER_WORDS, WORDS } from ".
 
 /**
  * Uzbek Cyrillic is made, not typed: this is the rule that makes it. The cases and the tables are in one
- * file that the server's twin (`backend/src/qarz/domain/uz_cyrillic.py`) is held to as well, so the bot
+ * file that the server's twin (`backend/src/hiso_box/domain/uz_cyrillic.py`) is held to as well, so the bot
  * and the screens write the same word the same way.
  */
 type Fixture = {
@@ -63,9 +63,9 @@ describe("what is never touched", () => {
     ["{count}", "a placeholder"],
     ["/obuna", "a bot command"],
     ["/start", "a bot command"],
-    ["https://t.me/qarz_bot?start=abc", "a link"],
-    ["yordam@qarz.uz", "an e-mail address"],
-    ["@qarz_bot", "a Telegram name"],
+    ["https://t.me/hiso_box_bot?start=abc", "a link"],
+    ["yordam@hiso_box.uz", "an e-mail address"],
+    ["@hiso_box_bot", "a Telegram name"],
     [BRAND_NAME, "the product's name"],
     ["Telegram", "a brand"],
     ["Excel", "a brand"],

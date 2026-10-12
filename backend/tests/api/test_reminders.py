@@ -17,13 +17,13 @@ import psycopg
 import pytest
 from fastapi.testclient import TestClient
 
-from qarz.application.chat_texts import money, say
-from qarz.application.reminders import ReminderService
-from qarz.application.scheduler import Scheduler
-from qarz.domain.languages import LANGUAGES
-from qarz.domain.promise import TASHKENT, tashkent_date
-from qarz.domain.uz_cyrillic import to_cyrillic
-from qarz.infrastructure.db import Database
+from hiso_box.application.chat_texts import money, say
+from hiso_box.application.reminders import ReminderService
+from hiso_box.application.scheduler import Scheduler
+from hiso_box.domain.languages import LANGUAGES
+from hiso_box.domain.promise import TASHKENT, tashkent_date
+from hiso_box.domain.uz_cyrillic import to_cyrillic
+from hiso_box.infrastructure.db import Database
 
 from .conftest import World, as_user
 from .test_customers_ledger import key, seed_customer, shop

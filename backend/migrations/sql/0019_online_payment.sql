@@ -25,12 +25,12 @@ CREATE TABLE online_payment (
 );
 CREATE INDEX online_payment_shop ON online_payment (shop_id, created_at DESC);
 
-GRANT SELECT, INSERT, UPDATE ON online_payment TO qd_app;
+GRANT SELECT, INSERT, UPDATE ON online_payment TO hb_app;
 ALTER TABLE online_payment ENABLE ROW LEVEL SECURITY;
 ALTER TABLE online_payment FORCE ROW LEVEL SECURITY;
 CREATE POLICY tenant ON online_payment
-  USING (shop_id = nullif(current_setting('qd.shop_id', true), '')::uuid)
-  WITH CHECK (shop_id = nullif(current_setting('qd.shop_id', true), '')::uuid);
+  USING (shop_id = nullif(current_setting('hb.shop_id', true), '')::uuid)
+  WITH CHECK (shop_id = nullif(current_setting('hb.shop_id', true), '')::uuid);
 
 -- A provider names an order or its own transaction, not a shop. These two answer only "which shop",
 -- so that the rest is done inside that shop's row-level security like everything else.
@@ -58,9 +58,9 @@ $$;
 REVOKE ALL ON FUNCTION online_payment_shop(uuid) FROM PUBLIC;
 REVOKE ALL ON FUNCTION online_payment_shop_by_txn(text, text) FROM PUBLIC;
 REVOKE ALL ON FUNCTION payme_statement(bigint, bigint) FROM PUBLIC;
-GRANT EXECUTE ON FUNCTION online_payment_shop(uuid) TO qd_app;
-GRANT EXECUTE ON FUNCTION online_payment_shop_by_txn(text, text) TO qd_app;
-GRANT EXECUTE ON FUNCTION payme_statement(bigint, bigint) TO qd_app;
+GRANT EXECUTE ON FUNCTION online_payment_shop(uuid) TO hb_app;
+GRANT EXECUTE ON FUNCTION online_payment_shop_by_txn(text, text) TO hb_app;
+GRANT EXECUTE ON FUNCTION payme_statement(bigint, bigint) TO hb_app;
 
 -- Erasing a shop erases its orders too: the function of 0017 with one more table.
 CREATE OR REPLACE FUNCTION erase_shop(p_shop_id uuid) RETURNS boolean

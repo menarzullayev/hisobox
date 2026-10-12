@@ -10,7 +10,7 @@
 #   single-host-proof.sh down    remove the containers, networks, volumes, images and generated files
 #   single-host-proof.sh all     up, run, down (down also when run fails)
 #
-# Project `qd-single-proof`; no port is published. Everything generated is in
+# Project `hb-single-proof`; no port is published. Everything generated is in
 # deploy/production/.local-single/ (ignored by git). Commands for the containers are written in single
 # quotes on purpose.
 # shellcheck disable=SC2016
@@ -19,7 +19,7 @@ set -euo pipefail
 PROOF_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 LOCAL_DIR="${LOCAL_DIR:-$PROOF_DIR/.local-single}"
 export DEPLOY_ENV_FILE="$LOCAL_DIR/proof.env"
-export DEPLOY_PROJECT="${DEPLOY_PROJECT:-qd-single-proof}"
+export DEPLOY_PROJECT="${DEPLOY_PROJECT:-hb-single-proof}"
 export DEPLOY_STATE_DIR="$LOCAL_DIR/state"
 export DEPLOY_COMPOSE_OVERLAY="$PROOF_DIR/compose.single-host.yml"
 export DEPLOY_COMPOSE_OVERLAY_EXTRA="$PROOF_DIR/compose.single-host.proof.yml"
@@ -38,8 +38,8 @@ for candidate in python3 python; do
 done
 
 case "$DEPLOY_PROJECT" in
-  qd-single-*) ;;
-  *) die "the proof runs only under a project named qd-single-*: it removes that project's volumes" ;;
+  hb-single-*) ;;
+  *) die "the proof runs only under a project named hb-single-*: it removes that project's volumes" ;;
 esac
 
 # docker compose for the proof. Arguments that look like paths belong to the containers, so Git Bash on
@@ -67,25 +67,25 @@ DEPLOY_PUBLIC_HOST=qarz.proof.test
 CLOUDFLARE_TUNNEL_TOKEN=proof-not-a-token
 # The stand-in for R2 inside the Compose network.
 DEPLOY_R2_ENDPOINT=r2
-DEPLOY_R2_BUCKET=qd-proof
+DEPLOY_R2_BUCKET=hb-proof
 DEPLOY_R2_ACCESS_KEY_ID=proof$(openssl rand -hex 6)
 DEPLOY_R2_SECRET_ACCESS_KEY=$(openssl rand -hex 20)
 DEPLOY_BACKUP_PASSPHRASE=$(openssl rand -hex 32)
-VITE_BOT_USERNAME=qd_local_proof_bot
+VITE_BOT_USERNAME=hb_local_proof_bot
 VITE_PUBLIC_ORIGIN=https://qarz.proof.test
-QD_MIGRATION_URL=postgresql://postgres:$(openssl rand -hex 24)@db:5432/qarz
-QD_DATABASE_URL=postgresql://qd_app:$(openssl rand -hex 24)@db:5432/qarz
-QD_ADMIN_DATABASE_URL=postgresql://qd_admin:$(openssl rand -hex 24)@db:5432/qarz
-QD_WORKER_DATABASE_URL=postgresql://qd_worker:$(openssl rand -hex 24)@db:5432/qarz
+HB_MIGRATION_URL=postgresql://postgres:$(openssl rand -hex 24)@db:5432/hiso_box
+HB_DATABASE_URL=postgresql://hb_app:$(openssl rand -hex 24)@db:5432/hiso_box
+HB_ADMIN_DATABASE_URL=postgresql://hb_admin:$(openssl rand -hex 24)@db:5432/hiso_box
+HB_WORKER_DATABASE_URL=postgresql://hb_worker:$(openssl rand -hex 24)@db:5432/hiso_box
 # Not a bot: a string of the right shape, so that the API serves its routes. Nothing is sent with it.
-QD_BOT_TOKEN=1000000000:$(openssl rand -hex 18)
-QD_WEBHOOK_SECRET=$(openssl rand -hex 24)
-QD_SECRETS_KEY=$(openssl rand -base64 32)
-QD_ADMIN_TG_IDS=1
-QD_METRICS_TOKEN=$(openssl rand -hex 16)
+HB_BOT_TOKEN=1000000000:$(openssl rand -hex 18)
+HB_WEBHOOK_SECRET=$(openssl rand -hex 24)
+HB_SECRETS_KEY=$(openssl rand -base64 32)
+HB_ADMIN_TG_IDS=1
+HB_METRICS_TOKEN=$(openssl rand -hex 16)
 # Not a chat: a number of the right shape, so that the watch has somebody to tell. Every way out of
 # the stack is closed, so nothing is sent; the proof reads what the watch recorded.
-QD_ALERT_CHAT_IDS=-1001000000001
+HB_ALERT_CHAT_IDS=-1001000000001
 EOF
   )
 }
@@ -102,7 +102,7 @@ up() {
   dc up --detach --wait --wait-timeout 120 r2
   # A key limited to its bucket cannot create one (env.sh tells rclone not to try); here the key is the
   # stand-in's own administrator, and the proof says so for this one command.
-  dc run --rm --no-deps backup bash -c '. /opt/qarz-single/env.sh; qd_rclone_env; RCLONE_CONFIG_QDR2_NO_CHECK_BUCKET=false rc mkdir "qdr2:$QD_R2_BUCKET"'
+  dc run --rm --no-deps backup bash -c '. /opt/hiso-box-single/env.sh; hb_rclone_env; RCLONE_CONFIG_QDR2_NO_CHECK_BUCKET=false rc mkdir "qdr2:$HB_R2_BUCKET"'
   single up "$RELEASE"
 }
 
@@ -181,13 +181,13 @@ wait_for_sql() {
   done
   return 1
 }
-job() { dc exec -T backup /opt/qarz-single/job.sh "$@"; }
+job() { dc exec -T backup /opt/hiso-box-single/job.sh "$@"; }
 in_tunnel() { dc exec -T cloudflared "$@"; }
 # docker, with arguments that are paths inside a container.
 docker_in() { MSYS_NO_PATHCONV=1 docker "$@"; }
 proxy_log() { dc logs --no-log-prefix --no-color proxy 2>/dev/null; }
 # What the bucket holds, as it is: names and bytes, without the passphrase.
-bucket() { dc exec -T backup bash -c '. /opt/qarz-single/env.sh; qd_rclone_env; '"$1"; }
+bucket() { dc exec -T backup bash -c '. /opt/hiso-box-single/env.sh; hb_rclone_env; '"$1"; }
 
 # Close the current WAL segment and wait until the bucket has it.
 archive_now() {
@@ -210,7 +210,7 @@ wait_for() { # wait_for SECONDS COMMAND...
 }
 
 fingerprint() { # what must be the same after a restore
-  sql "select (select version_num from alembic_version) || ' markers ' || (select count(*) || ':' || coalesce(md5(string_agg(label, ',' order by id)), '') from qd_proof_marker) || ' entries ' || (select count(*) || ':' || coalesce(sum(amount), 0) from ledger_entry) || ' debts ' || (select count(*) from open_debt)"
+  sql "select (select version_num from alembic_version) || ' markers ' || (select count(*) || ':' || coalesce(md5(string_agg(label, ',' order by id)), '') from hb_proof_marker) || ' entries ' || (select count(*) || ':' || coalesce(sum(amount), 0) from ledger_entry) || ' debts ' || (select count(*) from open_debt)"
 }
 
 run() {
@@ -314,16 +314,16 @@ r = c.getresponse(); print(r.status, r.getheader("Location") or "")' "$marker" "
   expect "the access log has the caller's real address ($api_address) as both the address and the peer" \
     bash -c '[ -n "$1" ] && [ "$1" = "$2" ] && [ "$1" = "$3" ]' _ "$api_address" "$logged_address" "$logged_peer"
   expect "the proxy refuses to start when told to believe a whole network" \
-    refuses docker_in run --rm --network none -e QD_TUNNEL_PEER=10.99.240.0/28 \
-    --entrypoint /usr/local/bin/qd-single-host-proxy "$(proxy_image "$RELEASE")"
+    refuses docker_in run --rm --network none -e HB_TUNNEL_PEER=10.99.240.0/28 \
+    --entrypoint /usr/local/bin/hb-single-host-proxy "$(proxy_image "$RELEASE")"
 
   # ---------------------------------------------------------------------------------------------
   section "5. The schedule: its own first run, and its calendar"
   expect "without being asked, the scheduler took a full backup, ran the restore test, expired and wrote the monthly dump" \
-    wait_for 240 dc exec -T backup bash -c 'for j in full restore-test expire monthly; do [ -s "/var/lib/qarz-backup/scheduler/$j.done" ] || exit 1; done'
+    wait_for 240 dc exec -T backup bash -c 'for j in full restore-test expire monthly; do [ -s "/var/lib/hiso-box-backup/scheduler/$j.done" ] || exit 1; done'
   dc logs --no-log-prefix --no-color backup 2>/dev/null | grep '"event":"scheduler_job"' | sed 's/^/      /' | tail -n 8 || true
   local slots
-  slots="$(dc exec -T backup bash -c '/opt/qarz-single/scheduler.sh slots "$(date -d "2026-10-08 12:00" +%s)" | cut -d" " -f1,3-; echo --; /opt/qarz-single/scheduler.sh slots "$(date -d "2026-10-04 01:29" +%s)" | cut -d" " -f1,3-; echo --; /opt/qarz-single/scheduler.sh slots "$(date -d "2026-10-01 04:29" +%s)" | grep monthly | cut -d" " -f1,3-' | tr -d '\r')"
+  slots="$(dc exec -T backup bash -c '/opt/hiso-box-single/scheduler.sh slots "$(date -d "2026-10-08 12:00" +%s)" | cut -d" " -f1,3-; echo --; /opt/hiso-box-single/scheduler.sh slots "$(date -d "2026-10-04 01:29" +%s)" | cut -d" " -f1,3-; echo --; /opt/hiso-box-single/scheduler.sh slots "$(date -d "2026-10-01 04:29" +%s)" | grep monthly | cut -d" " -f1,3-' | tr -d '\r')"
   while IFS= read -r line; do echo "      $line"; done <<< "$slots"
   expect "Thursday 8 October at noon: full of Sunday, differential of today, restore test of Wednesday, monthly of the 1st" \
     bash -c '[ "$(sed -n "1,5p" <<< "$1" | tr "\n" "|")" = "full Sun 2026-10-04 01:30 +05|diff Thu 2026-10-08 01:30 +05|restore-test Wed 2026-10-07 02:30 +05|expire Thu 2026-10-08 03:30 +05|monthly Thu 2026-10-01 04:30 +05|" ]' _ "$slots"
@@ -333,7 +333,7 @@ r = c.getresponse(); print(r.status, r.getheader("Location") or "")' "$marker" "
 
   # ---------------------------------------------------------------------------------------------
   section "6. Data to protect: a shop with a debt, built by the real migrations"
-  sql "create table if not exists qd_proof_marker (id bigserial primary key, label text not null, at timestamptz not null default clock_timestamp())"
+  sql "create table if not exists hb_proof_marker (id bigserial primary key, label text not null, at timestamptz not null default clock_timestamp())"
   sql "
     insert into app_user (id, tg_id) values ('00000000-0000-4000-8000-0000000000a1', 9900000001);
     insert into shop (id, name) values ('00000000-0000-4000-8000-0000000000b1', 'Proof shop');
@@ -341,7 +341,7 @@ r = c.getresponse(); print(r.status, r.getheader("Location") or "")' "$marker" "
     insert into customer (id, shop_id, display_name, name_norm) values ('00000000-0000-4000-8000-0000000000d1', '00000000-0000-4000-8000-0000000000b1', 'Proof customer', 'proof customer');
     insert into ledger_entry (id, shop_id, customer_id, seq, kind, amount, author_id) values ('00000000-0000-4000-8000-0000000000e1', '00000000-0000-4000-8000-0000000000b1', '00000000-0000-4000-8000-0000000000d1', 1, 'credit', 50000, '00000000-0000-4000-8000-0000000000c1');
     insert into promise (id, shop_id, entry_id, promised_date, actor) values (gen_random_uuid(), '00000000-0000-4000-8000-0000000000b1', '00000000-0000-4000-8000-0000000000e1', current_date + 7, 'default');
-    insert into qd_proof_marker (label) select 'before-backup-' || g from generate_series(1, 500) g" > /dev/null
+    insert into hb_proof_marker (label) select 'before-backup-' || g from generate_series(1, 500) g" > /dev/null
   expect "the ledger has one open debt and the stored open debts agree with it" \
     [ "$(sql "select concat_ws(' ', (select count(*) from open_debt), (select count(*) from open_debt_mismatches(NULL)))")" = "1 0" ]
 
@@ -355,13 +355,13 @@ r = c.getresponse(); print(r.status, r.getheader("Location") or "")' "$marker" "
   # An unencrypted repository keeps its own records as plain text (backrest-format, db-system-id), even
   # though the data files in it are compressed and show nothing: those two words are what gives it away.
   expect "nothing readable is in the bucket's objects: none of pgBackRest's own records, no table name" \
-    bucket 'd="$(mktemp -d)"; rc copy "qdr2:$QD_R2_BUCKET/pgbackrest" "$d" --max-size 3M --transfers 8 2>/dev/null; n="$(find "$d" -type f | wc -l)"; [ "$n" -gt 5 ] && ! grep -rlqa -e "backrest-format" -e "db-system-id" -e "ledger_entry" -e "qd_proof_marker" "$d"; code=$?; rm -rf "$d"; exit $code'
+    bucket 'd="$(mktemp -d)"; rc copy "qdr2:$HB_R2_BUCKET/pgbackrest" "$d" --max-size 3M --transfers 8 2>/dev/null; n="$(find "$d" -type f | wc -l)"; [ "$n" -gt 5 ] && ! grep -rlqa -e "backrest-format" -e "db-system-id" -e "ledger_entry" -e "hb_proof_marker" "$d"; code=$?; rm -rf "$d"; exit $code'
   # Negative: nothing is recent enough (the thresholds shortened to one second for this one run).
   sleep 2
-  step check-backup-too-old 1 dc exec -T -e QD_MAX_BACKUP_AGE_SECONDS=1 -e QD_MAX_FULL_AGE_SECONDS=1 backup /opt/qarz-single/job.sh check
-  step health-after-stale-check 1 dc exec -T backup /opt/qarz-single/healthcheck.sh
+  step check-backup-too-old 1 dc exec -T -e HB_MAX_BACKUP_AGE_SECONDS=1 -e HB_MAX_FULL_AGE_SECONDS=1 backup /opt/hiso-box-single/job.sh check
+  step health-after-stale-check 1 dc exec -T backup /opt/hiso-box-single/healthcheck.sh
   step check-fresh-again 0 job check
-  step health-after-fresh-check 0 dc exec -T backup /opt/qarz-single/healthcheck.sh
+  step health-after-fresh-check 0 dc exec -T backup /opt/hiso-box-single/healthcheck.sh
   # Checks do not wait behind the jobs' lock, so the scheduler's and a person's can end in the same
   # moment. Four rounds of twelve at once: every one must end as it would alone (a status file whose
   # temporary name was shared by all writers made one of two fail with "mv: cannot stat"), and what
@@ -371,7 +371,7 @@ r = c.getresponse(); print(r.status, r.getheader("Location") or "")' "$marker" "
     for round in 1 2 3 4; do
       pids=""
       for n in 1 2 3 4 5 6 7 8 9 10 11 12; do
-        /opt/qarz-single/job.sh check --quiet > /dev/null &
+        /opt/hiso-box-single/job.sh check --quiet > /dev/null &
         pids="$pids $!"
       done
       for pid in $pids; do
@@ -380,15 +380,15 @@ r = c.getresponse(); print(r.status, r.getheader("Location") or "")' "$marker" "
     done
     exit "$code"'
   expect "the status they left is one whole line: the verdict 0 and a moment" \
-    bash -c '[[ "$1" =~ ^0\ [0-9]{9,11}$ ]]' _ "$(dc exec -T backup cat /var/lib/qarz-backup/check.status | tr -d '\r')"
+    bash -c '[[ "$1" =~ ^0\ [0-9]{9,11}$ ]]' _ "$(dc exec -T backup cat /var/lib/hiso-box-backup/check.status | tr -d '\r')"
   expect "no writer left a file of its own beside it" \
-    bash -c '[ "$1" = check.status ]' _ "$(dc exec -T backup bash -c 'ls -A /var/lib/qarz-backup | grep -F check.status' | tr -d '\r')"
-  step health-after-checks-at-once 0 dc exec -T backup /opt/qarz-single/healthcheck.sh
+    bash -c '[ "$1" = check.status ]' _ "$(dc exec -T backup bash -c 'ls -A /var/lib/hiso-box-backup | grep -F check.status' | tr -d '\r')"
+  step health-after-checks-at-once 0 dc exec -T backup /opt/hiso-box-single/healthcheck.sh
   local figures wanted
-  figures="$(dc exec -T backup bash -c 'cat /var/lib/qarz-backup-figures/*.prom' | grep -v '^#' | tr -d '\r')"
+  figures="$(dc exec -T backup bash -c 'cat /var/lib/hiso-box-backup-figures/*.prom' | grep -v '^#' | tr -d '\r')"
   echo "$figures" | sort | sed 's/^/      /'
-  for wanted in 'qd_backup_last_success_timestamp_seconds{type="full"}' 'qd_backup_last_success_timestamp_seconds{type="diff"}' \
-    'qd_backup_restore_test_last_success_timestamp_seconds' 'qd_backup_last_run_success{type="diff"}'; do
+  for wanted in 'hb_backup_last_success_timestamp_seconds{type="full"}' 'hb_backup_last_success_timestamp_seconds{type="diff"}' \
+    'hb_backup_restore_test_last_success_timestamp_seconds' 'hb_backup_last_run_success{type="diff"}'; do
     expect "written and not zero: $wanted" bash -c 'grep -F "$2 " <<< "$1" | grep -qv " 0$"' _ "$figures" "$wanted"
   done
 
@@ -396,17 +396,17 @@ r = c.getresponse(); print(r.status, r.getheader("Location") or "")' "$marker" "
   section "7a. The operations watch: a stale WAL archive becomes a firing alert in the worker, then stops"
   # The worker sees the figures and nothing else of the backups, read-only.
   expect "the worker reads the backup jobs' figures" \
-    dc exec -T worker python -c 'import sys; from qarz.infrastructure.ops_probes import read_figure_files as r; sys.exit(0 if "qd_wal_archive_newest_age_seconds" in r("/var/lib/qarz-backup-figures") else 1)'
+    dc exec -T worker python -c 'import sys; from hiso_box.infrastructure.ops_probes import read_figure_files as r; sys.exit(0 if "hb_wal_archive_newest_age_seconds" in r("/var/lib/hiso-box-backup-figures") else 1)'
   expect "the worker cannot write there" \
-    refuses dc exec -T worker python -c 'open("/var/lib/qarz-backup-figures/x.prom", "w")'
+    refuses dc exec -T worker python -c 'open("/var/lib/hiso-box-backup-figures/x.prom", "w")'
   expect "the worker sees nothing of the backups' state" \
-    refuses dc exec -T worker python -c 'import os; os.listdir("/var/lib/qarz-backup")'
+    refuses dc exec -T worker python -c 'import os; os.listdir("/var/lib/hiso-box-backup")'
   expect "nothing is firing about the WAL archive while it is fresh" \
     [ "$(sql "select count(*) from ops_alert where key = 'WalArchiveStale' and firing_since is not null and resolved_at is null")" = 0 ]
   # The schedule is stopped so that its check does not write the true figure back, and the figure is
   # made stale by hand: the newest archived segment is said to be 9999 seconds old.
   step stop-the-schedule 0 dc stop backup
-  step make-the-wal-figure-stale 0 dc run --rm --no-deps -T backup bash -c 'f=/var/lib/qarz-backup-figures/qd_backup_repo.prom; sed "s/^qd_wal_archive_newest_age_seconds .*/qd_wal_archive_newest_age_seconds 9999/" "$f" > "$f.tmp" && mv -f "$f.tmp" "$f" && grep -q "^qd_wal_archive_newest_age_seconds 9999$" "$f"'
+  step make-the-wal-figure-stale 0 dc run --rm --no-deps -T backup bash -c 'f=/var/lib/hiso-box-backup-figures/hb_backup_repo.prom; sed "s/^hb_wal_archive_newest_age_seconds .*/hb_wal_archive_newest_age_seconds 9999/" "$f" > "$f.tmp" && mv -f "$f.tmp" "$f" && grep -q "^hb_wal_archive_newest_age_seconds 9999$" "$f"'
   # A round a minute, and the rule waits a minute before it fires: two to three minutes.
   expect "the worker records WalArchiveStale as firing" \
     wait_for_sql 240 "select count(*) from ops_alert where key = 'WalArchiveStale' and firing_since is not null and resolved_at is null" 1
@@ -419,49 +419,49 @@ r = c.getresponse(); print(r.status, r.getheader("Location") or "")' "$marker" "
   step check-after-stale-figure 0 job check
   expect "once the figure is fresh again the worker records that the alert stopped" \
     wait_for_sql 180 "select count(*) from ops_alert where key = 'WalArchiveStale' and resolved_at is null" 0
-  step alert-test-without-telegram 1 dc exec -T worker python -m qarz.interface.alert_test
+  step alert-test-without-telegram 1 dc exec -T worker python -m hiso_box.interface.alert_test
   expect "the test alert says that Telegram did not take it" said alert-test-without-telegram "NOT DELIVERED: chat 1 (...0001)"
 
   # ---------------------------------------------------------------------------------------------
   section "8. The stored files: an encrypted copy in the bucket"
   dc exec -T api python -c '
 import os, pathlib
-root = pathlib.Path("/var/lib/qarz/files")
+root = pathlib.Path("/var/lib/hiso_box/files")
 for name, size in (("receipts/2026/a-receipt.jpg", 30000), ("receipts/2026/b-receipt.jpg", 5000), ("imports/c-import.csv", 0)):
     path = root / name
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_bytes(b"QDPROOFPLAINTEXT name,amount\n" + os.urandom(size))
     os.chmod(path, 0o600)'
   local files_before
-  files_before="$(dc exec -T api sh -c 'cd /var/lib/qarz/files && find . -type f | sort | xargs sha256sum' | tr -d '\r')"
+  files_before="$(dc exec -T api sh -c 'cd /var/lib/hiso_box/files && find . -type f | sort | xargs sha256sum' | tr -d '\r')"
   # What the bucket holds under crypt/ before the files go there: the monthly dump, if it was written.
   local objects_before objects_after
-  objects_before="$(bucket 'rc lsf -R --files-only "qdr2:$QD_R2_BUCKET/crypt" 2>/dev/null | wc -l' | tr -d '\r ')"
-  step files-sync 0 dc exec -T files-backup /opt/qarz-single/files-sync.sh sync
+  objects_before="$(bucket 'rc lsf -R --files-only "qdr2:$HB_R2_BUCKET/crypt" 2>/dev/null | wc -l' | tr -d '\r ')"
+  step files-sync 0 dc exec -T files-backup /opt/hiso-box-single/files-sync.sh sync
   expect_field objects_count 3
-  step files-health-after-a-copy 0 dc exec -T files-backup /opt/qarz-single/files-health.sh
+  step files-health-after-a-copy 0 dc exec -T files-backup /opt/hiso-box-single/files-health.sh
   # Negative: the same copy is too old when the allowance is nothing (3 x -40 + 120 seconds = 0).
   sleep 3
-  step files-health-when-the-copy-is-old 1 dc exec -T -e QD_FILES_INTERVAL=-40 files-backup /opt/qarz-single/files-health.sh
-  objects_after="$(bucket 'rc lsf -R --files-only "qdr2:$QD_R2_BUCKET/crypt" | wc -l' | tr -d '\r ')"
+  step files-health-when-the-copy-is-old 1 dc exec -T -e HB_FILES_INTERVAL=-40 files-backup /opt/hiso-box-single/files-health.sh
+  objects_after="$(bucket 'rc lsf -R --files-only "qdr2:$HB_R2_BUCKET/crypt" | wc -l' | tr -d '\r ')"
   expect "the bucket holds three more objects ($objects_before before, $objects_after after)" [ "$((objects_after - objects_before))" = 3 ]
   # Whole path components are compared, not fragments: an encrypted name is a long run of letters and
   # digits, and "csv" or "jpg" turns up inside one by chance (it failed a run on main that way).
   expect "no object in the bucket has a name of theirs, or says what it is" \
-    bucket 'names="$(rc lsf -R "qdr2:$QD_R2_BUCKET/crypt")"; [ -n "$names" ] && ! tr "/" "\n" <<< "$names" | grep -q -i -x -E "receipts|imports|2026|[abc]-(receipt|import)[.](jpg|csv)|current|removed|monthly"'
+    bucket 'names="$(rc lsf -R "qdr2:$HB_R2_BUCKET/crypt")"; [ -n "$names" ] && ! tr "/" "\n" <<< "$names" | grep -q -i -x -E "receipts|imports|2026|[abc]-(receipt|import)[.](jpg|csv)|current|removed|monthly"'
   expect "and none has their content: the marker written into every file is not in the bucket" \
-    bucket 'd="$(mktemp -d)"; rc copy "qdr2:$QD_R2_BUCKET/crypt" "$d" 2>/dev/null; [ "$(find "$d" -type f | wc -l)" -ge 3 ] && ! grep -rlqa -e QDPROOFPLAINTEXT -e PGDMP "$d"; code=$?; rm -rf "$d"; exit $code'
-  dc exec -T api sh -c 'rm /var/lib/qarz/files/receipts/2026/a-receipt.jpg /var/lib/qarz/files/receipts/2026/b-receipt.jpg'
-  step files-sync-mass-delete nonzero dc exec -T -e QD_FILES_MAX_DELETE=1 files-backup /opt/qarz-single/files-sync.sh sync
-  expect "a run that would remove more files than allowed stopped (QD_FILES_MAX_DELETE=1 here; 100 by default) and the copy still holds two" \
+    bucket 'd="$(mktemp -d)"; rc copy "qdr2:$HB_R2_BUCKET/crypt" "$d" 2>/dev/null; [ "$(find "$d" -type f | wc -l)" -ge 3 ] && ! grep -rlqa -e QDPROOFPLAINTEXT -e PGDMP "$d"; code=$?; rm -rf "$d"; exit $code'
+  dc exec -T api sh -c 'rm /var/lib/hiso_box/files/receipts/2026/a-receipt.jpg /var/lib/hiso_box/files/receipts/2026/b-receipt.jpg'
+  step files-sync-mass-delete nonzero dc exec -T -e HB_FILES_MAX_DELETE=1 files-backup /opt/hiso-box-single/files-sync.sh sync
+  expect "a run that would remove more files than allowed stopped (HB_FILES_MAX_DELETE=1 here; 100 by default) and the copy still holds two" \
     [ "$(bucket 'rc size --json qdcrypt:current | jq .count' | tr -d '\r')" -ge 2 ]
-  dc exec -T api sh -c 'rm -rf /var/lib/qarz/files/imports /var/lib/qarz/files/receipts'
-  step files-sync-empty-source nonzero dc exec -T files-backup /opt/qarz-single/files-sync.sh sync
+  dc exec -T api sh -c 'rm -rf /var/lib/hiso_box/files/imports /var/lib/hiso_box/files/receipts'
+  step files-sync-empty-source nonzero dc exec -T files-backup /opt/hiso-box-single/files-sync.sh sync
   expect "an emptied directory was not synchronised over the copy" said files-sync-empty-source "nothing was changed"
   step files-restore 0 dc run --rm --no-deps restore-files
-  step files-sync-after-restore 0 dc exec -T files-backup /opt/qarz-single/files-sync.sh sync
+  step files-sync-after-restore 0 dc exec -T files-backup /opt/hiso-box-single/files-sync.sh sync
   local files_after
-  files_after="$(dc exec -T api sh -c 'cd /var/lib/qarz/files && find . -type f | sort | xargs sha256sum' | tr -d '\r')"
+  files_after="$(dc exec -T api sh -c 'cd /var/lib/hiso_box/files && find . -type f | sort | xargs sha256sum' | tr -d '\r')"
   # One of the three was moved aside by the refused run before it stopped; it is in removed/, not lost.
   expect "the files restored from the bucket are byte for byte the ones that were copied ($(wc -l <<< "$files_after") of 3 in current/)" \
     bash -c '[ -n "$2" ] && [ -z "$(comm -13 <(echo "$1") <(echo "$2"))" ]' _ "$files_before" "$files_after"
@@ -477,7 +477,7 @@ for name, size in (("receipts/2026/a-receipt.jpg", 30000), ("receipts/2026/b-rec
   expect_field backup_type diff
   echo "MEASURE restore_seconds $(field restore_seconds), start_seconds $(field start_seconds), whole test $(field duration_seconds) s"
   expect "the live database was not restarted or touched by it" [ "$(sql 'select pg_postmaster_start_time()')" = "$born" ]
-  expect "the throwaway instance was removed" bash -c '[ -z "$1" ]' _ "$(dc exec -T backup bash -c 'ls -d /var/lib/qarz-backup/scratch/qd-restore-test.* 2>/dev/null || true' | tr -d '\r')"
+  expect "the throwaway instance was removed" bash -c '[ -z "$1" ]' _ "$(dc exec -T backup bash -c 'ls -d /var/lib/hiso-box-backup/scratch/hb-restore-test.* 2>/dev/null || true' | tr -d '\r')"
 
   section "10. Negative: the restore test fails when the restored data is damaged"
   # (a) the ledger: a stored open debt that the entries do not explain.
@@ -493,17 +493,17 @@ for name, size in (("receipts/2026/a-receipt.jpg", 30000), ("receipts/2026/b-rec
   # (b) the backup itself: its largest object in the bucket overwritten with random bytes.
   local label object
   label="$(field backup)"
-  object="$(bucket 'rc lsf -R --files-only --format sp "qdr2:$QD_R2_BUCKET/pgbackrest/backup/qarz/'"$label"'" | grep -v backup.manifest | sort -n | tail -n 1 | sed "s/^ *[0-9]*;//"' | tr -d '\r')"
-  bucket 'size="$(rc size --json "qdr2:$QD_R2_BUCKET/pgbackrest/backup/qarz/'"$label/$object"'" | jq .bytes)"; head -c "$size" /dev/urandom | rc rcat "qdr2:$QD_R2_BUCKET/pgbackrest/backup/qarz/'"$label/$object"'"'
-  echo "      overwrote with random bytes: backup/qarz/$label/$object"
+  object="$(bucket 'rc lsf -R --files-only --format sp "qdr2:$HB_R2_BUCKET/pgbackrest/backup/hiso_box/'"$label"'" | grep -v backup.manifest | sort -n | tail -n 1 | sed "s/^ *[0-9]*;//"' | tr -d '\r')"
+  bucket 'size="$(rc size --json "qdr2:$HB_R2_BUCKET/pgbackrest/backup/hiso_box/'"$label/$object"'" | jq .bytes)"; head -c "$size" /dev/urandom | rc rcat "qdr2:$HB_R2_BUCKET/pgbackrest/backup/hiso_box/'"$label/$object"'"'
+  echo "      overwrote with random bytes: backup/hiso_box/$label/$object"
   step restore-test-damaged-backup 1 job restore-test
   expect_field failed_check restore
   step backup-full-after-damage 0 job full
   step restore-test-after-new-backup 0 job restore-test
 
   section "11. Negative: with another passphrase the bucket is worthless"
-  step read-with-wrong-passphrase nonzero dc run --rm --no-deps -e QD_BACKUP_PASSPHRASE=not-the-passphrase backup bash -c 'pgbackrest --stanza=qarz --log-level-console=warn info --output=json | jq -e ".[0].backup | length > 0"'
-  step files-with-wrong-passphrase nonzero dc run --rm --no-deps -e QD_BACKUP_PASSPHRASE=not-the-passphrase restore-files
+  step read-with-wrong-passphrase nonzero dc run --rm --no-deps -e HB_BACKUP_PASSPHRASE=not-the-passphrase backup bash -c 'pgbackrest --stanza=qarz --log-level-console=warn info --output=json | jq -e ".[0].backup | length > 0"'
+  step files-with-wrong-passphrase nonzero dc run --rm --no-deps -e HB_BACKUP_PASSPHRASE=not-the-passphrase restore-files
 
   # ---------------------------------------------------------------------------------------------
   section "12. The monthly dump and expiry"
@@ -514,23 +514,23 @@ for name, size in (("receipts/2026/a-receipt.jpg", 30000), ("receipts/2026/b-rec
   # ---------------------------------------------------------------------------------------------
   section "13. A point-in-time copy beside the live database (runbook 3)"
   local moment
-  sql "insert into qd_proof_marker (label) values ('before-the-moment')" > /dev/null
+  sql "insert into hb_proof_marker (label) values ('before-the-moment')" > /dev/null
   sleep 2
   moment="$(sql "select to_char(clock_timestamp(), 'YYYY-MM-DD HH24:MI:SS.US') || '+05'")"
   sleep 2
-  sql "insert into qd_proof_marker (label) values ('after-the-moment')" > /dev/null
+  sql "insert into hb_proof_marker (label) values ('after-the-moment')" > /dev/null
   archive_now || fail "the WAL segment did not reach the bucket"
   step pitr 0 single pitr "$moment"
   expect "the copy has what was written before $moment and not what came after" \
-    [ "$(dc exec -T db-scratch psql -X -qAt -U postgres -d qarz -c "select string_agg(label, ',' order by id) from qd_proof_marker where label like '%the-moment'" | tr -d '\r')" = "before-the-moment" ]
-  expect "the live database has both" [ "$(sql "select count(*) from qd_proof_marker where label like '%the-moment'")" = 2 ]
+    [ "$(dc exec -T db-scratch psql -X -qAt -U postgres -d qarz -c "select string_agg(label, ',' order by id) from hb_proof_marker where label like '%the-moment'" | tr -d '\r')" = "before-the-moment" ]
+  expect "the live database has both" [ "$(sql "select count(*) from hb_proof_marker where label like '%the-moment'")" = 2 ]
   expect "the copy archives nothing" [ "$(dc exec -T db-scratch psql -X -qAt -U postgres -d qarz -c 'show archive_mode' | tr -d '\r')" = off ]
   step pitr-down 0 single pitr-down
 
   # ---------------------------------------------------------------------------------------------
   section "14. The machine is lost: the database volume destroyed, restored from the bucket alone"
   # Written after the last backup: only the WAL archive has these rows.
-  sql "insert into qd_proof_marker (label) select 'after-last-backup-' || g from generate_series(1, 300) g" > /dev/null
+  sql "insert into hb_proof_marker (label) select 'after-last-backup-' || g from generate_series(1, 300) g" > /dev/null
   archive_now || fail "the WAL segment did not reach the bucket"
   local before after
   before="$(fingerprint)"
@@ -544,7 +544,7 @@ for name, size in (("receipts/2026/a-receipt.jpg", 30000), ("receipts/2026/b-rec
   step up-before-restore nonzero single up "$RELEASE"
   expect "starting an empty database in front of the bucket's backups is refused" said up-before-restore "REFUSED"
   expect "and no database was created by the attempt" volume_is_empty "${PROJECT}_pgdata"
-  step restore-with-wrong-passphrase nonzero dc run --rm --no-deps -e QD_BACKUP_PASSPHRASE=not-the-passphrase restore restore
+  step restore-with-wrong-passphrase nonzero dc run --rm --no-deps -e HB_BACKUP_PASSPHRASE=not-the-passphrase restore restore
   expect "the wrong passphrase restored nothing" volume_is_empty "${PROJECT}_pgdata"
   step restore 0 single restore
   step up-after-restore 0 single up "$RELEASE"
@@ -580,9 +580,9 @@ for name, size in (("receipts/2026/a-receipt.jpg", 30000), ("receipts/2026/b-rec
   expect "the write-ahead log reaches the bucket again" archive_now
   # The scheduler is back when it has checked the repository again, by itself.
   local checked
-  checked="$(dc exec -T backup cat /var/lib/qarz-backup/check.status | tr -d '\r')"
+  checked="$(dc exec -T backup cat /var/lib/hiso-box-backup/check.status | tr -d '\r')"
   expect "the scheduler runs its checks again, and they pass" \
-    wait_for 120 bash -c '[ "$(MSYS_NO_PATHCONV=1 docker exec "$1" cat /var/lib/qarz-backup/check.status | tr -d "\r")" != "$2" ] && MSYS_NO_PATHCONV=1 docker exec "$1" /opt/qarz-single/healthcheck.sh' _ "$(dc ps --quiet backup)" "$checked"
+    wait_for 120 bash -c '[ "$(MSYS_NO_PATHCONV=1 docker exec "$1" cat /var/lib/hiso-box-backup/check.status | tr -d "\r")" != "$2" ] && MSYS_NO_PATHCONV=1 docker exec "$1" /opt/hiso-box-single/healthcheck.sh' _ "$(dc ps --quiet backup)" "$checked"
 
   printf '\n== Result: %s passed, %s failed, in %s s\n' "$passes" "$failures" "$(($(date +%s) - started))"
   [ "$failures" = 0 ]

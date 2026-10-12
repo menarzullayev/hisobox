@@ -11,7 +11,7 @@ from datetime import UTC, date, datetime, timedelta
 import psycopg
 import pytest
 
-from qarz.domain.ledger import Entry, EntryKind, allocate
+from hiso_box.domain.ledger import Entry, EntryKind, allocate
 
 from ..conftest import AppSession, Shop, add_entry
 
@@ -111,7 +111,7 @@ def test_one_statement_adding_entries_for_several_customers_refreshes_each(
 
 def test_generated_accounts_agree_with_the_domains_allocation(owner: psycopg.Connection, shop_a: Shop) -> None:
     """Random credits, payments and reversals: after every entry the stored rows are what
-    `qarz.domain.ledger.allocate` leaves uncovered, entry by entry."""
+    `hiso_box.domain.ledger.allocate` leaves uncovered, entry by entry."""
     rng = random.Random(20261007)  # noqa: S311  (a fixed seed for a repeatable test)
     for _account in range(12):
         customer = uuid.uuid4()

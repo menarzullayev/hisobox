@@ -1,5 +1,5 @@
 /**
- * An administrator's passkey in the browser (WebAuthn; backend/src/qarz/application/admin_passkeys.py).
+ * An administrator's passkey in the browser (WebAuthn; backend/src/hiso_box/application/admin_passkeys.py).
  *
  * The device keeps the private key and signs only after it has verified its holder (a fingerprint, a
  * face, a PIN) and only for this site. The page passes bytes between the server and the device and

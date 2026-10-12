@@ -9,19 +9,19 @@ tests:
   - name: healthy
     interval: 1m
     input_series:
-      - series: 'qd_backup_last_run_success{type="full"}'
+      - series: 'hb_backup_last_run_success{type="full"}'
         values: '1x30'
-      - series: 'qd_backup_last_run_success{type="diff"}'
+      - series: 'hb_backup_last_run_success{type="diff"}'
         values: '1x30'
-      - series: 'qd_backup_last_success_timestamp_seconds{type="full"}'
+      - series: 'hb_backup_last_success_timestamp_seconds{type="full"}'
         values: '0x30'
-      - series: 'qd_backup_last_success_timestamp_seconds{type="diff"}'
+      - series: 'hb_backup_last_success_timestamp_seconds{type="diff"}'
         values: '0x30'
-      - series: 'qd_wal_archive_newest_age_seconds'
+      - series: 'hb_wal_archive_newest_age_seconds'
         values: '30x30'
-      - series: 'qd_backup_check_timestamp_seconds'
+      - series: 'hb_backup_check_timestamp_seconds'
         values: '0+60x30'
-      - series: 'qd_backup_restore_test_last_success_timestamp_seconds'
+      - series: 'hb_backup_restore_test_last_success_timestamp_seconds'
         values: '0x30'
     alert_rule_test:
       - {eval_time: 20m, alertname: BackupFailed, exp_alerts: []}
@@ -33,9 +33,9 @@ tests:
   - name: archive stale
     interval: 1m
     input_series:
-      - series: 'qd_wal_archive_newest_age_seconds'
+      - series: 'hb_wal_archive_newest_age_seconds'
         values: '30 90 150 210 270 330 390 450 510 570'
-      - series: 'qd_backup_check_timestamp_seconds'
+      - series: 'hb_backup_check_timestamp_seconds'
         values: '0+60x9'
     alert_rule_test:
       - {eval_time: 4m, alertname: WalArchiveStale, exp_alerts: []}
@@ -49,9 +49,9 @@ tests:
   - name: check stopped
     interval: 1m
     input_series:
-      - series: 'qd_wal_archive_newest_age_seconds'
+      - series: 'hb_wal_archive_newest_age_seconds'
         values: '30x15'
-      - series: 'qd_backup_check_timestamp_seconds'
+      - series: 'hb_backup_check_timestamp_seconds'
         values: '0x15'
     alert_rule_test:
       - {eval_time: 4m, alertname: WalArchiveStale, exp_alerts: []}
@@ -65,9 +65,9 @@ tests:
   - name: backup failed
     interval: 1m
     input_series:
-      - series: 'qd_backup_last_run_success{type="full"}'
+      - series: 'hb_backup_last_run_success{type="full"}'
         values: '1x15'
-      - series: 'qd_backup_last_run_success{type="diff"}'
+      - series: 'hb_backup_last_run_success{type="diff"}'
         values: '0x15'
     alert_rule_test:
       - eval_time: 10m
@@ -80,9 +80,9 @@ tests:
   - name: no backup for more than a day
     interval: 1m
     input_series:
-      - series: 'qd_backup_last_success_timestamp_seconds{type="full"}'
+      - series: 'hb_backup_last_success_timestamp_seconds{type="full"}'
         values: "0x1700"
-      - series: 'qd_backup_last_success_timestamp_seconds{type="diff"}'
+      - series: 'hb_backup_last_success_timestamp_seconds{type="diff"}'
         values: "0x1700"
     alert_rule_test:
       - {eval_time: 20h, alertname: BackupMissing, exp_alerts: []}
@@ -96,9 +96,9 @@ tests:
   - name: no full backup for more than a week
     interval: 1m
     input_series:
-      - series: 'qd_backup_last_success_timestamp_seconds{type="full"}'
+      - series: 'hb_backup_last_success_timestamp_seconds{type="full"}'
         values: "0x13000"
-      - series: 'qd_backup_last_success_timestamp_seconds{type="diff"}'
+      - series: 'hb_backup_last_success_timestamp_seconds{type="diff"}'
         values: "0+60x13000"
     alert_rule_test:
       - {eval_time: 7d, alertname: BackupMissing, exp_alerts: []}
@@ -112,7 +112,7 @@ tests:
   - name: restore test not passed
     interval: 1m
     input_series:
-      - series: 'qd_backup_restore_test_last_success_timestamp_seconds'
+      - series: 'hb_backup_restore_test_last_success_timestamp_seconds'
         values: "0x13000"
     alert_rule_test:
       - {eval_time: 7d, alertname: RestoreTestNotPassed, exp_alerts: []}
@@ -128,7 +128,7 @@ tests:
   - name: an owner reassignment is seen once
     interval: 1m
     input_series:
-      - series: 'qd_security_events_total{kind="owner_reassigned"}'
+      - series: 'hb_security_events_total{kind="owner_reassigned"}'
         values: '0x5 1x40'
     alert_rule_test:
       - {eval_time: 5m, alertname: ShopOwnerReassigned, exp_alerts: []}
@@ -143,9 +143,9 @@ tests:
   - name: another security event is not a reassignment
     interval: 1m
     input_series:
-      - series: 'qd_security_events_total{kind="owner_reassigned"}'
+      - series: 'hb_security_events_total{kind="owner_reassigned"}'
         values: '0x40'
-      - series: 'qd_security_events_total{kind="support_access_opened"}'
+      - series: 'hb_security_events_total{kind="support_access_opened"}'
         values: '0x5 1x40'
     alert_rule_test:
       - {eval_time: 8m, alertname: ShopOwnerReassigned, exp_alerts: []}
@@ -175,11 +175,11 @@ tests:
   - name: sms going out
     interval: 1m
     input_series:
-      - series: 'qd_sms_messages_last_day{status="sent"}'
+      - series: 'hb_sms_messages_last_day{status="sent"}'
         values: '0+1x120'
-      - series: 'qd_sms_messages_last_day{status="failed"}'
+      - series: 'hb_sms_messages_last_day{status="failed"}'
         values: '0x120'
-      - series: 'qd_sms_messages_last_day{status="retrying"}'
+      - series: 'hb_sms_messages_last_day{status="retrying"}'
         values: '0x120'
     alert_rule_test:
       - {eval_time: 100m, alertname: SmsRefused, exp_alerts: []}
@@ -189,9 +189,9 @@ tests:
   - name: sms refused
     interval: 1m
     input_series:
-      - series: 'qd_sms_messages_last_day{status="failed"}'
+      - series: 'hb_sms_messages_last_day{status="failed"}'
         values: '0x30 1x200'
-      - series: 'qd_sms_messages_last_day{status="retrying"}'
+      - series: 'hb_sms_messages_last_day{status="retrying"}'
         values: '0x230'
     alert_rule_test:
       - {eval_time: 25m, alertname: SmsRefused, exp_alerts: []}
@@ -207,9 +207,9 @@ tests:
   - name: sms not accepted
     interval: 1m
     input_series:
-      - series: 'qd_sms_messages_last_day{status="failed"}'
+      - series: 'hb_sms_messages_last_day{status="failed"}'
         values: '0x120'
-      - series: 'qd_sms_messages_last_day{status="retrying"}'
+      - series: 'hb_sms_messages_last_day{status="retrying"}'
         values: '0x10 3x110'
     alert_rule_test:
       - {eval_time: 30m, alertname: SmsNotGoingOut, exp_alerts: []}
@@ -224,9 +224,9 @@ tests:
   - name: sms retried and sent
     interval: 1m
     input_series:
-      - series: 'qd_sms_messages_last_day{status="failed"}'
+      - series: 'hb_sms_messages_last_day{status="failed"}'
         values: '0x120'
-      - series: 'qd_sms_messages_last_day{status="retrying"}'
+      - series: 'hb_sms_messages_last_day{status="retrying"}'
         values: '0x10 2x10 0x100'
     alert_rule_test:
       - {eval_time: 18m, alertname: SmsNotGoingOut, exp_alerts: []}

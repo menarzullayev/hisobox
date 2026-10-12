@@ -4,14 +4,14 @@
  */
 
 .period {
-  margin: 0 0 var(--qd-space-4);
+  margin: 0 0 var(--hb-space-4);
 }
 
 .period__fields {
   display: grid;
-  gap: var(--qd-space-2) var(--qd-space-4);
+  gap: var(--hb-space-2) var(--hb-space-4);
   align-items: end;
-  margin-top: var(--qd-space-3);
+  margin-top: var(--hb-space-3);
 }
 
 .period__fields .field {
@@ -19,11 +19,11 @@
 }
 
 .equation {
-  margin: var(--qd-space-2) 0;
-  padding: var(--qd-space-3) var(--qd-space-4);
-  border: 1px solid var(--qd-line);
-  border-radius: var(--qd-radius-md);
-  background: var(--qd-bg);
+  margin: var(--hb-space-2) 0;
+  padding: var(--hb-space-3) var(--hb-space-4);
+  border: 1px solid var(--hb-line);
+  border-radius: var(--hb-radius-md);
+  background: var(--hb-bg);
   font-variant-numeric: tabular-nums;
   font-weight: 700;
   overflow-wrap: anywhere;

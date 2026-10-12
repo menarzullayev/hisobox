@@ -3,8 +3,8 @@ from zoneinfo import ZoneInfoNotFoundError
 
 import pytest
 
-from qarz.domain import promise
-from qarz.domain.promise import (
+from hiso_box.domain import promise
+from hiso_box.domain.promise import (
     TASHKENT,
     PromiseDateError,
     QuickChoice,

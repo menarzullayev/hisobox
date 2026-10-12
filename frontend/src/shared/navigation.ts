@@ -54,6 +54,10 @@ const STAFF_SECTIONS: readonly StaffSection[] = [
   { id: "newEntry", path: "/new", labelKey: "nav.newEntry", needs: ["credits.record", "payments.record"] },
   // A seller reads the catalog to pick goods; only a manager or an owner changes it (REQ-039).
   { id: "catalog", path: "/catalog", labelKey: "nav.catalog", needs: ["ledger.view"] },
+  // The shop's own debts ("Men qarzdarman"): the contacts it owes. A core feature, not an expansion
+  // module, so no platform switch; its own permission, so a seller is not offered it by default. It
+  // follows the seller's own sections so the phone's first three tabs stay the same for every role.
+  { id: "payables", path: "/payables", labelKey: "nav.payables", needs: ["payables.view"] },
   { id: "reminders", path: "/reminders", labelKey: "nav.reminders", needs: ["reminders.send", "settings.view"] },
   { id: "reports", path: "/reports", labelKey: "nav.reports", needs: ["reports.view"] },
   // The cash book (expansion module H), behind the platform switch `cash_book_on`: for whoever may read

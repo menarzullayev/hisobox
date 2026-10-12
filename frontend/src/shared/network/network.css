@@ -6,7 +6,7 @@
 /* The lists of the section, one beside the other. */
 .net-tabs {
   flex-wrap: wrap;
-  margin-bottom: var(--qd-space-3);
+  margin-bottom: var(--hb-space-3);
 }
 
 /* A filter beside a button: the field takes no more room than its choices need. */
@@ -17,11 +17,11 @@
 
 /* The code of an invitation, shown once: large, and easy to read out or select. */
 .net-code {
-  margin: var(--qd-space-2) 0;
-  padding: var(--qd-space-3);
-  border: 1px dashed var(--qd-line);
-  border-radius: var(--qd-radius-md);
-  background: var(--qd-surface);
+  margin: var(--hb-space-2) 0;
+  padding: var(--hb-space-3);
+  border: 1px dashed var(--hb-line);
+  border-radius: var(--hb-radius-md);
+  background: var(--hb-surface);
   font-size: 1.25rem;
   font-weight: 600;
   letter-spacing: 0.08em;
@@ -34,7 +34,7 @@
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(7rem, 1fr));
   align-items: end;
-  gap: var(--qd-space-2);
+  gap: var(--hb-space-2);
 }
 
 .net-line .field {
@@ -43,21 +43,21 @@
 
 /* The two books of one link in one currency. */
 .net-recon {
-  margin: var(--qd-space-3) 0;
-  padding: var(--qd-space-3);
-  border: 1px solid var(--qd-line);
-  border-radius: var(--qd-radius-lg);
-  background: var(--qd-surface);
+  margin: var(--hb-space-3) 0;
+  padding: var(--hb-space-3);
+  border: 1px solid var(--hb-line);
+  border-radius: var(--hb-radius-lg);
+  background: var(--hb-surface);
 }
 
 /* What explains a difference between the books: one reason on a line. */
 .net-reasons {
-  margin: var(--qd-space-2) 0;
-  padding-left: var(--qd-space-5);
+  margin: var(--hb-space-2) 0;
+  padding-left: var(--hb-space-5);
 }
 
 .net-reasons li {
-  margin: var(--qd-space-1) 0;
+  margin: var(--hb-space-1) 0;
 }
 
 /* A delivery note on paper: the note alone, at the width of the page. */

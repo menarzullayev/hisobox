@@ -4,17 +4,17 @@ import type { Currency } from "../money";
 /**
  * Import of customers with opening balances (REQ-062, REQ-063), for managers and owners. Built on the
  * shop API's `send` in the module that is loaded with the import screen, so these calls are not part of
- * the first load. Shapes follow backend/src/qarz/application/imports.py (`batch_body`, `_write_preview`)
+ * the first load. Shapes follow backend/src/hiso_box/application/imports.py (`batch_body`, `_write_preview`)
  * and interface/imports_api.py.
  */
 
 const { record, text, textOrNull, whole, wholeOrNull, list } = reading;
 
-/** What a file may be (backend/src/qarz/domain/files.py, domain/imports.py). */
+/** What a file may be (backend/src/hiso_box/domain/files.py, domain/imports.py). */
 export const IMPORT_MAX_BYTES = 5 * 1024 * 1024;
 export const IMPORT_MAX_ROWS = 2000;
 export const UNDO_HOURS = 24;
-export const TEMPLATE_NAME = "qarz-daftari-import.xlsx";
+export const TEMPLATE_NAME = "hiso-box-import.xlsx";
 
 /** The server's words for a batch's state. */
 export const IMPORT_STATES = ["uploaded", "validated", "rejected", "failed", "applying", "applied", "undoing", "undone", "discarded"] as const;

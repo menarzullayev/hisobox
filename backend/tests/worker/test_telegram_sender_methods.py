@@ -6,8 +6,8 @@ from typing import Any
 import pytest
 from aiogram.types import BufferedInputFile, InlineKeyboardMarkup
 
-from qarz.application.ports import SendFailed
-from qarz.infrastructure.telegram_sender import TelegramSender
+from hiso_box.application.ports import SendFailed
+from hiso_box.infrastructure.telegram_sender import TelegramSender
 
 MARKUP = {"inline_keyboard": [[{"text": "Ertaga", "callback_data": "v2:pd:" + "0" * 32 + ":t"}]]}
 SECRET_TEXT = "Ali: +45 000 so'm"
@@ -117,8 +117,8 @@ def test_a_caption_is_edited_as_a_caption() -> None:
         {"method": "sendPhoto", "caption": SECRET_TEXT},
         {"method": "sendPhoto", "photo": "https://example.org/receipt.jpg", "caption": SECRET_TEXT},
         {"method": "sendDocument", "document": "BQACAgIAAxkBAAIB", "caption": SECRET_TEXT},
-        {"method": "sendDocument", "file": {"name": "a.pdf", "content": "/var/lib/qarz/files/a"}},
-        {"method": "sendDocument", "file": "/var/lib/qarz/files/a"},
+        {"method": "sendDocument", "file": {"name": "a.pdf", "content": "/var/lib/hiso_box/files/a"}},
+        {"method": "sendDocument", "file": "/var/lib/hiso_box/files/a"},
         {"method": "sendPhoto", "file": {"content": "aGVsbG8="}},
         {"method": "deleteMessage", "message_id": 12},
         {"method": "banChatMember", "user_id": 1},

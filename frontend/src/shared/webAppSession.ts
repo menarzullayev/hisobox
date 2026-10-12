@@ -16,7 +16,7 @@ import { type ApiAuth, type Fetch, signInWebApp } from "./api";
  * when the Mini App is closed; nothing is written to `localStorage`, and nothing to an address. The
  * token is kept beside the signature of the launch it came from, so a new launch never reuses it.
  */
-export const WEBAPP_SESSION_KEY = "qd.webapp.session";
+export const WEBAPP_SESSION_KEY = "hb.webapp.session";
 
 export type SessionStore = Pick<Storage, "getItem" | "setItem" | "removeItem">;
 

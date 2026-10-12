@@ -1,9 +1,9 @@
 """Drive the real application against a generated database and measure it against the targets.
 
-    python -m loadtest.drive --database qd_load_full --duration 1800 --out results.json
+    python -m loadtest.drive --database hb_load_full --duration 1800 --out results.json
 
-What runs: the production wiring, `uvicorn qarz.interface.asgi:build --factory`, as separate server
-processes that connect as the restricted role `qd_app`, so row-level security is in force and every
+What runs: the production wiring, `uvicorn hiso_box.interface.asgi:build --factory`, as separate server
+processes that connect as the restricted role `hb_app`, so row-level security is in force and every
 request is authenticated through a real server-side session, as deployed. The driver talks to them over
 HTTP on the loopback interface, taking them in turn as a proxy would. With `--base-url` nothing is
 started and an already running server is driven instead (a staging server, for example).
@@ -27,7 +27,7 @@ Streams:
 - the one-year period report and the overdue report of the large shop, one every `--report-every` seconds.
 
 The servers run with the application's own settings, read from the environment: the default rate limits
-(QD_RATE_*) and the default statement timeout (QD_STATEMENT_TIMEOUT_MS) unless the environment says
+(HB_RATE_*) and the default statement timeout (HB_STATEMENT_TIMEOUT_MS) unless the environment says
 otherwise. The load is spread over thousands of staff members, as real load is, so the default limits do
 not hold it back; a request that is held back is answered 429 and counted on its own, neither as an
 answer nor as an error. Each server process keeps its own counters, so with several processes a caller
@@ -58,8 +58,8 @@ import psycopg
 from loadtest import report
 from loadtest.dataset import FIRST_NAMES, GOODS, SURNAMES, session_token
 from loadtest.load import ADMIN_URL_VARIABLE, BACKEND, app_url, database_url, read_manifest
-from qarz.domain.promise import tashkent_date
-from qarz.infrastructure.settings import Settings
+from hiso_box.domain.promise import tashkent_date
+from hiso_box.infrastructure.settings import Settings
 
 WEBHOOK_SECRET = "loadtest-webhook-secret-0123456789"  # noqa: S105  (for the throwaway server only)
 BOT_TOKEN = "1234567890:LOADTEST-ONLY-token-not-a-real-bot"  # noqa: S105
@@ -411,14 +411,14 @@ def start_servers(app_database_url: str, first_port: int, count: int) -> list[su
     """
     environment = {
         **os.environ,
-        "QD_DATABASE_URL": app_database_url,
-        "QD_BOT_TOKEN": BOT_TOKEN,
-        "QD_WEBHOOK_SECRET": WEBHOOK_SECRET,
+        "HB_DATABASE_URL": app_database_url,
+        "HB_BOT_TOKEN": BOT_TOKEN,
+        "HB_WEBHOOK_SECRET": WEBHOOK_SECRET,
         "PYTHONPATH": str(BACKEND / "src"),
     }
     servers = []
     for port in range(first_port, first_port + count):
-        command = [sys.executable, "-m", "uvicorn", "qarz.interface.asgi:build", "--factory", "--host", "127.0.0.1"]
+        command = [sys.executable, "-m", "uvicorn", "hiso_box.interface.asgi:build", "--factory", "--host", "127.0.0.1"]
         command += ["--port", str(port), "--no-access-log", "--log-level", "warning"]
         servers.append(subprocess.Popen(command, cwd=BACKEND, env=environment))  # noqa: S603  (fixed arguments)
     return servers

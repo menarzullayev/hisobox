@@ -1,0 +1,18 @@
+# Runs on the standby server. Output goes to the journal: journalctl -u hb-filestore-sync.service
+[Unit]
+Description=hiso-box: copy the file store's bucket to the standby
+After=network-online.target postgresql.service
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=postgres
+Group=postgres
+EnvironmentFile=-/etc/hiso-box-backup/backup.env
+ExecStart=/opt/hiso-box-backup/scripts/filestore-sync.sh sync
+SyslogIdentifier=hb-filestore-sync
+StandardOutput=journal
+StandardError=journal
+TimeoutStartSec=30min
+NoNewPrivileges=yes
+ProtectHome=yes

@@ -7,11 +7,11 @@ import psycopg
 import pytest
 from fastapi.testclient import TestClient
 
-from qarz.application.chat import ChatService
-from qarz.application.chat_texts import say
-from qarz.application.shops import ShopService
-from qarz.application.staff import StaffService
-from qarz.application.telegram_updates import UpdateProcessor
+from hiso_box.application.chat import ChatService
+from hiso_box.application.chat_texts import say
+from hiso_box.application.shops import ShopService
+from hiso_box.application.staff import StaffService
+from hiso_box.application.telegram_updates import UpdateProcessor
 
 from .conftest import WEBHOOK_SECRET
 
@@ -156,7 +156,7 @@ def test_the_processor_itself_reports_a_duplicate(app_database_url: str) -> None
     """Independent of the outbox's own dedupe key: the second delivery must not run the handler at all."""
     import asyncio
 
-    from qarz.infrastructure.db import Database
+    from hiso_box.infrastructure.db import Database
 
     update = _update()
 
@@ -174,7 +174,7 @@ def test_the_processor_itself_reports_a_duplicate(app_database_url: str) -> None
 def test_an_update_without_an_integer_id_is_refused_by_the_processor(app_database_url: str) -> None:
     import asyncio
 
-    from qarz.infrastructure.db import Database
+    from hiso_box.infrastructure.db import Database
 
     async def scenario(update: dict[str, Any]) -> None:
         database = Database(app_database_url)

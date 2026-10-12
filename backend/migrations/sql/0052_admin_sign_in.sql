@@ -29,5 +29,5 @@ CREATE TABLE admin_password (
   locked_until  timestamptz,
   updated_at    timestamptz NOT NULL DEFAULT now()
 );
-GRANT SELECT, INSERT ON admin_password TO qd_admin;
-GRANT UPDATE (login, salt, hash, failures, locked_until, updated_at) ON admin_password TO qd_admin;
+GRANT SELECT, INSERT ON admin_password TO hb_admin;
+GRANT UPDATE (login, salt, hash, failures, locked_until, updated_at) ON admin_password TO hb_admin;

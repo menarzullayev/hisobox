@@ -12,8 +12,8 @@ import psycopg
 import pytest
 from psycopg import errors
 
-from qarz.domain import stock
-from qarz.infrastructure import db_stock
+from hiso_box.domain import stock
+from hiso_box.infrastructure import db_stock
 
 from ..conftest import AppSession, Shop, add_entry
 
@@ -520,7 +520,7 @@ _STATEMENTS: dict[str, tuple[str, dict[str, Any]]] = {
         "ORDER BY m.created_at DESC, m.id DESC LIMIT 51",
         {"shop_id": uuid.uuid4()},
     ),
-    # What is asked before a shop's dollars are turned off (qarz.application.shops.set_dollars_in).
+    # What is asked before a shop's dollars are turned off (hiso_box.application.shops.set_dollars_in).
     "a supplier account open in dollars": (db_stock._SUPPLIER_DOLLARS_OPEN, {"shop_id": uuid.uuid4()}),
     "goods on hand costed in dollars": (db_stock._STOCK_DOLLARS_ON_HAND, {"shop_id": uuid.uuid4()}),
 }
@@ -662,8 +662,8 @@ def test_without_its_index_a_rare_state_is_a_walk_over_every_document_of_the_sho
     with psycopg.connect(database_url) as conn:
         try:
             conn.execute("DROP INDEX stock_document_by_status")
-            conn.execute("SET LOCAL ROLE qd_app")
-            conn.execute("SELECT set_config('qd.shop_id', %s, true)", (str(shop_a.shop_id),))
+            conn.execute("SET LOCAL ROLE hb_app")
+            conn.execute("SELECT set_config('hb.shop_id', %s, true)", (str(shop_a.shop_id),))
             plan = _measured(conn, _IN_A_STATE, {"status": "draft", "limit": 51})
         finally:
             conn.rollback()

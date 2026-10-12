@@ -12,7 +12,7 @@ import psycopg
 import pytest
 from psycopg.types.json import Jsonb
 
-from qarz.domain.platform_settings import payment_cards
+from hiso_box.domain.platform_settings import payment_cards
 
 pytestmark = pytest.mark.db
 

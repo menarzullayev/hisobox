@@ -5,9 +5,9 @@ from typing import Any
 
 import pytest
 
-from qarz.application.errors import ValidationFailed
-from qarz.domain.subscription import ACTIVE, LIMITED, MAX_MONTHS, SUSPENDED, TRIAL, after_payment
-from qarz.domain.subscription_receipts import (
+from hiso_box.application.errors import ValidationFailed
+from hiso_box.domain.subscription import ACTIVE, LIMITED, MAX_MONTHS, SUSPENDED, TRIAL, after_payment
+from hiso_box.domain.subscription_receipts import (
     GROUP_DECIDER_STATUSES,
     MAX_AMOUNT,
     MAX_REASON,
@@ -26,7 +26,7 @@ from qarz.domain.subscription_receipts import (
     valid_amount,
     valid_months,
 )
-from qarz.interface.subscription_receipts_api import SUBSCRIPTION_RECEIPT_UPLOAD, parse_receipt_form
+from hiso_box.interface.subscription_receipts_api import SUBSCRIPTION_RECEIPT_UPLOAD, parse_receipt_form
 
 from .receipt_samples import JPEG
 
@@ -235,7 +235,7 @@ def test_paying_on_the_first_day_of_a_trial_is_not_the_same_as_not_paying() -> N
 
 # --- the form ---------------------------------------------------------------------------------------------
 
-BOUNDARY = "qd-test-boundary"
+BOUNDARY = "hb-test-boundary"
 FORM = f"multipart/form-data; boundary={BOUNDARY}"
 
 

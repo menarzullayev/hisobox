@@ -4,7 +4,7 @@
 -- Until now the months were counted from the day of payment unless a paid period was still running, so
 -- an owner who paid on the first day of a thirty-day trial was paid through the very day the trial would
 -- have ended, and the payment bought nothing. The rule is the domain layer's
--- (qarz.domain.subscription.after_payment); it needs the trial's last day, which the administrator's side
+-- (hiso_box.domain.subscription.after_payment); it needs the trial's last day, which the administrator's side
 -- and an online payment already read. The review group's reading of a receipt (0030) did not return it.
 -- A function's result columns cannot be changed in place, so it is dropped and created again; nothing
 -- else in it is changed, and it stays the application's alone (0031).
@@ -48,4 +48,4 @@ BEGIN
 END $$;
 
 REVOKE ALL ON FUNCTION review_group_receipt(bigint, uuid, boolean) FROM PUBLIC;
-GRANT EXECUTE ON FUNCTION review_group_receipt(bigint, uuid, boolean) TO qd_app;
+GRANT EXECUTE ON FUNCTION review_group_receipt(bigint, uuid, boolean) TO hb_app;

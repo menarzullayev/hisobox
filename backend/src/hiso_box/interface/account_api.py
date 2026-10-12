@@ -1,0 +1,125 @@
+"""HTTP routes for a user's own shops, the activity log, and ownership transfer."""
+
+from collections.abc import Awaitable, Callable
+from typing import Annotated, Any
+from uuid import UUID
+
+from fastapi import Depends, FastAPI, Query, Response
+from pydantic import BaseModel, ConfigDict
+
+from hiso_box.application.account import (
+    LIST_MY_SHOPS,
+    READ_ACTIVITY,
+    SET_ACTIVE_SHOP,
+    AccountService,
+    ActivityService,
+)
+from hiso_box.application.ownership import (
+    ACCEPT_TRANSFER,
+    CANCEL_TRANSFER,
+    DECLINE_TRANSFER,
+    READ_TRANSFER,
+    START_TRANSFER,
+    OwnershipService,
+)
+from hiso_box.interface.answers import MyShops
+from hiso_box.interface.shops_api import IdempotencyKey
+
+CurrentUser = Callable[..., Awaitable[UUID]]
+
+# Sent with the caller's shops while the per-member permissions are switched on (expansion module G).
+PERMISSIONS_HEADER = "X-Shop-Permissions"
+# Sent with the caller's shops while the cash book is switched on (expansion module H).
+CASH_BOOK_HEADER = "X-Shop-Cash-Book"
+# Sent with the caller's shops while the stock is switched on (expansion module I).
+STOCK_HEADER = "X-Shop-Stock"
+# Sent with the caller's shops while the network between shops is switched on (expansion module J).
+NETWORK_HEADER = "X-Shop-Network"
+# The shared product catalogue is on: a client then offers picking an item from it.
+CATALOG_HEADER = "X-Shop-Catalog"
+# A customer may have an address: a client then offers the pickers of the territory reference.
+ADDRESS_HEADER = "X-Shop-Address"
+
+
+class ActiveShop(BaseModel):
+    # Not strict: an identifier arrives as a JSON string and must be read as a UUID.
+    model_config = ConfigDict(extra="forbid")
+
+    shop_id: UUID
+
+
+class TransferStart(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    membership_id: UUID
+
+
+def add_account_routes(
+    app: FastAPI,
+    account: AccountService,
+    activity: ActivityService,
+    ownership: OwnershipService,
+    current_user: CurrentUser,
+) -> None:
+    user = Annotated[UUID, Depends(current_user)]
+
+    @app.get("/api/v1/me/shops", name=LIST_MY_SHOPS.name, response_model=MyShops)
+    async def my_shops(user_id: user, response: Response) -> dict[str, Any]:
+        body = await account.my_shops(user_id)
+        if await account.permissions_on():
+            # Tells a client that each shop now answers what the member may do there. Absent while the
+            # switch is off: nothing in the answer differs from before then.
+            response.headers[PERMISSIONS_HEADER] = "on"
+        if await account.cash_book_on():
+            response.headers[CASH_BOOK_HEADER] = "on"
+        if await account.stock_on():
+            response.headers[STOCK_HEADER] = "on"
+        if await account.network_on():
+            response.headers[NETWORK_HEADER] = "on"
+        if await account.catalog_on():
+            response.headers[CATALOG_HEADER] = "on"
+        if await account.address_on():
+            response.headers[ADDRESS_HEADER] = "on"
+        return body
+
+    @app.put("/api/v1/me/active-shop", name=SET_ACTIVE_SHOP.name)
+    async def set_active_shop(body: ActiveShop, user_id: user) -> dict[str, Any]:
+        return await account.set_active_shop(user_id, body.shop_id)
+
+    @app.get("/api/v1/shops/{shop_id}/activity", name=READ_ACTIVITY.name)
+    async def list_activity(
+        shop_id: UUID,
+        user_id: user,
+        actor: UUID | None = None,
+        action: str | None = None,
+        subject: UUID | None = None,
+        cursor: Annotated[str | None, Query(max_length=300)] = None,
+        limit: int = 50,
+    ) -> dict[str, Any]:
+        return await activity.list(
+            user_id, shop_id, actor=actor, action=action, subject=subject, cursor=cursor, limit=limit
+        )
+
+    transfer = "/api/v1/shops/{shop_id}/ownership-transfer"
+
+    @app.get(transfer, name=READ_TRANSFER.name)
+    async def read_transfer(shop_id: UUID, user_id: user) -> dict[str, Any]:
+        return await ownership.read(user_id, shop_id)
+
+    @app.post(transfer, name=START_TRANSFER.name, status_code=201)
+    async def start_transfer(
+        shop_id: UUID, body: TransferStart, user_id: user, idempotency_key: IdempotencyKey = None
+    ) -> dict[str, Any]:
+        return await ownership.start(user_id, shop_id, body.membership_id, idempotency_key)
+
+    @app.delete(transfer, name=CANCEL_TRANSFER.name)
+    async def cancel_transfer(shop_id: UUID, user_id: user, idempotency_key: IdempotencyKey = None) -> dict[str, Any]:
+        return await ownership.cancel(user_id, shop_id, idempotency_key)
+
+    @app.post(transfer + "/accept", name=ACCEPT_TRANSFER.name)
+    async def accept_transfer(shop_id: UUID, user_id: user, idempotency_key: IdempotencyKey = None) -> dict[str, Any]:
+        return await ownership.accept(user_id, shop_id, idempotency_key)
+
+    @app.post(transfer + "/decline", name=DECLINE_TRANSFER.name)
+    async def decline_transfer(shop_id: UUID, user_id: user, idempotency_key: IdempotencyKey = None) -> dict[str, Any]:
+        return await ownership.decline(user_id, shop_id, idempotency_key)

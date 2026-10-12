@@ -2,10 +2,10 @@
 # Runs once, on the primary, when its data directory is first created.
 set -euo pipefail
 
-: "${QD_REPL_PASSWORD:?QD_REPL_PASSWORD is not set}"
+: "${HB_REPL_PASSWORD:?HB_REPL_PASSWORD is not set}"
 
 psql -v ON_ERROR_STOP=1 -U "$POSTGRES_USER" -d "$POSTGRES_DB" \
-    -v repl_password="$QD_REPL_PASSWORD" <<'SQL'
+    -v repl_password="$HB_REPL_PASSWORD" <<'SQL'
 CREATE ROLE replicator WITH REPLICATION LOGIN PASSWORD :'repl_password';
 
 -- One row per replication-lag sample and per point-in-time marker.

@@ -213,7 +213,7 @@ def test_every_table_with_a_shop_column_is_protected(owner: psycopg.Connection) 
 
 
 def test_app_role_cannot_bypass_row_level_security(owner: psycopg.Connection) -> None:
-    row = owner.execute("SELECT rolbypassrls, rolsuper FROM pg_roles WHERE rolname = 'qd_app'").fetchone()
+    row = owner.execute("SELECT rolbypassrls, rolsuper FROM pg_roles WHERE rolname = 'hb_app'").fetchone()
     assert row == (False, False)
 
 
@@ -292,9 +292,9 @@ def test_measurement_schema_holds_no_identifying_columns(owner: psycopg.Connecti
 def test_migration_sql_matches_the_approved_schema() -> None:
     approved = (REPO / "docs/08-technical-spec/schema.sql").read_text(encoding="utf-8")
     migration = (REPO / "backend/migrations/sql/0001_initial.sql").read_text(encoding="utf-8")
-    role_in_spec = "CREATE ROLE qd_app LOGIN PASSWORD 'set-at-deploy' NOBYPASSRLS;"
+    role_in_spec = "CREATE ROLE hb_app LOGIN PASSWORD 'set-at-deploy' NOBYPASSRLS;"
     assert role_in_spec in approved
-    start = migration.index("DO $$ BEGIN\n  IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'qd_app')")
+    start = migration.index("DO $$ BEGIN\n  IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'hb_app')")
     end = migration.index("END $$;", start) + len("END $$;")
     # The only permitted difference: the migration creates the role without a login or password,
     # which are set at deploy.

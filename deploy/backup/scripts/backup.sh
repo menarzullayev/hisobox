@@ -41,16 +41,16 @@ finish() {
     elif [ "$code" = 0 ]; then
         code=1
     fi
-    write_metrics "qd_backup_run_${type}" << EOF
-# HELP qd_backup_last_run_success Whether the last run of the backup of this type succeeded (1) or failed (0).
-# TYPE qd_backup_last_run_success gauge
-qd_backup_last_run_success{type="${type}"} ${success}
-# HELP qd_backup_last_run_timestamp_seconds When the last run of the backup of this type ended.
-# TYPE qd_backup_last_run_timestamp_seconds gauge
-qd_backup_last_run_timestamp_seconds{type="${type}"} ${ended%.*}
-# HELP qd_backup_last_run_duration_seconds How long the last run of the backup of this type took.
-# TYPE qd_backup_last_run_duration_seconds gauge
-qd_backup_last_run_duration_seconds{type="${type}"} $(elapsed "$started" "$ended")
+    write_metrics "hb_backup_run_${type}" << EOF
+# HELP hb_backup_last_run_success Whether the last run of the backup of this type succeeded (1) or failed (0).
+# TYPE hb_backup_last_run_success gauge
+hb_backup_last_run_success{type="${type}"} ${success}
+# HELP hb_backup_last_run_timestamp_seconds When the last run of the backup of this type ended.
+# TYPE hb_backup_last_run_timestamp_seconds gauge
+hb_backup_last_run_timestamp_seconds{type="${type}"} ${ended%.*}
+# HELP hb_backup_last_run_duration_seconds How long the last run of the backup of this type took.
+# TYPE hb_backup_last_run_duration_seconds gauge
+hb_backup_last_run_duration_seconds{type="${type}"} $(elapsed "$started" "$ended")
 EOF
     json_line event backup type "$type" taken_type "$taken" outcome "$outcome" label "$label" \
         started_at "$(iso "$started")" ended_at "$(iso "$ended")" \

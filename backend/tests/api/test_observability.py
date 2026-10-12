@@ -11,10 +11,10 @@ import psycopg
 import pytest
 from fastapi.testclient import TestClient
 
-from qarz.application.auth import AuthService
-from qarz.infrastructure.db import Database
-from qarz.interface.http import create_app
-from qarz.interface.observability import LOG_FIELDS, JsonFormatter, Metrics, configure_logging, security_kind
+from hiso_box.application.auth import AuthService
+from hiso_box.infrastructure.db import Database
+from hiso_box.interface.http import create_app
+from hiso_box.interface.observability import LOG_FIELDS, JsonFormatter, Metrics, configure_logging, security_kind
 
 from .conftest import TEST_BOT_TOKEN, WEBHOOK_SECRET, HeaderAuthenticator, World, as_user
 
@@ -100,7 +100,7 @@ def test_paths_nobody_routes_are_one_label(observed: TestClient, caplog: pytest.
         assert observed.get(path).status_code == 404
     assert [line["route"] for line in lines(caplog, "request")] == ["unmatched"] * 3
     text = metrics(observed)
-    assert 'qd_requests_total{method="GET",route="unmatched",status="404"} 3' in text
+    assert 'hb_requests_total{method="GET",route="unmatched",status="404"} 3' in text
     assert "998901234567" not in text and "wp-login" not in text
 
 
@@ -110,11 +110,11 @@ def test_requests_are_counted_and_timed_by_route(observed: TestClient, world: Wo
     observed.get(f"/api/v1/shops/{world.shop_a}", headers=as_user(world.manager_a))
     observed.get(f"/api/v1/shops/{world.shop_a}/subscription", headers=as_user(world.seller_a))
     text = metrics(observed)
-    assert 'qd_requests_total{method="GET",route="/api/v1/shops/{shop_id}",status="200"} 4' in text
-    assert 'qd_requests_total{method="GET",route="/api/v1/shops/{shop_id}/subscription",status="403"} 1' in text
+    assert 'hb_requests_total{method="GET",route="/api/v1/shops/{shop_id}",status="200"} 4' in text
+    assert 'hb_requests_total{method="GET",route="/api/v1/shops/{shop_id}/subscription",status="403"} 1' in text
     labels = 'method="GET",route="/api/v1/shops/{shop_id}"'
-    assert f'qd_request_duration_ms_bucket{{{labels},le="+Inf"}} 4' in text
-    assert f"qd_request_duration_ms_count{{{labels}}} 4" in text
+    assert f'hb_request_duration_ms_bucket{{{labels},le="+Inf"}} 4' in text
+    assert f"hb_request_duration_ms_count{{{labels}}} 4" in text
     assert str(world.shop_a) not in text and str(world.owner_a) not in text
 
 
@@ -151,9 +151,9 @@ def test_security_events_are_logged_and_counted(
     ]
     assert (events[0]["user_id"], events[0]["shop_id"]) == (str(world.owner_b), str(world.shop_a))
     text = metrics(observed)
-    assert 'qd_security_events_total{kind="shop_not_member"} 2' in text
-    assert 'qd_security_events_total{kind="bad_sign_in"} 1' in text
-    assert 'qd_security_events_total{kind="bad_webhook_secret"} 1' in text
+    assert 'hb_security_events_total{kind="shop_not_member"} 2' in text
+    assert 'hb_security_events_total{kind="bad_sign_in"} 1' in text
+    assert 'hb_security_events_total{kind="bad_webhook_secret"} 1' in text
 
 
 def test_which_answers_are_security_events() -> None:
@@ -256,10 +256,10 @@ def test_the_health_figures_tell_how_long_messages_and_jobs_have_waited(
         owner.execute("DELETE FROM outbox_message")
         owner.execute("DELETE FROM job_run WHERE job LIKE 'obs-%'")
     values = dict(line.rsplit(" ", 1) for line in text.splitlines() if not line.startswith("#"))
-    waited = float(values['qd_outbox_oldest_due_seconds{channel="telegram"}'])
+    waited = float(values['hb_outbox_oldest_due_seconds{channel="telegram"}'])
     assert 900 <= waited < 960, "the oldest message that is due and not sent"
-    assert 'qd_outbox_oldest_due_seconds{channel="sms"}' not in values, "a message due later is not waiting"
-    finished = float(values['qd_job_last_finished_seconds{job="obs-job"}'])
+    assert 'hb_outbox_oldest_due_seconds{channel="sms"}' not in values, "a message due later is not waiting"
+    finished = float(values['hb_job_last_finished_seconds{job="obs-job"}'])
     assert 600 <= finished < 660, "the latest time the job finished"
     assert "998900000000" not in text
 
@@ -267,7 +267,7 @@ def test_the_health_figures_tell_how_long_messages_and_jobs_have_waited(
 def sms_figures(observed: TestClient) -> tuple[dict[str, float], str]:
     text = metrics(observed)
     values = dict(line.rsplit(" ", 1) for line in text.splitlines() if not line.startswith("#"))
-    prefix = 'qd_sms_messages_last_day{status="'
+    prefix = 'hb_sms_messages_last_day{status="'
     return {name[len(prefix) : -2]: float(value) for name, value in values.items() if name.startswith(prefix)}, text
 
 
@@ -299,7 +299,7 @@ def test_the_health_figures_count_the_sms_of_the_last_day_by_what_became_of_them
     finally:
         owner.execute("DELETE FROM outbox_message")
     assert figures == {"sent": 2, "failed": 1, "retrying": 2}
-    assert "# TYPE qd_sms_messages_last_day gauge" in text
+    assert "# TYPE hb_sms_messages_last_day gauge" in text
     assert "998900000001" not in text, "counts only: nobody's number"
 
 
@@ -317,9 +317,9 @@ def test_metrics_render_cumulative_buckets() -> None:
     for ms in (10, 25, 30, 250, 6000):  # 25 is itself the edge of the first bucket
         held.observe("GET", "/x", 200, ms)
     text = held.render()
-    counts = [line.rsplit(" ", 1)[1] for line in text.splitlines() if line.startswith("qd_request_duration_ms_bucket")]
+    counts = [line.rsplit(" ", 1)[1] for line in text.splitlines() if line.startswith("hb_request_duration_ms_bucket")]
     assert counts == ["2", "3", "3", "3", "4", "4", "4", "4", "4", "4", "5"]
-    assert 'qd_request_duration_ms_sum{method="GET",route="/x"} 6315.0' in text
+    assert 'hb_request_duration_ms_sum{method="GET",route="/x"} 6315.0' in text
 
 
 def test_the_alert_rules_name_routes_jobs_and_events_that_exist(observed: TestClient) -> None:
@@ -327,8 +327,8 @@ def test_the_alert_rules_name_routes_jobs_and_events_that_exist(observed: TestCl
     import re
     from pathlib import Path
 
-    from qarz.application import scheduler
-    from qarz.interface import observability
+    from hiso_box.application import scheduler
+    from hiso_box.interface import observability
 
     rules = (Path(__file__).resolve().parents[3] / "deploy" / "monitoring" / "alerts.yml").read_text(encoding="utf-8")
     served = {route.path for route in observed.app.routes}  # type: ignore[attr-defined]
@@ -343,31 +343,31 @@ def test_the_alert_rules_name_routes_jobs_and_events_that_exist(observed: TestCl
         kind for group in re.findall(r'kind=~"([^"]+)"', rules) for kind in group.split("|")
     }
     assert named == kinds
-    metrics_named = set(re.findall(r"\bqd_[a-z_]+", rules))
+    metrics_named = set(re.findall(r"\bhb_[a-z_]+", rules))
     # Host-level figures the application does not expose: the backup scripts write them on the standby
     # for node_exporter's textfile collector (deploy/backup/scripts; rule group qarz-backup). Each is
     # checked against what the scripts write, so a figure renamed on one side only fails here.
     host_level = {
-        "qd_backup_last_run_success",
-        "qd_backup_last_success_timestamp_seconds",
-        "qd_backup_check_timestamp_seconds",
-        "qd_wal_archive_newest_age_seconds",
-        "qd_backup_restore_test_last_success_timestamp_seconds",
+        "hb_backup_last_run_success",
+        "hb_backup_last_success_timestamp_seconds",
+        "hb_backup_check_timestamp_seconds",
+        "hb_wal_archive_newest_age_seconds",
+        "hb_backup_restore_test_last_success_timestamp_seconds",
     }
     assert metrics_named <= {
-        "qd_requests_total",
-        "qd_request_duration_ms_bucket",
-        "qd_security_events_total",
-        "qd_outbox_oldest_due_seconds",
-        "qd_job_last_finished_seconds",
-        "qd_receipts_oldest_waiting_seconds",
-        "qd_sms_messages_last_day",
+        "hb_requests_total",
+        "hb_request_duration_ms_bucket",
+        "hb_security_events_total",
+        "hb_outbox_oldest_due_seconds",
+        "hb_job_last_finished_seconds",
+        "hb_receipts_oldest_waiting_seconds",
+        "hb_sms_messages_last_day",
         *host_level,
     }
     # The SMS rules read states the application exposes, and both the states that mean trouble are watched.
-    from qarz.infrastructure.db import SMS_STATES
+    from hiso_box.infrastructure.db import SMS_STATES
 
-    watched = set(re.findall(r'qd_sms_messages_last_day\{status="([^"]+)"\}', rules))
+    watched = set(re.findall(r'hb_sms_messages_last_day\{status="([^"]+)"\}', rules))
     assert watched == {"failed", "retrying"} and watched <= set(SMS_STATES)
     scripts = "".join(
         path.read_text(encoding="utf-8")
@@ -392,7 +392,7 @@ def test_the_health_figures_tell_how_long_the_oldest_receipt_has_awaited_a_decis
 
     def waited() -> float | None:
         values = dict(line.rsplit(" ", 1) for line in metrics(observed).splitlines() if not line.startswith("#"))
-        value = values.get('qd_receipts_oldest_waiting_seconds{status="submitted"}')
+        value = values.get('hb_receipts_oldest_waiting_seconds{status="submitted"}')
         return None if value is None else float(value)
 
     # The database is shared with other tests: what they left waiting is decided first.
@@ -411,7 +411,7 @@ def test_the_health_figures_tell_how_long_the_oldest_receipt_has_awaited_a_decis
     assert str(world.shop_a) not in text and str(world.shop_b) not in text and "Shop" not in text
     # The rule that watches it fires above a day, which this is.
     rules = (Path(__file__).resolve().parents[3] / "deploy" / "monitoring" / "alerts.yml").read_text(encoding="utf-8")
-    assert "expr: qd_receipts_oldest_waiting_seconds > 86400" in rules
+    assert "expr: hb_receipts_oldest_waiting_seconds > 86400" in rules
     owner.execute(
         "UPDATE subscription_receipt SET status = 'rejected', reject_reason = 'test' WHERE status = 'submitted'"
     )
@@ -420,10 +420,10 @@ def test_the_health_figures_tell_how_long_the_oldest_receipt_has_awaited_a_decis
 
 def test_every_security_event_is_exposed_at_zero_from_the_start() -> None:
     """The alert rules read increases: a counter that first appears at 1 would hide the first event."""
-    from qarz.interface import observability
+    from hiso_box.interface import observability
 
     text = Metrics().render()
     kinds = {value for name, value in vars(observability).items() if name.startswith("SECURITY_")}
     assert set(observability.EVERY_SECURITY_KIND) == kinds, "a new kind must be exposed from the start too"
     for kind in kinds:
-        assert f'qd_security_events_total{{kind="{kind}"}} 0' in text
+        assert f'hb_security_events_total{{kind="{kind}"}} 0' in text

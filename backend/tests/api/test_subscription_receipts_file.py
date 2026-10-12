@@ -24,14 +24,14 @@ import psycopg
 import pytest
 from fastapi.testclient import TestClient
 
-from qarz.application.chat import Incoming, Replies, _replacing
-from qarz.application.chat_texts import CATALOGS, day, say
-from qarz.application.files import FileService
-from qarz.application.ports import FileStoreError, RecipientBlocked, RetryLater, SendFailed, SendRejected
-from qarz.application.receipt_attachment import ATTACHMENT, CAPTION_MAX, ReceiptAttachingSender, caption_fits
-from qarz.domain.subscription import add_months
-from qarz.infrastructure.db import Database
-from qarz.infrastructure.file_store import FilesystemFileStore
+from hiso_box.application.chat import Incoming, Replies, _replacing
+from hiso_box.application.chat_texts import CATALOGS, day, say
+from hiso_box.application.files import FileService
+from hiso_box.application.ports import FileStoreError, RecipientBlocked, RetryLater, SendFailed, SendRejected
+from hiso_box.application.receipt_attachment import ATTACHMENT, CAPTION_MAX, ReceiptAttachingSender, caption_fits
+from hiso_box.domain.subscription import add_months
+from hiso_box.infrastructure.db import Database
+from hiso_box.infrastructure.file_store import FilesystemFileStore
 
 from ..receipt_samples import PDF
 from .conftest import AdminEnv, FakeChatMembers, World, elevate, make_admin, stored_objects

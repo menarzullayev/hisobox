@@ -11,7 +11,7 @@
 --        the supplier's stock out by that quantity with the sale (one standing movement of the credit
 --        entry), and the sale moved nothing else.
 --    Same name, same arguments, same refusal (`NETWORK_BOOKS_MISMATCH`), same rights: the function is
---    replaced, so it stays closed to PUBLIC and granted to `qd_app` alone (said again below).
+--    replaced, so it stays closed to PUBLIC and granted to `hb_app` alone (said again below).
 --
 -- 2. The documents list narrowed to a state walked the shop's documents newest first until a page was
 --    full: for a rare state in a shop with many documents, all of them. It gets an index of its own.
@@ -135,7 +135,7 @@ BEGIN
                                          'paid', own.paid));
 END $$;
 REVOKE ALL ON FUNCTION network_receipt_finish(uuid, uuid, uuid, uuid, uuid, uuid, uuid, timestamptz) FROM PUBLIC;
-GRANT EXECUTE ON FUNCTION network_receipt_finish(uuid, uuid, uuid, uuid, uuid, uuid, uuid, timestamptz) TO qd_app;
+GRANT EXECUTE ON FUNCTION network_receipt_finish(uuid, uuid, uuid, uuid, uuid, uuid, uuid, timestamptz) TO hb_app;
 
 -- The documents of a shop in one state, newest first: a page is read from the index and costs what it
 -- holds, however many documents of other states the shop has (drafts among thousands of posted ones).

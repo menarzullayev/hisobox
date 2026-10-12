@@ -10,13 +10,13 @@ import pytest
 from fastapi.testclient import TestClient
 from psycopg import errors
 
-from qarz.application.catalog import register_learned
-from qarz.application.errors import ValidationFailed
-from qarz.application.ports import Membership, TenantSession
-from qarz.domain.access import Role
-from qarz.domain.catalog import MAX_PRICE
-from qarz.infrastructure.db import Database
-from qarz.interface.errors import _MESSAGES, _STATUS
+from hiso_box.application.catalog import register_learned
+from hiso_box.application.errors import ValidationFailed
+from hiso_box.application.ports import Membership, TenantSession
+from hiso_box.domain.access import Role
+from hiso_box.domain.catalog import MAX_PRICE
+from hiso_box.infrastructure.db import Database
+from hiso_box.interface.errors import _MESSAGES, _STATUS
 
 from .conftest import World, as_user
 

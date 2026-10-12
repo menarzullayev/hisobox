@@ -11,10 +11,10 @@ import psycopg
 import pytest
 from fastapi.testclient import TestClient
 
-from qarz.application import texts_en, texts_kaa, texts_tg
-from qarz.application.chat_texts import LANGUAGE_NAMES, UZ, say
-from qarz.domain.languages import LANGUAGES
-from qarz.domain.uz_cyrillic import to_cyrillic
+from hiso_box.application import texts_en, texts_kaa, texts_tg
+from hiso_box.application.chat_texts import LANGUAGE_NAMES, UZ, say
+from hiso_box.domain.languages import LANGUAGES
+from hiso_box.domain.uz_cyrillic import to_cyrillic
 
 from .conftest import SessionClient, World, as_user
 from .test_auth import ME, WEBAPP, _bearer, _fresh

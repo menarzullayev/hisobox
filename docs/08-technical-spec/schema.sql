@@ -368,12 +368,12 @@ CREATE CONSTRAINT TRIGGER goods_line_sum AFTER INSERT ON goods_line
 -- Roles and row-level security
 -- ---------------------------------------------------------------------------
 
-CREATE ROLE qd_app LOGIN PASSWORD 'set-at-deploy' NOBYPASSRLS;
-GRANT USAGE ON SCHEMA public, measure TO qd_app;
-GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO qd_app;
-GRANT SELECT, INSERT ON ALL TABLES IN SCHEMA measure TO qd_app;
+CREATE ROLE hb_app LOGIN PASSWORD 'set-at-deploy' NOBYPASSRLS;
+GRANT USAGE ON SCHEMA public, measure TO hb_app;
+GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO hb_app;
+GRANT SELECT, INSERT ON ALL TABLES IN SCHEMA measure TO hb_app;
 -- insert-only tables
-REVOKE UPDATE, DELETE, TRUNCATE ON ledger_entry, goods_line, promise, activity FROM qd_app;
+REVOKE UPDATE, DELETE, TRUNCATE ON ledger_entry, goods_line, promise, activity FROM hb_app;
 
 DO $$
 DECLARE t text;
@@ -386,16 +386,16 @@ BEGIN
     EXECUTE format('ALTER TABLE %I ENABLE ROW LEVEL SECURITY', t);
     EXECUTE format('ALTER TABLE %I FORCE ROW LEVEL SECURITY', t);
     EXECUTE format(
-      'CREATE POLICY tenant ON %I USING (shop_id = nullif(current_setting(''qd.shop_id'', true), '''')::uuid) '
-      'WITH CHECK (shop_id = nullif(current_setting(''qd.shop_id'', true), '''')::uuid)', t);
+      'CREATE POLICY tenant ON %I USING (shop_id = nullif(current_setting(''hb.shop_id'', true), '''')::uuid) '
+      'WITH CHECK (shop_id = nullif(current_setting(''hb.shop_id'', true), '''')::uuid)', t);
   END LOOP;
 END $$;
 
 ALTER TABLE shop ENABLE ROW LEVEL SECURITY;
 ALTER TABLE shop FORCE ROW LEVEL SECURITY;
 CREATE POLICY tenant ON shop
-  USING (id = nullif(current_setting('qd.shop_id', true), '')::uuid)
-  WITH CHECK (id = nullif(current_setting('qd.shop_id', true), '')::uuid);
+  USING (id = nullif(current_setting('hb.shop_id', true), '')::uuid)
+  WITH CHECK (id = nullif(current_setting('hb.shop_id', true), '')::uuid);
 
 -- Cross-tenant reads (a user's own memberships and links, owner totals, platform administration, the
 -- worker's reminder and expiry scans) go through SECURITY DEFINER functions owned by the migration role,

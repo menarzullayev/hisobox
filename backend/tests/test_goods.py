@@ -5,8 +5,8 @@ from decimal import Decimal
 
 import pytest
 
-from qarz.domain.goods import MAX_LINES, format_qty, line_count_allowed, lines_window_open, parse_qty
-from qarz.domain.promise import TASHKENT
+from hiso_box.domain.goods import MAX_LINES, format_qty, line_count_allowed, lines_window_open, parse_qty
+from hiso_box.domain.promise import TASHKENT
 
 
 @pytest.mark.parametrize(

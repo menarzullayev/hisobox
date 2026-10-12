@@ -7,14 +7,14 @@ import pytest
 from fastapi.routing import APIRoute
 from fastapi.testclient import TestClient
 
-from qarz.infrastructure.settings import Settings
-from qarz.interface import http
-from qarz.interface.asgi import build
-from qarz.interface.worker import run
+from hiso_box.infrastructure.settings import Settings
+from hiso_box.interface import http
+from hiso_box.interface.asgi import build
+from hiso_box.interface.worker import run
 
-DB = "postgresql://qd_app:unused@127.0.0.1:1/unused"  # never connected to in these tests
-ADMIN_DB = "postgresql://qd_admin:unused@127.0.0.1:1/unused"
-WORKER_DB = "postgresql://qd_worker:unused@127.0.0.1:1/unused"
+DB = "postgresql://hb_app:unused@127.0.0.1:1/unused"  # never connected to in these tests
+ADMIN_DB = "postgresql://hb_admin:unused@127.0.0.1:1/unused"
+WORKER_DB = "postgresql://hb_worker:unused@127.0.0.1:1/unused"
 
 
 def _paths(settings: Settings) -> set[str]:
@@ -40,11 +40,11 @@ def test_the_provider_keys_come_from_the_environment_and_are_empty_by_default(
 ) -> None:
     names = ("PAYME_MERCHANT_ID", "PAYME_SECRET_KEY", "CLICK_SERVICE_ID", "CLICK_MERCHANT_ID", "CLICK_SECRET_KEY")
     for name in names:
-        monkeypatch.delenv(f"QD_{name}", raising=False)
+        monkeypatch.delenv(f"HB_{name}", raising=False)
     empty = Settings(_env_file=None)  # type: ignore[call-arg]
     assert [getattr(empty, name.lower()) for name in names] == [""] * 5
     for name in names:
-        monkeypatch.setenv(f"QD_{name}", f"value-of-{name}")
+        monkeypatch.setenv(f"HB_{name}", f"value-of-{name}")
     filled = Settings(_env_file=None)  # type: ignore[call-arg]
     assert [getattr(filled, name.lower()) for name in names] == [f"value-of-{name}" for name in names]
 
@@ -113,12 +113,12 @@ def test_the_test_authenticator_cannot_reach_production_wiring() -> None:
 
     import qarz
 
-    source = pathlib.Path(qarz.__file__).parent
+    source = pathlib.Path(hiso_box.__file__).parent
     assert not [p for p in source.rglob("*.py") if "X-Test-User" in p.read_text(encoding="utf-8")]
 
 
 def test_the_worker_refuses_to_start_without_a_bot_token() -> None:
-    with pytest.raises(RuntimeError, match="QD_BOT_TOKEN"):
+    with pytest.raises(RuntimeError, match="HB_BOT_TOKEN"):
         asyncio.run(run(Settings(database_url=DB, worker_database_url=WORKER_DB, bot_token=""), asyncio.Event()))
 
 
@@ -136,7 +136,7 @@ def _refuse_to_connect(url: str, **_: object) -> None:
 def test_the_worker_connects_with_its_own_connection_and_never_with_the_ordinary_one(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    from qarz.interface import worker
+    from hiso_box.interface import worker
 
     monkeypatch.setattr(worker, "Database", _refuse_to_connect)
     settings = Settings(
@@ -149,24 +149,24 @@ def test_the_worker_connects_with_its_own_connection_and_never_with_the_ordinary
 
 def test_the_worker_refuses_to_start_without_its_own_connection(monkeypatch: pytest.MonkeyPatch) -> None:
     """It does not fall back to the ordinary role's connection, which is set here."""
-    from qarz.interface import worker
+    from hiso_box.interface import worker
 
     monkeypatch.setattr(worker, "Database", _refuse_to_connect)
-    with pytest.raises(RuntimeError, match="QD_WORKER_DATABASE_URL"):
+    with pytest.raises(RuntimeError, match="HB_WORKER_DATABASE_URL"):
         asyncio.run(run(Settings(database_url=DB, admin_database_url=ADMIN_DB, bot_token="123:test"), asyncio.Event()))
 
 
 def test_the_measurement_command_is_the_workers_and_refuses_to_run_without_its_connection(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    from qarz.interface import measure_export
+    from hiso_box.interface import measure_export
 
     monkeypatch.setattr(measure_export, "Database", _refuse_to_connect)
-    monkeypatch.setenv("QD_DATABASE_URL", DB)
-    monkeypatch.delenv("QD_WORKER_DATABASE_URL", raising=False)
-    with pytest.raises(RuntimeError, match="QD_WORKER_DATABASE_URL"):
+    monkeypatch.setenv("HB_DATABASE_URL", DB)
+    monkeypatch.delenv("HB_WORKER_DATABASE_URL", raising=False)
+    with pytest.raises(RuntimeError, match="HB_WORKER_DATABASE_URL"):
         asyncio.run(measure_export.run(1, None))
-    monkeypatch.setenv("QD_WORKER_DATABASE_URL", WORKER_DB)
+    monkeypatch.setenv("HB_WORKER_DATABASE_URL", WORKER_DB)
     with pytest.raises(_Connected) as connected:
         asyncio.run(measure_export.run(1, None))
     assert connected.value.args == (WORKER_DB,)
@@ -175,10 +175,10 @@ def test_the_measurement_command_is_the_workers_and_refuses_to_run_without_its_c
 def test_the_rotation_command_is_the_administrators_and_refuses_to_run_without_their_connection(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    from qarz.interface import rotate_secrets
+    from hiso_box.interface import rotate_secrets
 
     monkeypatch.setattr(rotate_secrets, "Database", _refuse_to_connect)
-    with pytest.raises(ValueError, match="QD_ADMIN_DATABASE_URL"):
+    with pytest.raises(ValueError, match="HB_ADMIN_DATABASE_URL"):
         asyncio.run(
             rotate_secrets.run(Settings(database_url=DB, worker_database_url=WORKER_DB, secrets_key=SECRETS_KEY))
         )
@@ -192,7 +192,7 @@ def test_the_api_gives_the_ordinary_side_and_the_administrators_side_each_its_ow
 ) -> None:
     """What `build` hands to the application: the ordinary storage is the ordinary role's, and the
     administrators' access and storage are the administrators' role's. The worker's is never opened."""
-    from qarz.interface import asgi
+    from hiso_box.interface import asgi
 
     opened: list[str] = []
 
@@ -235,7 +235,7 @@ def test_the_api_gives_the_ordinary_side_and_the_administrators_side_each_its_ow
 
 def test_with_administrators_named_and_no_connection_for_their_role_the_api_refuses_to_start() -> None:
     """It does not serve the administrators' side through the ordinary role's connection instead."""
-    with pytest.raises(ValueError, match="QD_ADMIN_DATABASE_URL"):
+    with pytest.raises(ValueError, match="HB_ADMIN_DATABASE_URL"):
         build(Settings(database_url=DB, bot_token="123:test", admin_tg_ids="1001", secrets_key=SECRETS_KEY))
     # Nobody named, or no key: there is no such side, and nothing is asked for.
     assert _paths(Settings(database_url=DB, bot_token="123:test", secrets_key=SECRETS_KEY))
@@ -243,9 +243,9 @@ def test_with_administrators_named_and_no_connection_for_their_role_the_api_refu
 
 
 def test_the_application_cannot_be_built_with_administrators_and_no_storage_of_their_own() -> None:
-    from qarz.application.admin_access import AdminAccess
-    from qarz.infrastructure.db import Database
-    from qarz.infrastructure.secret_box import SecretBox
+    from hiso_box.application.admin_access import AdminAccess
+    from hiso_box.infrastructure.db import Database
+    from hiso_box.infrastructure.secret_box import SecretBox
 
     async def reachable() -> bool:
         return True
@@ -300,7 +300,7 @@ def test_without_a_bot_token_the_administrators_side_is_not_served_either() -> N
 
 @pytest.mark.parametrize("ids", ["1001,abc", "-5", "0", "1.5", "1001;1002", "١٢٣"])
 def test_a_malformed_allow_list_refuses_to_start(ids: str) -> None:
-    with pytest.raises(ValueError, match="QD_ADMIN_TG_IDS"):
+    with pytest.raises(ValueError, match="HB_ADMIN_TG_IDS"):
         build(Settings(database_url=DB, bot_token="123:test", admin_tg_ids=ids, secrets_key=SECRETS_KEY))
 
 

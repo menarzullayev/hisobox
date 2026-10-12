@@ -6,9 +6,9 @@ from typing import Any
 
 import pytest
 
-from qarz.domain.files import MAX_FILE_BYTES
-from qarz.interface.body_limit import MAX_BODY, Allowance, BodyLimit
-from qarz.interface.payment_notices_api import MAX_BODY_BYTES, RECEIPT_UPLOAD
+from hiso_box.domain.files import MAX_FILE_BYTES
+from hiso_box.interface.body_limit import MAX_BODY, Allowance, BodyLimit
+from hiso_box.interface.payment_notices_api import MAX_BODY_BYTES, RECEIPT_UPLOAD
 
 LINK = "3f2b8c1e-5a4d-4e6f-9a7b-0c1d2e3f4a5b"
 UPLOAD = f"/api/v1/me/accounts/{LINK}/payment-notices"

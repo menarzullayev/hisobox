@@ -6,7 +6,7 @@
   "stage": "09-development-plan",
   "title": "Date change requests pass CI on main",
   "claim": "Customers asking to move a promised date, the shop accepting, declining or moving it directly, and the promise history on both pages (story S10.3, pull request 38) passed CI on main in the run for commit 1bf48b9. Concurrent requests were not tested as races, and no screen exists for it yet",
-  "source": "https://github.com/menarzullayev/qarz-daftari/pull/38 ; https://github.com/menarzullayev/qarz-daftari/actions/runs/37538124542",
+  "source": "https://github.com/menarzullayev/hisobox/pull/38 ; https://github.com/menarzullayev/hisobox/actions/runs/37538124542",
   "date": "2026-10-07",
   "confidence": "HIGH",
   "type": "FACT",

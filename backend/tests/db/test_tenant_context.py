@@ -7,7 +7,7 @@ import psycopg
 import pytest
 from sqlalchemy import text
 
-from qarz.infrastructure.db import Database
+from hiso_box.infrastructure.db import Database
 
 from ..conftest import Shop
 

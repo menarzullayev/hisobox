@@ -31,7 +31,7 @@ CREATE TABLE shared_item (
   source_key   text UNIQUE CHECK (source_key ~ '^[0-9a-f]{16}$'),
   name_ru      text CHECK (length(name_ru) BETWEEN 1 AND 300),
   name_uz      text CHECK (length(name_uz) BETWEEN 1 AND 300),   -- Uzbek, Latin; Cyrillic is generated
-  -- Both names and the package size in the matching form of qarz.domain.names: what a search reads.
+  -- Both names and the package size in the matching form of hiso_box.domain.names: what a search reads.
   search_norm  text NOT NULL CHECK (length(search_norm) >= 1),
   category     text NOT NULL DEFAULT 'other' CHECK (category ~ '^[a-z]{2,16}$'),
   subcategory  text CHECK (length(subcategory) BETWEEN 1 AND 120),
@@ -107,19 +107,19 @@ ALTER TABLE shared_suggestion ENABLE ROW LEVEL SECURITY;
 ALTER TABLE shared_suggestion FORCE ROW LEVEL SECURITY;
 -- A shop reads its own proposals, and writes one only as a proposal: waiting, decided by nobody.
 CREATE POLICY tenant ON shared_suggestion
-  USING (shop_id = nullif(current_setting('qd.shop_id', true), '')::uuid)
-  WITH CHECK (shop_id = nullif(current_setting('qd.shop_id', true), '')::uuid
+  USING (shop_id = nullif(current_setting('hb.shop_id', true), '')::uuid)
+  WITH CHECK (shop_id = nullif(current_setting('hb.shop_id', true), '')::uuid
               AND status = 'pending' AND decided_at IS NULL AND decided_by IS NULL);
 
 -- The ordinary application reads the catalogue and proposes. The policy above lets it add a proposal
 -- that waits and nothing else, and it may neither change nor delete one: the decision is not its to write.
-GRANT SELECT ON shared_item, shared_barcode TO qd_app;
-GRANT SELECT, INSERT ON shared_suggestion TO qd_app;
+GRANT SELECT ON shared_item, shared_barcode TO hb_app;
+GRANT SELECT, INSERT ON shared_suggestion TO hb_app;
 
 -- The administrators' role loads the catalogue (the import command) and may correct an item. The
 -- suggestions it reaches through the two functions below alone, which ask who the administrator is.
-GRANT SELECT, INSERT, UPDATE ON shared_item TO qd_admin;
-GRANT SELECT ON shared_barcode TO qd_admin;
+GRANT SELECT, INSERT, UPDATE ON shared_item TO hb_admin;
+GRANT SELECT ON shared_barcode TO hb_admin;
 
 -- ---------------------------------------------------------------------------
 -- The administrators' queue
@@ -243,9 +243,9 @@ ALTER TABLE admin_audit
 REVOKE ALL ON FUNCTION admin_shared_suggestions(uuid, text, timestamptz, uuid, integer) FROM PUBLIC;
 REVOKE ALL ON FUNCTION admin_shared_decide(uuid, uuid, boolean, uuid, text, text, text, text, timestamptz)
   FROM PUBLIC;
-GRANT EXECUTE ON FUNCTION admin_shared_suggestions(uuid, text, timestamptz, uuid, integer) TO qd_admin;
+GRANT EXECUTE ON FUNCTION admin_shared_suggestions(uuid, text, timestamptz, uuid, integer) TO hb_admin;
 GRANT EXECUTE ON FUNCTION admin_shared_decide(uuid, uuid, boolean, uuid, text, text, text, text, timestamptz)
-  TO qd_admin;
+  TO hb_admin;
 
 -- ---------------------------------------------------------------------------
 -- Erasing a shop

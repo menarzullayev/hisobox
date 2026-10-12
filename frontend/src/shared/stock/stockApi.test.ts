@@ -41,16 +41,16 @@ describe("whether the stock exists", () => {
   const body = { items: [], active_shop: null };
 
   it("is learned from a header of the person's shops, and only from the word 'on'", async () => {
-    const on = fakeServer(() => ({ status: 200, body, headers: { "X-Qarz-Stock": "on" } }));
+    const on = fakeServer(() => ({ status: 200, body, headers: { "X-Shop-Stock": "on" } }));
     expect((await createApi({ fetch: on.fetch, auth }).myShops()).stockOn).toBe(true);
-    for (const headers of [{}, { "X-Qarz-Stock": "off" }, { "X-Qarz-Stock": "true" }, { "X-Qarz-Stock": "" }, { "X-Qarz-Cash-Book": "on" }]) {
+    for (const headers of [{}, { "X-Shop-Stock": "off" }, { "X-Shop-Stock": "true" }, { "X-Shop-Stock": "" }, { "X-Shop-Cash-Book": "on" }]) {
       const other = fakeServer(() => ({ status: 200, body, headers }));
       expect((await createApi({ fetch: other.fetch, auth }).myShops()).stockOn, JSON.stringify(headers)).toBe(false);
     }
   });
 
   it("is told apart from the cash book: each has its own header", async () => {
-    const both = fakeServer(() => ({ status: 200, body, headers: { "X-Qarz-Stock": "on", "X-Qarz-Cash-Book": "on" } }));
+    const both = fakeServer(() => ({ status: 200, body, headers: { "X-Shop-Stock": "on", "X-Shop-Cash-Book": "on" } }));
     expect(await createApi({ fetch: both.fetch, auth }).myShops()).toMatchObject({ stockOn: true, cashBookOn: true });
   });
 

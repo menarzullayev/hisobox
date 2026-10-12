@@ -3,7 +3,7 @@ import { reading, type ShopApi } from "../api";
 /**
  * Exports of a shop's book (REQ-028), for managers and owners. Built on the shop API's `send` in the
  * module that is loaded with the export screen, so these calls are not part of the first load. Shapes
- * follow backend/src/qarz/application/exports.py (`job_body`) and interface/exports_api.py.
+ * follow backend/src/hiso_box/application/exports.py (`job_body`) and interface/exports_api.py.
  */
 
 const { record, text, textOrNull, wholeOrNull, flag } = reading;

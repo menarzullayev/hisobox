@@ -4,7 +4,7 @@ import asyncio
 import json
 from typing import Any
 
-from qarz.interface.body_limit import MAX_BODY, BodyLimit
+from hiso_box.interface.body_limit import MAX_BODY, BodyLimit
 
 
 class Inner:

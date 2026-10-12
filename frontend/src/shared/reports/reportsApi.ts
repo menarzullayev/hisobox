@@ -3,7 +3,7 @@ import { reading, type ShopApi } from "../api";
 /**
  * The reports of a shop (REQ-046), for managers and owners. Built on the shop API's `send` in the module
  * that is loaded with the reports screen, so these calls are not part of the first load. Shapes follow
- * backend/src/qarz/application/reports.py. Every amount is a whole number of UZS; a response where one
+ * backend/src/hiso_box/application/reports.py. Every amount is a whole number of UZS; a response where one
  * is not is refused, never shown. A shop that works in dollars gets the same money sections again under
  * `usd`, from the dollar book and in whole cents; nothing in a report is a sum of the two.
  */

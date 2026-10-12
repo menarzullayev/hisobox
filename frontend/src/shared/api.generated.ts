@@ -4430,14 +4430,14 @@ export interface components {
             init_data: string;
         };
         /** Accept */
-        qarz__interface__payment_notices_api__Accept: {
+        hiso_box__interface__payment_notices_api__Accept: {
             /** Amount */
             amount?: number | null;
             /** Method */
             method?: string | null;
         };
         /** Accept */
-        qarz__interface__staff_api__Accept: {
+        hiso_box__interface__staff_api__Accept: {
             /** Token */
             token: string;
         };
@@ -10093,7 +10093,7 @@ export interface operations {
         };
         requestBody?: {
             content: {
-                "application/json": components["schemas"]["qarz__interface__payment_notices_api__Accept"] | null;
+                "application/json": components["schemas"]["hiso_box__interface__payment_notices_api__Accept"] | null;
             };
         };
         responses: {
@@ -12433,7 +12433,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["qarz__interface__staff_api__Accept"];
+                "application/json": components["schemas"]["hiso_box__interface__staff_api__Accept"];
             };
         };
         responses: {

@@ -33,9 +33,9 @@ CREATE TABLE ops_sample (
   PRIMARY KEY (series, taken_at)
 );
 
-REVOKE ALL ON ops_alert, ops_sample FROM PUBLIC, qd_app, qd_admin, qd_worker;
-GRANT SELECT, INSERT, UPDATE, DELETE ON ops_alert TO qd_worker;
-GRANT SELECT, INSERT, DELETE ON ops_sample TO qd_worker;
+REVOKE ALL ON ops_alert, ops_sample FROM PUBLIC, hb_app, hb_admin, hb_worker;
+GRANT SELECT, INSERT, UPDATE, DELETE ON ops_alert TO hb_worker;
+GRANT SELECT, INSERT, DELETE ON ops_sample TO hb_worker;
 
 -- In how many places the stored open debts differ from the ledger: a number and nothing else. The
 -- comparison itself (open_debt_mismatches) reads every shop and returns identifiers and amounts, and
@@ -50,8 +50,8 @@ AS $$
   SELECT count(*) FROM open_debt_mismatches(NULL);
 $$;
 REVOKE ALL ON FUNCTION open_debt_mismatch_count() FROM PUBLIC;
-GRANT EXECUTE ON FUNCTION open_debt_mismatch_count() TO qd_worker;
+GRANT EXECUTE ON FUNCTION open_debt_mismatch_count() TO hb_worker;
 
 -- Since when the oldest subscription receipt has awaited a decision: one moment, nothing of the
 -- receipt. The API already reads it for /metrics; the watch reads it for the same rule.
-GRANT EXECUTE ON FUNCTION oldest_waiting_receipt() TO qd_worker;
+GRANT EXECUTE ON FUNCTION oldest_waiting_receipt() TO hb_worker;

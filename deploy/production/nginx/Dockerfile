@@ -9,7 +9,7 @@ RUN npm ci --no-audit --no-fund
 COPY frontend/ ./
 # The product's name is read by both sides from one file of the backend's package; the front end imports
 # it by its path from the repository's root, so it is put at that same path here.
-COPY backend/src/qarz/domain/brand.json /backend/src/qarz/domain/brand.json
+COPY backend/src/hiso_box/domain/brand.json /backend/src/hiso_box/domain/brand.json
 # Public, build-time setting: the bot whose Telegram Login widget and deep links the pages use. It is
 # part of the shipped script, so it is not a secret. Empty: the panel shows no sign-in widget.
 ARG VITE_BOT_USERNAME=""
@@ -32,7 +32,7 @@ COPY deploy/production/nginx/snippets/ /etc/nginx/snippets/
 # start script. Unused unless compose.single-host.yml makes the script the command.
 COPY deploy/production/nginx/nginx.single-host.conf /etc/nginx/nginx.single-host.conf
 COPY deploy/production/nginx/single-host.d/ /etc/nginx/single-host.d/
-COPY --chmod=755 deploy/production/nginx/single-host-entrypoint.sh /usr/local/bin/qd-single-host-proxy
+COPY --chmod=755 deploy/production/nginx/single-host-entrypoint.sh /usr/local/bin/hb-single-host-proxy
 COPY --from=frontend /frontend/dist/ /usr/share/nginx/html/
 # Both forms are checked at build time (the first with a throwaway certificate, the second with a
 # stand-in for the file its start script writes), so a configuration that does not parse never
@@ -43,7 +43,7 @@ RUN apk add --no-cache --virtual .check openssl \
        -keyout /etc/nginx/tls/privkey.pem -out /etc/nginx/tls/fullchain.pem 2>/dev/null \
     && nginx -t \
     && printf '%s\n' 'set_real_ip_from 192.0.2.1;' 'real_ip_header CF-Connecting-IP;' \
-       'geo $realip_remote_addr $qd_from_tunnel { default 0; 192.0.2.1 1; }' > /tmp/qd-tunnel-peer.conf \
+       'geo $realip_remote_addr $hb_from_tunnel { default 0; 192.0.2.1 1; }' > /tmp/hb-tunnel-peer.conf \
     && nginx -t -c /etc/nginx/nginx.single-host.conf \
     && rm -rf /etc/nginx/tls/* /tmp/* \
     && apk del .check

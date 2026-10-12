@@ -18,7 +18,7 @@ import psycopg
 import pytest
 from fastapi.testclient import TestClient
 
-from qarz.domain import cash
+from hiso_box.domain import cash
 
 from .. import xlsx_reader
 from .conftest import World, as_user, set_overrides, stored_objects, switch_permissions_on
@@ -334,7 +334,7 @@ def test_a_period_with_more_entries_than_a_workbook_takes_is_refused_and_a_short
 def test_a_period_longer_than_one_page_is_whole_and_in_order(
     client: TestClient, world: World, owner: psycopg.Connection, on: None, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    from qarz.application import cash_export
+    from hiso_box.application import cash_export
 
     monkeypatch.setattr(cash_export, "PAGE", 2)
     amounts = [1_000, 2_000, 3_000, 4_000, 5_000]

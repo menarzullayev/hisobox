@@ -2,7 +2,7 @@
 
 import pytest
 
-from qarz.domain.catalog import DEFAULT_UNIT, MAX_PRICE, MAX_UNIT_LENGTH, check_price, item_name, normalize_unit
+from hiso_box.domain.catalog import DEFAULT_UNIT, MAX_PRICE, MAX_UNIT_LENGTH, check_price, item_name, normalize_unit
 
 
 @pytest.mark.parametrize(
@@ -80,6 +80,6 @@ def test_a_price_outside_the_bounds_or_not_whole_is_refused(price: object) -> No
 
 
 def test_the_largest_price_is_the_largest_single_sale() -> None:
-    from qarz.application.ledger_service import MAX_AMOUNT
+    from hiso_box.application.ledger_service import MAX_AMOUNT
 
     assert MAX_PRICE == MAX_AMOUNT

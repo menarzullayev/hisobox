@@ -22,7 +22,7 @@
 
 -- An item is counted in stock only when the shop says so. Every item that exists is not counted, so a
 -- shop that only uses the catalogue sees no difference. A counted item has one of the units of
--- qarz.domain.stock.UNITS (tests/db/test_stock_schema.py holds the two lists equal).
+-- hiso_box.domain.stock.UNITS (tests/db/test_stock_schema.py holds the two lists equal).
 ALTER TABLE catalog_item
   ADD COLUMN tracked boolean NOT NULL DEFAULT false,
   ADD COLUMN low_stock numeric(14,3) CHECK (low_stock >= 0),
@@ -303,7 +303,7 @@ CREATE INDEX stock_movement_below_cost ON stock_movement (shop_id, created_at DE
   WHERE kind = 'sale' AND currency = 'UZS' AND sale_total < cost_total;
 
 -- Each movement must continue its item's level: the next number, and the figures after it equal to the
--- level plus what it moved. The application computes them (qarz.domain.stock); a movement computed from
+-- level plus what it moved. The application computes them (hiso_box.domain.stock); a movement computed from
 -- a level that is no longer current, or computed wrongly, is refused here, and the level is then set
 -- from the movement. So the level cannot differ from the sum of the movements.
 CREATE FUNCTION stock_movement_apply() RETURNS trigger
@@ -442,31 +442,31 @@ BEGIN
     EXECUTE format('ALTER TABLE %I ENABLE ROW LEVEL SECURITY', t);
     EXECUTE format('ALTER TABLE %I FORCE ROW LEVEL SECURITY', t);
     EXECUTE format(
-      'CREATE POLICY tenant ON %I USING (shop_id = nullif(current_setting(''qd.shop_id'', true), '''')::uuid) '
-      'WITH CHECK (shop_id = nullif(current_setting(''qd.shop_id'', true), '''')::uuid)', t);
+      'CREATE POLICY tenant ON %I USING (shop_id = nullif(current_setting(''hb.shop_id'', true), '''')::uuid) '
+      'WITH CHECK (shop_id = nullif(current_setting(''hb.shop_id'', true), '''')::uuid)', t);
   END LOOP;
 END $$;
 
 -- The ordinary application. The two ledgers and the lines of a posted document are insert-only for it,
 -- like the customers' ledger; the kept figures are read-only; a supplier's link to another shop is not
 -- its to change; and a document changes through the columns the guard above watches.
-GRANT SELECT, INSERT, DELETE ON catalog_barcode TO qd_app;
-GRANT SELECT, INSERT ON supplier TO qd_app;
-GRANT UPDATE (name, name_norm, phone, note, status) ON supplier TO qd_app;
-GRANT SELECT, INSERT ON supplier_entry TO qd_app;
-GRANT SELECT ON supplier_balance TO qd_app;
-GRANT SELECT, INSERT ON stock_document TO qd_app;
+GRANT SELECT, INSERT, DELETE ON catalog_barcode TO hb_app;
+GRANT SELECT, INSERT ON supplier TO hb_app;
+GRANT UPDATE (name, name_norm, phone, note, status) ON supplier TO hb_app;
+GRANT SELECT, INSERT ON supplier_entry TO hb_app;
+GRANT SELECT ON supplier_balance TO hb_app;
+GRANT SELECT, INSERT ON stock_document TO hb_app;
 GRANT UPDATE (status, doc_date, supplier_id, customer_id, currency, total, paid, reason, note, draft,
               ledger_entry_id, posted_by, posted_at, cancelled_by, cancelled_at, cancel_reason)
-  ON stock_document TO qd_app;
-GRANT SELECT, INSERT ON stock_document_line TO qd_app;
-GRANT SELECT, INSERT ON stock_movement TO qd_app;
-GRANT SELECT ON stock_level TO qd_app;
+  ON stock_document TO hb_app;
+GRANT SELECT, INSERT ON stock_document_line TO hb_app;
+GRANT SELECT, INSERT ON stock_movement TO hb_app;
+GRANT SELECT ON stock_level TO hb_app;
 
 -- The worker writes the owner's export of the shop's own data, which now includes these books. It reads
 -- and nothing else. The administrators' side has nothing to do here.
 GRANT SELECT ON catalog_item, catalog_barcode, supplier, supplier_entry, supplier_balance, stock_document,
-  stock_document_line, stock_movement, stock_level TO qd_worker;
+  stock_document_line, stock_movement, stock_level TO hb_worker;
 
 -- ---------------------------------------------------------------------------
 -- Erasing a shop

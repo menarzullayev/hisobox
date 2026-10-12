@@ -33,7 +33,7 @@ CREATE FUNCTION shop_deletion_guard() RETURNS trigger
 LANGUAGE plpgsql
 AS $$
 BEGIN
-  IF current_user <> 'qd_app' THEN
+  IF current_user <> 'hb_app' THEN
     RETURN NEW;
   END IF;
   IF NEW.status = 'erased' AND OLD.status <> 'erased' THEN

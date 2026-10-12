@@ -17,9 +17,9 @@ import psycopg
 import pytest
 from fastapi.testclient import TestClient
 
-from qarz.application.chat_texts import money, say
-from qarz.application.idempotency import fingerprint
-from qarz.domain.money import Currency
+from hiso_box.application.chat_texts import money, say
+from hiso_box.application.idempotency import fingerprint
+from hiso_box.domain.money import Currency
 
 from .. import xlsx_reader
 from .conftest import World, as_user, set_overrides, switch_permissions_on

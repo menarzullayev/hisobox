@@ -1,0 +1,18 @@
+# Runs on the standby server. Output goes to the journal: journalctl -u hb-backup-check.service
+[Unit]
+Description=hiso-box: age of the newest backup and of the newest archived WAL segment
+After=network-online.target postgresql.service
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=postgres
+Group=postgres
+EnvironmentFile=-/etc/hiso-box-backup/backup.env
+ExecStart=/opt/hiso-box-backup/scripts/check.sh --quiet
+SyslogIdentifier=hb-backup-check
+StandardOutput=journal
+StandardError=journal
+TimeoutStartSec=50s
+NoNewPrivileges=yes
+ProtectHome=yes

@@ -15,7 +15,7 @@ import psycopg
 import pytest
 from fastapi.testclient import TestClient
 
-from qarz.application.operations import all_operations
+from hiso_box.application.operations import all_operations
 
 from .conftest import World, as_user, set_overrides, switch_permissions_on
 from .test_chat import chat_of

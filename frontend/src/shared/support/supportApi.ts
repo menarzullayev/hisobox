@@ -3,7 +3,7 @@ import { type Page, reading, type ShopApi } from "../api";
 /**
  * Support access as the shop's owner sees it (REQ-059): which administrator may read the shop, why and
  * until when, and the way to end it. Built on the shop API's `send`, outside the first load. Shapes
- * follow backend/src/qarz/application/support_access.py (`access_body`) and interface/support_api.py.
+ * follow backend/src/hiso_box/application/support_access.py (`access_body`) and interface/support_api.py.
  */
 
 const { record, text, textOrNull } = reading;

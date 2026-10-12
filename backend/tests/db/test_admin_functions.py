@@ -15,7 +15,7 @@ import psycopg
 import pytest
 from psycopg import errors
 
-from qarz.domain.subscription import effective_state
+from hiso_box.domain.subscription import effective_state
 
 from ..conftest import AppSession, Shop, refused
 
@@ -136,9 +136,9 @@ def _stored(owner: psycopg.Connection, shop: Shop) -> Any:
 @pytest.mark.parametrize("function", FUNCTIONS)
 def test_only_the_administrators_role_may_call_them(owner: psycopg.Connection, function: str) -> None:
     row = owner.execute(
-        "SELECT has_function_privilege('qd_admin', %s, 'EXECUTE'), has_function_privilege('public', %s, 'EXECUTE'), "
+        "SELECT has_function_privilege('hb_admin', %s, 'EXECUTE'), has_function_privilege('public', %s, 'EXECUTE'), "
         "(SELECT prosecdef FROM pg_proc WHERE oid = %s::regprocedure), "
-        "has_function_privilege('qd_app', %s, 'EXECUTE'), has_function_privilege('qd_worker', %s, 'EXECUTE')",
+        "has_function_privilege('hb_app', %s, 'EXECUTE'), has_function_privilege('hb_worker', %s, 'EXECUTE')",
         (function, function, function, function, function),
     ).fetchone()
     # Since migration 0031 neither the ordinary application nor the worker may call them.
@@ -464,7 +464,7 @@ def test_the_administrators_role_can_never_change_or_remove_an_audit_row(
 def test_the_grants_on_the_new_tables_are_exactly_these(owner: psycopg.Connection) -> None:
     rows = owner.execute(
         "SELECT table_name, privilege_type FROM information_schema.role_table_grants "
-        "WHERE grantee = 'qd_admin' AND table_name IN ('admin_audit', 'admin_session', 'admin_request_key')"
+        "WHERE grantee = 'hb_admin' AND table_name IN ('admin_audit', 'admin_session', 'admin_request_key')"
     ).fetchall()
     granted: dict[str, set[str]] = {}
     for table, privilege in rows:
@@ -543,9 +543,9 @@ def test_erasing_a_shop_deletes_the_stored_admin_answers_about_it_and_no_others(
 
 def test_erase_shop_still_pins_its_search_path_and_is_for_the_worker_only(owner: psycopg.Connection) -> None:
     row = owner.execute(
-        "SELECT prosecdef, proconfig, has_function_privilege('qd_worker', oid, 'EXECUTE'), "
-        "has_function_privilege('public', oid, 'EXECUTE'), has_function_privilege('qd_app', oid, 'EXECUTE'), "
-        "has_function_privilege('qd_admin', oid, 'EXECUTE') FROM pg_proc WHERE oid = 'erase_shop(uuid)'::regprocedure"
+        "SELECT prosecdef, proconfig, has_function_privilege('hb_worker', oid, 'EXECUTE'), "
+        "has_function_privilege('public', oid, 'EXECUTE'), has_function_privilege('hb_app', oid, 'EXECUTE'), "
+        "has_function_privilege('hb_admin', oid, 'EXECUTE') FROM pg_proc WHERE oid = 'erase_shop(uuid)'::regprocedure"
     ).fetchone()
     assert row == (True, ["search_path=public, pg_temp"], True, False, False, False)
 

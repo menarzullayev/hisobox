@@ -17,13 +17,13 @@ from typing import Any
 import psycopg
 import pytest
 
-from qarz.application.dispatch import Dispatcher, DispatchResult
-from qarz.application.ports import SendFailed
-from qarz.domain import platform_settings
-from qarz.infrastructure.db import Database
-from qarz.infrastructure.eskiz_sms import LOGIN_PATH, SEND_PATH
-from qarz.infrastructure.settings import Settings
-from qarz.infrastructure.sms_sender import (
+from hiso_box.application.dispatch import Dispatcher, DispatchResult
+from hiso_box.application.ports import SendFailed
+from hiso_box.domain import platform_settings
+from hiso_box.infrastructure.db import Database
+from hiso_box.infrastructure.eskiz_sms import LOGIN_PATH, SEND_PATH
+from hiso_box.infrastructure.settings import Settings
+from hiso_box.infrastructure.sms_sender import (
     ChannelSender,
     NoSmsProvider,
     SwitchedSmsProvider,
@@ -32,7 +32,7 @@ from qarz.infrastructure.sms_sender import (
     platform_switch,
 )
 
-ACCOUNT = {"eskiz_email": "owner@qarz-test.example", "eskiz_password": "eskiz-PASSWORD-9f2c", "eskiz_sender": "4546"}
+ACCOUNT = {"eskiz_email": "owner@hiso-box-test.example", "eskiz_password": "eskiz-PASSWORD-9f2c", "eskiz_sender": "4546"}
 TEXT = "Shop A: Ali, 70 000 so'm qarz muddati o'tgan. Iltimos, to'lab qo'ying."
 TOKEN = json.dumps({"data": {"token": "token-one"}}).encode()
 ACCEPTED = b'{"id": "59bf10a2", "status": "waiting"}'
@@ -73,12 +73,12 @@ async def on() -> bool:
 def test_the_account_comes_from_the_environment_and_is_empty_by_default(monkeypatch: pytest.MonkeyPatch) -> None:
     names = ("ESKIZ_EMAIL", "ESKIZ_PASSWORD", "ESKIZ_SENDER")
     for name in names:
-        monkeypatch.delenv(f"QD_{name}", raising=False)
+        monkeypatch.delenv(f"HB_{name}", raising=False)
     empty = settings()
     assert [getattr(empty, name.lower()) for name in names] == ["", "", ""]
     assert not eskiz_configured(empty)
     for name in names:
-        monkeypatch.setenv(f"QD_{name}", f"value-of-{name}")
+        monkeypatch.setenv(f"HB_{name}", f"value-of-{name}")
     filled = settings()
     assert [getattr(filled, name.lower()) for name in names] == [f"value-of-{name}" for name in names]
     assert eskiz_configured(filled)

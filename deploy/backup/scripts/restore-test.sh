@@ -11,8 +11,8 @@
 #   start         PostgreSQL starts on the restored files
 #   consistent    recovery reached a consistent state and ended; the server accepts queries
 #   migration     alembic_version equals the head of the repository's migrations
-#                 (QD_EXPECTED_MIGRATION_HEAD, or computed from QD_MIGRATIONS_DIR)
-#   rows          each table of QD_ROWCOUNT_TABLES has rows if it has rows in the source database
+#                 (HB_EXPECTED_MIGRATION_HEAD, or computed from HB_MIGRATIONS_DIR)
+#   rows          each table of HB_ROWCOUNT_TABLES has rows if it has rows in the source database
 #   ledger        open_debt_mismatches(NULL) is empty and no customer has a negative balance (INV-3)
 #
 # Standard output is exactly one JSON line. Exit codes: 0 passed, 1 a check failed, 64 wrong usage.
@@ -20,17 +20,17 @@ set -euo pipefail
 # shellcheck source-path=SCRIPTDIR source=lib.sh
 . "$(dirname "${BASH_SOURCE[0]}")/lib.sh"
 
-: "${QD_RESTORE_TEST_DIR:=/var/tmp}"
-: "${QD_RESTORE_TEST_PORT:=55440}"
-: "${QD_RESTORE_TEST_START_TIMEOUT:=1800}"
-: "${QD_ROWCOUNT_TABLES:=shop membership customer ledger_entry}"
-: "${QD_MIGRATIONS_DIR:=$(dirname "${BASH_SOURCE[0]}")/../../../backend/migrations/versions}"
+: "${HB_RESTORE_TEST_DIR:=/var/tmp}"
+: "${HB_RESTORE_TEST_PORT:=55440}"
+: "${HB_RESTORE_TEST_START_TIMEOUT:=1800}"
+: "${HB_ROWCOUNT_TABLES:=shop membership customer ledger_entry}"
+: "${HB_MIGRATIONS_DIR:=$(dirname "${BASH_SOURCE[0]}")/../../../backend/migrations/versions}"
 
-if [ -z "${QD_PG_BIN:-}" ] && ! command -v pg_ctl > /dev/null 2>&1; then
+if [ -z "${HB_PG_BIN:-}" ] && ! command -v pg_ctl > /dev/null 2>&1; then
     # Debian and Ubuntu keep the server programs outside PATH.
-    QD_PG_BIN="$(find /usr/lib/postgresql -maxdepth 2 -type d -name bin 2> /dev/null | sort -V | tail -n 1)"
+    HB_PG_BIN="$(find /usr/lib/postgresql -maxdepth 2 -type d -name bin 2> /dev/null | sort -V | tail -n 1)"
 fi
-[ -z "${QD_PG_BIN:-}" ] || PATH="$QD_PG_BIN:$PATH"
+[ -z "${HB_PG_BIN:-}" ] || PATH="$HB_PG_BIN:$PATH"
 need pgbackrest jq psql pg_ctl flock awk df
 [ "$(id -u)" != 0 ] || die "run as the operating-system user that owns the repository (postgres), not as root"
 
@@ -67,21 +67,21 @@ finish() {
     if [ "$outcome" = ok ]; then
         code=0
         success=1
-        printf '%s\n' "${ended%.*}" > "$QD_STATE_DIR/restore-test.last-success" || true
+        printf '%s\n' "${ended%.*}" > "$HB_STATE_DIR/restore-test.last-success" || true
     elif [ "$code" = 0 ]; then
         code=1
     fi
-    last_success="$(cat "$QD_STATE_DIR/restore-test.last-success" 2> /dev/null || echo 0)"
-    write_metrics qd_backup_restore_test << EOF
-# HELP qd_backup_restore_test_last_success_timestamp_seconds When the restore test last passed; 0 if it never has.
-# TYPE qd_backup_restore_test_last_success_timestamp_seconds gauge
-qd_backup_restore_test_last_success_timestamp_seconds ${last_success}
-# HELP qd_backup_restore_test_last_run_success Whether the last restore test passed (1) or failed (0).
-# TYPE qd_backup_restore_test_last_run_success gauge
-qd_backup_restore_test_last_run_success ${success}
-# HELP qd_backup_restore_test_last_run_duration_seconds How long the last restore test took, start to removal.
-# TYPE qd_backup_restore_test_last_run_duration_seconds gauge
-qd_backup_restore_test_last_run_duration_seconds $(elapsed "$started" "$ended")
+    last_success="$(cat "$HB_STATE_DIR/restore-test.last-success" 2> /dev/null || echo 0)"
+    write_metrics hb_backup_restore_test << EOF
+# HELP hb_backup_restore_test_last_success_timestamp_seconds When the restore test last passed; 0 if it never has.
+# TYPE hb_backup_restore_test_last_success_timestamp_seconds gauge
+hb_backup_restore_test_last_success_timestamp_seconds ${last_success}
+# HELP hb_backup_restore_test_last_run_success Whether the last restore test passed (1) or failed (0).
+# TYPE hb_backup_restore_test_last_run_success gauge
+hb_backup_restore_test_last_run_success ${success}
+# HELP hb_backup_restore_test_last_run_duration_seconds How long the last restore test took, start to removal.
+# TYPE hb_backup_restore_test_last_run_duration_seconds gauge
+hb_backup_restore_test_last_run_duration_seconds $(elapsed "$started" "$ended")
 EOF
     json_line event restore_test outcome "$outcome" failed_check "$failed_check" \
         backup "$label" backup_type "$backup_type" migration_head "$head" \
@@ -120,12 +120,12 @@ repo_migration_head() {
         }' "$1"/*.py
 }
 
-mkdir -p "$QD_STATE_DIR"
-exec 9> "$QD_STATE_DIR/restore-test.lock"
+mkdir -p "$HB_STATE_DIR"
+exec 9> "$HB_STATE_DIR/restore-test.lock"
 flock -n 9 || die "another restore test is running"
 
 # A run that was killed leaves its directory behind; with the lock held it is nobody's.
-for old in "$QD_RESTORE_TEST_DIR"/qd-restore-test.*; do
+for old in "$HB_RESTORE_TEST_DIR"/hb-restore-test.*; do
     [ -d "$old" ] || continue
     note "removing a directory left by an earlier run: $old"
     stop_and_remove "$old"
@@ -137,13 +137,13 @@ read -r label backup_type database_bytes <<< "$(jq -r '
     | if . == null then "" else "\(.label) \(.type) \(.info.size)" end' <<< "$info")"
 [ -n "$label" ] || failed restore "the repository holds no backup"
 
-work="$(mktemp -d "$QD_RESTORE_TEST_DIR/qd-restore-test.XXXXXX")"
+work="$(mktemp -d "$HB_RESTORE_TEST_DIR/hb-restore-test.XXXXXX")"
 chmod 700 "$work"
 mkdir -m 700 "$work/data" "$work/sock"
 
 free_bytes="$(df --output=avail -B1 "$work" | tail -n 1 | tr -d ' ')"
 if [ "$free_bytes" -lt $((database_bytes + database_bytes / 10)) ]; then
-    failed restore "not enough free space in $QD_RESTORE_TEST_DIR: $free_bytes bytes for a database of $database_bytes"
+    failed restore "not enough free space in $HB_RESTORE_TEST_DIR: $free_bytes bytes for a database of $database_bytes"
 fi
 
 # --type=immediate: recover only as far as the backup itself needs to be consistent, then open.
@@ -159,38 +159,38 @@ echo "local all all trust" > "$work/pg_hba.conf" # the socket directory is reada
 : > "$work/pg_ident.conf"
 
 t="$(now)"
-pg_ctl -D "$work/data" -w -t "$QD_RESTORE_TEST_START_TIMEOUT" -l "$work/postgres.log" \
-    -o "-p $QD_RESTORE_TEST_PORT -c listen_addresses='' -c unix_socket_directories='$work/sock' \
+pg_ctl -D "$work/data" -w -t "$HB_RESTORE_TEST_START_TIMEOUT" -l "$work/postgres.log" \
+    -o "-p $HB_RESTORE_TEST_PORT -c listen_addresses='' -c unix_socket_directories='$work/sock' \
 -c hba_file='$work/pg_hba.conf' -c ident_file='$work/pg_ident.conf' -c archive_mode=off -c hot_standby=off \
 -c ssl=off -c shared_preload_libraries='' -c logging_collector=off -c log_destination=stderr \
--c cluster_name=qd-restore-test" start >&2 || failed start "PostgreSQL did not start on the restored files"
+-c cluster_name=hb-restore-test" start >&2 || failed start "PostgreSQL did not start on the restored files"
 
 restored_sql() {
-    psql -X -qAt -v ON_ERROR_STOP=1 -h "$work/sock" -p "$QD_RESTORE_TEST_PORT" -U "$QD_PGUSER" -d "$QD_DATABASE" -c "$1"
+    psql -X -qAt -v ON_ERROR_STOP=1 -h "$work/sock" -p "$HB_RESTORE_TEST_PORT" -U "$HB_PGUSER" -d "$HB_DATABASE" -c "$1"
 }
 
 # With hot_standby off, pg_ctl reports the server as started while it still replays WAL and refuses
 # connections. Wait until recovery has ended and a query is answered.
-deadline=$(($(date +%s) + QD_RESTORE_TEST_START_TIMEOUT))
+deadline=$(($(date +%s) + HB_RESTORE_TEST_START_TIMEOUT))
 until [ "$(restored_sql 'select pg_is_in_recovery()' 2> /dev/null || true)" = "f" ]; do
     pg_ctl -D "$work/data" status > /dev/null 2>&1 || failed start "PostgreSQL stopped while recovering"
-    [ "$(date +%s)" -lt "$deadline" ] || failed consistent "recovery did not end within $QD_RESTORE_TEST_START_TIMEOUT s"
+    [ "$(date +%s)" -lt "$deadline" ] || failed consistent "recovery did not end within $HB_RESTORE_TEST_START_TIMEOUT s"
     sleep 0.5
 done
 start_seconds="$(elapsed "$t" "$(now)")"
 grep -q 'consistent recovery state reached' "$work/postgres.log" \
     || failed consistent "the log does not show that a consistent state was reached"
 
-if [ -n "${QD_EXPECTED_MIGRATION_HEAD:-}" ]; then
-    expected="$QD_EXPECTED_MIGRATION_HEAD"
+if [ -n "${HB_EXPECTED_MIGRATION_HEAD:-}" ]; then
+    expected="$HB_EXPECTED_MIGRATION_HEAD"
 else
-    expected="$(repo_migration_head "$QD_MIGRATIONS_DIR")" \
-        || failed migration "could not find one head among the migrations in $QD_MIGRATIONS_DIR"
+    expected="$(repo_migration_head "$HB_MIGRATIONS_DIR")" \
+        || failed migration "could not find one head among the migrations in $HB_MIGRATIONS_DIR"
 fi
 head="$(restored_sql 'select version_num from alembic_version')" || failed migration "alembic_version could not be read"
 [ "$head" = "$expected" ] || failed migration "the restored database is at migration '$head', the repository at '$expected'"
 
-for table in $QD_ROWCOUNT_TABLES; do
+for table in $HB_ROWCOUNT_TABLES; do
     [[ "$table" =~ ^[a-z_][a-z0-9_.]*$ ]] || failed rows "not a table name: $table"
     in_source="$(source_sql "select count(*) from $table")" || failed rows "the source database could not be asked about $table"
     in_restored="$(restored_sql "select count(*) from $table")" || failed rows "the restored database could not be asked about $table"

@@ -65,6 +65,7 @@ describe("staff shell", () => {
       "Клиенты",
       "Новая запись",
       "Каталог",
+      "Мои долги",
       "Напоминания",
       "Отчёты",
       "Споры и запросы",
@@ -109,6 +110,7 @@ describe("staff shell", () => {
     const links = within(screen.getByRole("main")).getAllByRole("link");
     expect(links.map((link) => link.textContent)).toEqual([
       "Katalog",
+      "Qarzlarim",
       "Eslatmalar",
       "Hisobotlar",
       "E'tirozlar va so'rovlar",

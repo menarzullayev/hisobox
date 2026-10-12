@@ -233,7 +233,7 @@ describe("the template", () => {
     expect(screen.queryByRole("link", { name: "Namuna faylni saqlash" })).toBeNull();
     fireEvent.click(screen.getByRole("button", { name: "Namuna faylni tayyorlash" }));
     const link = await screen.findByRole("link", { name: "Namuna faylni saqlash" });
-    expect([link.getAttribute("href"), link.getAttribute("download")]).toEqual(["blob:template", "qarz-daftari-import.xlsx"]);
+    expect([link.getAttribute("href"), link.getAttribute("download")]).toEqual(["blob:template", "hiso-box-import.xlsx"]);
     expect(server.sent.filter((sent) => sent.path.endsWith("/template")).map((sent) => sent.method)).toEqual(["GET"]);
     expect(server.writes()).toEqual([]);
   });

@@ -9,7 +9,7 @@ import pytest
 from aiogram.exceptions import TelegramBadRequest, TelegramNetworkError
 from aiogram.methods import GetFile
 
-from qarz.infrastructure.telegram_files import TelegramFileFetcher
+from hiso_box.infrastructure.telegram_files import TelegramFileFetcher
 
 CONTENT = b"\xff\xd8\xff receipt bytes"
 SIZE = len(CONTENT)

@@ -16,10 +16,10 @@ import psycopg
 import pytest
 from fastapi.testclient import TestClient
 
-from qarz.application.auth import AuthService
-from qarz.domain.promise import TASHKENT, tashkent_date
-from qarz.infrastructure.db import Database
-from qarz.interface.http import create_app
+from hiso_box.application.auth import AuthService
+from hiso_box.domain.promise import TASHKENT, tashkent_date
+from hiso_box.infrastructure.db import Database
+from hiso_box.interface.http import create_app
 
 from .conftest import TEST_BOT_TOKEN, HeaderAuthenticator, MovableClock, World, as_user
 from .test_customers_ledger import (

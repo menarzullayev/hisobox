@@ -6,10 +6,10 @@ from collections.abc import AsyncIterator
 
 import pytest
 
-from qarz.application.errors import ValidationFailed
-from qarz.interface.payment_notices_api import parse_form, parse_notice, read_limited
+from hiso_box.application.errors import ValidationFailed
+from hiso_box.interface.payment_notices_api import parse_form, parse_notice, read_limited
 
-BOUNDARY = "----qd-test-boundary-7f3a"
+BOUNDARY = "----hb-test-boundary-7f3a"
 FORM = f"multipart/form-data; boundary={BOUNDARY}"
 
 

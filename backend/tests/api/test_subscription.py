@@ -10,12 +10,12 @@ import psycopg
 import pytest
 from fastapi.testclient import TestClient
 
-from qarz.application.chat_texts import day as show_day
-from qarz.application.chat_texts import money, say
-from qarz.application.reminders import ReminderService
-from qarz.application.scheduler import Scheduler
-from qarz.application.subscription import SubscriptionService
-from qarz.infrastructure.db import Database
+from hiso_box.application.chat_texts import day as show_day
+from hiso_box.application.chat_texts import money, say
+from hiso_box.application.reminders import ReminderService
+from hiso_box.application.scheduler import Scheduler
+from hiso_box.application.subscription import SubscriptionService
+from hiso_box.infrastructure.db import Database
 
 from .conftest import World, as_user
 from .test_chat import chat_of

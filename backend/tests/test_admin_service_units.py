@@ -14,10 +14,10 @@ from uuid import uuid4
 
 import pytest
 
-from qarz.application.admin import AdminService
-from qarz.application.admin_access import AdminAccess
-from qarz.application.errors import NotFound
-from qarz.application.ports import LockedSubscription, Storage
+from hiso_box.application.admin import AdminService
+from hiso_box.application.admin_access import AdminAccess
+from hiso_box.application.errors import NotFound
+from hiso_box.application.ports import LockedSubscription, Storage
 
 
 class _Session:

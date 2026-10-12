@@ -10,9 +10,9 @@ from typing import Any
 import psycopg
 import pytest
 
-from qarz.application.dispatch import GIVE_UP_AFTER, GLOBAL_PER_SECOND, LEASE_SECONDS, Dispatcher, backoff
-from qarz.application.ports import RecipientBlocked, RetryLater, SendFailed, SendRejected
-from qarz.infrastructure.db import Database
+from hiso_box.application.dispatch import GIVE_UP_AFTER, GLOBAL_PER_SECOND, LEASE_SECONDS, Dispatcher, backoff
+from hiso_box.application.ports import RecipientBlocked, RetryLater, SendFailed, SendRejected
+from hiso_box.infrastructure.db import Database
 
 pytestmark = pytest.mark.db
 
@@ -253,9 +253,9 @@ def test_only_the_narrow_function_can_cross_tenants(worker_database_url: str, ow
         assert conn.execute("UPDATE customer_link SET status = 'unreachable'").rowcount == 0
     row = owner.execute(
         "SELECT has_function_privilege('public', 'mark_recipient_unreachable(bigint)', 'EXECUTE'), "
-        "       has_function_privilege('qd_worker', 'mark_recipient_unreachable(bigint)', 'EXECUTE'), "
+        "       has_function_privilege('hb_worker', 'mark_recipient_unreachable(bigint)', 'EXECUTE'), "
         "       (SELECT prosecdef FROM pg_proc WHERE proname = 'mark_recipient_unreachable'), "
-        "       has_function_privilege('qd_app', 'mark_recipient_unreachable(bigint)', 'EXECUTE')"
+        "       has_function_privilege('hb_app', 'mark_recipient_unreachable(bigint)', 'EXECUTE')"
     ).fetchone()
     assert row == (False, True, True, False)
 

@@ -18,10 +18,10 @@ import re
 import sys
 from collections.abc import Mapping
 
-from qarz.application import chat_texts, export_texts, texts_en, texts_kaa, texts_tg
-from qarz.domain import languages, permissions
-from qarz.domain.uz_cyrillic import to_cyrillic
-from qarz.interface.errors import _MESSAGES
+from hiso_box.application import chat_texts, export_texts, texts_en, texts_kaa, texts_tg
+from hiso_box.domain import languages, permissions
+from hiso_box.domain.uz_cyrillic import to_cyrillic
+from hiso_box.interface.errors import _MESSAGES
 
 TRAILING = {"tg": texts_tg, "kaa": texts_kaa, "en": texts_en}
 # The SMS wordings exist in Uzbek and Russian only, on purpose: each must be registered with the provider.

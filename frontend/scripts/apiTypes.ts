@@ -2,7 +2,7 @@
  * The API's types, generated from the back end's description (ADR-012, ADR-013).
  *
  * `backend/openapi.json` is written by the back end from its own code
- * (`python -m qarz.interface.api_description`). This script turns it into `src/shared/api.generated.ts`,
+ * (`python -m hiso_box.interface.api_description`). This script turns it into `src/shared/api.generated.ts`,
  * which is committed, so that building the front end needs no Python. The file holds types only and adds
  * nothing to the bundle.
  *

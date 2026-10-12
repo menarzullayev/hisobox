@@ -126,10 +126,10 @@ def test_two_workers_never_take_the_same_job(
     second_job = _job(owner, shop_b, created_at=NOW - timedelta(minutes=1))
     with psycopg.connect(database_url) as one, psycopg.connect(database_url) as two:
         for conn in (one, two):
-            conn.execute("SET ROLE qd_worker")
+            conn.execute("SET ROLE hb_worker")
         # Both transactions are open at once: the second does not wait for the first, it takes the next job.
         assert _claim(one) == (first_job, shop_a.shop_id, 1)
         assert _claim(two) == (second_job, shop_b.shop_id, 1)
         with psycopg.connect(database_url) as three:
-            three.execute("SET ROLE qd_worker")
+            three.execute("SET ROLE hb_worker")
             assert _claim(three) is None

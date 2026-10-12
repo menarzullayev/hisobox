@@ -88,5 +88,5 @@ END $$;
 
 REVOKE ALL ON FUNCTION shops_to_erase() FROM PUBLIC;
 REVOKE ALL ON FUNCTION erase_shop(uuid) FROM PUBLIC;
-GRANT EXECUTE ON FUNCTION shops_to_erase() TO qd_app;
-GRANT EXECUTE ON FUNCTION erase_shop(uuid) TO qd_app;
+GRANT EXECUTE ON FUNCTION shops_to_erase() TO hb_app;
+GRANT EXECUTE ON FUNCTION erase_shop(uuid) TO hb_app;

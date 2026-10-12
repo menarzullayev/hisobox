@@ -3,7 +3,7 @@
 A test marked `xfail(strict=True, reason="security review finding N")` demonstrates a confirmed defect: it
 states what must hold and fails today. The others pin down what the review checked and found sound.
 
-The attacker in the marked tests is the application role itself, `qd_app`, running statements of its own:
+The attacker in the marked tests is the application role itself, `hb_app`, running statements of its own:
 what a flaw in the application would give. The specification promises that the ledger stays insert-only
 and that one shop cannot reach another "below the application code as well as in it".
 """
@@ -14,7 +14,7 @@ import uuid
 import psycopg
 import pytest
 
-from qarz.infrastructure.db import Database
+from hiso_box.infrastructure.db import Database
 from tests.conftest import AppSession, Shop, add_entry
 
 pytestmark = pytest.mark.db
@@ -218,12 +218,12 @@ def _rights_of_the_application(conn: psycopg.Connection) -> dict[str, tuple[set[
         held = {
             right
             for right in _TABLE_RIGHTS
-            if conn.execute("SELECT has_table_privilege('qd_app', %s, %s)", (f"public.{table}", right)).fetchone()
+            if conn.execute("SELECT has_table_privilege('hb_app', %s, %s)", (f"public.{table}", right)).fetchone()
             == (True,)
         }
         columns = conn.execute(
             "SELECT a.attname FROM pg_attribute a WHERE a.attrelid = %s::regclass AND a.attnum > 0 "
-            "AND NOT a.attisdropped AND has_column_privilege('qd_app', a.attrelid, a.attnum, 'UPDATE')",
+            "AND NOT a.attisdropped AND has_column_privilege('hb_app', a.attrelid, a.attnum, 'UPDATE')",
             (f"public.{table}",),
         ).fetchall()
         found[table] = (held, set() if "UPDATE" in held else {name for (name,) in columns})
@@ -239,7 +239,7 @@ def test_the_rights_check_catches_a_table_granted_carelessly(database_url: str) 
     """The counterpart: a new platform table handed over whole is reported. Rolled back, so it never exists."""
     with psycopg.connect(database_url) as conn:
         conn.execute("CREATE TABLE review_careless (id integer PRIMARY KEY)")
-        conn.execute("GRANT ALL ON review_careless TO qd_app")
+        conn.execute("GRANT ALL ON review_careless TO hb_app")
         found = _rights_of_the_application(conn)
         conn.rollback()
     assert found != _PLATFORM_RIGHTS
@@ -401,12 +401,12 @@ def test_nobody_else_changes_a_setting_through_the_function(
 def test_only_one_role_may_call_each_of_the_new_functions(owner: psycopg.Connection) -> None:
     """Each belongs to one part of the application since migration 0031."""
     for function, role in (
-        ("admin_set_platform_setting(uuid, text, jsonb, text, jsonb, timestamptz)", "qd_admin"),
-        ("purge_expired_sign_ins()", "qd_worker"),
-        ("claim_owned_shop(uuid, boolean)", "qd_app"),
+        ("admin_set_platform_setting(uuid, text, jsonb, text, jsonb, timestamptz)", "hb_admin"),
+        ("purge_expired_sign_ins()", "hb_worker"),
+        ("claim_owned_shop(uuid, boolean)", "hb_app"),
     ):
         row = owner.execute(
-            "SELECT array(SELECT r FROM unnest(ARRAY['qd_app', 'qd_admin', 'qd_worker', 'public']) AS r "
+            "SELECT array(SELECT r FROM unnest(ARRAY['hb_app', 'hb_admin', 'hb_worker', 'public']) AS r "
             "WHERE has_function_privilege(r, %s, 'EXECUTE'))",
             (function,),
         ).fetchone()
@@ -500,7 +500,7 @@ def test_a_trial_claimed_in_a_transaction_that_fails_is_not_used_up(
 ) -> None:
     person = _person(owner)
     with psycopg.connect(database_url) as conn:
-        conn.execute("SET ROLE qd_app")
+        conn.execute("SET ROLE hb_app")
         assert conn.execute(_CLAIM, (person, True)).fetchone() == ("trial",)
         conn.rollback()
     assert owner.execute("SELECT trial_used_at FROM app_user WHERE id = %s", (person,)).fetchone() == (None,)
@@ -530,7 +530,7 @@ def test_two_claims_of_a_trial_are_taken_one_after_the_other_and_nothing_else_wa
     person, other = _person(owner), _person(owner)
     with psycopg.connect(database_url) as first, psycopg.connect(database_url) as second:
         for conn in (first, second):
-            conn.execute("SET ROLE qd_app")
+            conn.execute("SET ROLE hb_app")
         assert first.execute(_CLAIM, (person, True)).fetchone() == ("trial",)
         second.execute("SET lock_timeout = '300ms'")
         assert second.execute(_CLAIM, (other, True)).fetchone() == ("trial",)
@@ -539,6 +539,6 @@ def test_two_claims_of_a_trial_are_taken_one_after_the_other_and_nothing_else_wa
             second.execute(_CLAIM, (person, True))
         second.rollback()
         first.commit()
-        second.execute("SET ROLE qd_app")
+        second.execute("SET ROLE hb_app")
         assert second.execute(_CLAIM, (person, True)).fetchone() == ("limited",), "the trial was taken"
         second.rollback()

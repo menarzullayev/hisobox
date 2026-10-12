@@ -17,9 +17,9 @@ Rules the rows follow, because the database or the domain layer would refuse any
   reversed, and carries its amount (INV-5, INV-6);
 - every credit sale and opening balance has a promise, between the sale date and 365 days after it;
 - goods lines exist only on credit sales, share one `batch_at`, are numbered from 1, and their totals,
-  each rounded as `qarz.domain.rounding.line_total` rounds, sum to the entry amount;
+  each rounded as `hiso_box.domain.rounding.line_total` rounds, sum to the entry amount;
 - an archived customer owes nothing;
-- names are normalized by `qarz.domain.names.normalize_name`, exactly as the application stores them.
+- names are normalized by `hiso_box.domain.names.normalize_name`, exactly as the application stores them.
 """
 
 import hashlib
@@ -31,9 +31,9 @@ from decimal import Decimal
 from typing import Any
 from uuid import UUID
 
-from qarz.domain.names import normalize_name
-from qarz.domain.promise import tashkent_date
-from qarz.domain.rounding import line_total
+from hiso_box.domain.names import normalize_name
+from hiso_box.domain.promise import tashkent_date
+from hiso_box.domain.rounding import line_total
 
 Row = tuple[Any, ...]
 
@@ -241,7 +241,7 @@ def session_token(seed: int, user_id: UUID) -> str:
 
     Predictable on purpose, which is why the loader refuses any database that is not a throwaway one.
     """
-    return "lt" + hashlib.sha256(f"qd-loadtest:{seed}:{user_id}".encode()).hexdigest()[:46]
+    return "lt" + hashlib.sha256(f"hb-loadtest:{seed}:{user_id}".encode()).hexdigest()[:46]
 
 
 def _uuid(rng: random.Random) -> UUID:
@@ -414,7 +414,7 @@ def _account(
 
 
 def _shop(profile: Profile, seed: int, now: datetime, index: int, customers: int, entries: int | None) -> ShopData:
-    rng = random.Random(f"qd-loadtest:{seed}:{index}")  # noqa: S311  (test data, not a secret)
+    rng = random.Random(f"hb-loadtest:{seed}:{index}")  # noqa: S311  (test data, not a secret)
     large = entries is not None
     shop = ShopData(index, _uuid(rng), large)
     rows = shop.rows
@@ -503,7 +503,7 @@ def generate(profile: Profile, seed: int, now: datetime) -> Iterator[ShopData]:
     now = now.astimezone(UTC).replace(microsecond=0)
     small_shops = profile.shops - profile.large_shops
     small_customers = profile.customers - profile.large_shops * profile.large_customers
-    sizing = random.Random(f"qd-loadtest:{seed}:sizes")  # noqa: S311
+    sizing = random.Random(f"hb-loadtest:{seed}:sizes")  # noqa: S311
     small_sizes = _split(small_customers, small_shops, sizing, sigma=0.6, least=2)
     for index in range(profile.shops):
         if index < profile.large_shops:

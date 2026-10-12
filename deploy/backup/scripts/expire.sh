@@ -2,10 +2,10 @@
 # Remove what the retention rules no longer keep.
 #
 #   1. pgBackRest expiry, by the retention settings of pgbackrest.conf (full, differential, WAL).
-#   2. Weekly file store archives (files-YYYYMMDD.tar.gz.enc): the newest QD_FILES_KEEP_WEEKS (8) are
-#      kept, and the first archive of each of the newest QD_KEEP_MONTHS (12) months.
+#   2. Weekly file store archives (files-YYYYMMDD.tar.gz.enc): the newest HB_FILES_KEEP_WEEKS (8) are
+#      kept, and the first archive of each of the newest HB_KEEP_MONTHS (12) months.
 #   3. Monthly database dumps (db-YYYYMM.dump.enc with globals-YYYYMM.sql.enc): the newest
-#      QD_KEEP_MONTHS (12) months are kept.
+#      HB_KEEP_MONTHS (12) months are kept.
 #
 #   expire.sh --dry-run    say what would be removed and remove nothing
 #
@@ -18,8 +18,8 @@ dry=0
 [ "${1:-}" = "--dry-run" ] && dry=1
 need pgbackrest jq awk
 
-: "${QD_FILES_KEEP_WEEKS:=8}"
-: "${QD_KEEP_MONTHS:=12}"
+: "${HB_FILES_KEEP_WEEKS:=8}"
+: "${HB_KEEP_MONTHS:=12}"
 
 started="$(now)"
 outcome=failed
@@ -77,9 +77,9 @@ backups_after="$(count_backups)"
 # Weekly archives: keep the newest W, and the first of each of the newest M months.
 while IFS= read -r day; do
     [ -n "$day" ] || continue
-    remove "$QD_FILES_ARCHIVE_DIR/files-$day.tar.gz.enc"
+    remove "$HB_FILES_ARCHIVE_DIR/files-$day.tar.gz.enc"
     files_removed=$((files_removed + 1))
-done < <(names "$QD_FILES_ARCHIVE_DIR" files- .tar.gz.enc | awk -v w="$QD_FILES_KEEP_WEEKS" -v m="$QD_KEEP_MONTHS" '
+done < <(names "$HB_FILES_ARCHIVE_DIR" files- .tar.gz.enc | awk -v w="$HB_FILES_KEEP_WEEKS" -v m="$HB_KEEP_MONTHS" '
     { day[NR] = $1; month = substr($1, 1, 6); if (!(month in first)) { first[month] = NR; months[++nm] = month } }
     END {
         for (i = NR; i > NR - w && i >= 1; i--) keep[i] = 1
@@ -90,10 +90,10 @@ done < <(names "$QD_FILES_ARCHIVE_DIR" files- .tar.gz.enc | awk -v w="$QD_FILES_
 # Monthly dumps: keep the newest M.
 while IFS= read -r month; do
     [ -n "$month" ] || continue
-    remove "$QD_MONTHLY_DIR/db-$month.dump.enc"
-    [ ! -f "$QD_MONTHLY_DIR/globals-$month.sql.enc" ] || remove "$QD_MONTHLY_DIR/globals-$month.sql.enc"
+    remove "$HB_MONTHLY_DIR/db-$month.dump.enc"
+    [ ! -f "$HB_MONTHLY_DIR/globals-$month.sql.enc" ] || remove "$HB_MONTHLY_DIR/globals-$month.sql.enc"
     dumps_removed=$((dumps_removed + 1))
-done < <(names "$QD_MONTHLY_DIR" db- .dump.enc | awk -v m="$QD_KEEP_MONTHS" '
+done < <(names "$HB_MONTHLY_DIR" db- .dump.enc | awk -v m="$HB_KEEP_MONTHS" '
     { month[NR] = $1 }
     END { for (i = 1; i <= NR - m; i++) print month[i] }')
 

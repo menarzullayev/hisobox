@@ -15,8 +15,8 @@ from typing import Any
 
 import pytest
 
-from qarz.application.ports import FileMissing, FileStore, FileStoreError
-from qarz.infrastructure.file_store import (
+from hiso_box.application.ports import FileMissing, FileStore, FileStoreError
+from hiso_box.infrastructure.file_store import (
     EMPTY_SHA256,
     FilesystemFileStore,
     HttpTransport,
@@ -24,7 +24,7 @@ from qarz.infrastructure.file_store import (
     build_file_store,
     sign_v4,
 )
-from qarz.infrastructure.settings import Settings
+from hiso_box.infrastructure.settings import Settings
 
 KEY = "ab/" + "ab" + "c" * 62
 UNSAFE_KEYS = [
@@ -233,7 +233,7 @@ class StubS3:
 def s3_store(stub: StubS3, **overrides: Any) -> S3FileStore:
     arguments: dict[str, Any] = {
         "endpoint": "http://files.internal:3900",
-        "bucket": "qd-files",
+        "bucket": "hb-files",
         "region": "garage",
         "access_key": "GKtest",
         "secret_key": "test-only-secret",
@@ -249,7 +249,7 @@ def test_the_s3_store_puts_gets_and_deletes_path_style_with_signed_requests() ->
     store: FileStore = s3_store(stub)
     content = b"\xff\xd8\xff receipt"
     run(store.put(KEY, content, "image/jpeg"))
-    assert stub.objects == {f"/qd-files/{KEY}": content}
+    assert stub.objects == {f"/hb-files/{KEY}": content}
     assert run(store.get(KEY)) == content
     run(store.delete(KEY))
     assert stub.objects == {}
@@ -258,11 +258,11 @@ def test_the_s3_store_puts_gets_and_deletes_path_style_with_signed_requests() ->
         run(store.get(KEY))
 
     assert [(method, path) for method, path, _, _ in stub.requests] == [
-        ("PUT", f"/qd-files/{KEY}"),
-        ("GET", f"/qd-files/{KEY}"),
-        ("DELETE", f"/qd-files/{KEY}"),
-        ("DELETE", f"/qd-files/{KEY}"),
-        ("GET", f"/qd-files/{KEY}"),
+        ("PUT", f"/hb-files/{KEY}"),
+        ("GET", f"/hb-files/{KEY}"),
+        ("DELETE", f"/hb-files/{KEY}"),
+        ("DELETE", f"/hb-files/{KEY}"),
+        ("GET", f"/hb-files/{KEY}"),
     ]
     method, path, headers, body = stub.requests[0]
     assert body == content
@@ -313,7 +313,7 @@ def test_an_answer_that_is_not_success_is_an_error_that_carries_no_content(statu
 
 def test_a_network_failure_is_reported_by_kind_only() -> None:
     stub = StubS3()
-    stub.error = ConnectionRefusedError("http://files.internal:3900/qd-files/secret refused")
+    stub.error = ConnectionRefusedError("http://files.internal:3900/hb-files/secret refused")
     with pytest.raises(FileStoreError) as raised:
         run(s3_store(stub).put(KEY, b"x", "image/png"))
     assert str(raised.value) == "ConnectionRefusedError"
@@ -323,9 +323,9 @@ def test_a_network_failure_is_reported_by_kind_only() -> None:
 def test_an_object_larger_than_any_the_service_stores_is_not_returned() -> None:
     stub = StubS3()
     store = s3_store(stub, max_object_bytes=8)
-    stub.objects[f"/qd-files/{KEY}"] = b"12345678"
+    stub.objects[f"/hb-files/{KEY}"] = b"12345678"
     assert run(store.get(KEY)) == b"12345678"
-    stub.objects[f"/qd-files/{KEY}"] = b"123456789"
+    stub.objects[f"/hb-files/{KEY}"] = b"123456789"
     with pytest.raises(FileStoreError):
         run(store.get(KEY))
 
@@ -371,9 +371,9 @@ class _Handler(http.server.BaseHTTPRequestHandler):
 
     def do_GET(self) -> None:
         self._record()
-        if self.path == "/qd-files/re/direct":
+        if self.path == "/hb-files/re/direct":
             self.send_response(302)
-            self.send_header("Location", "/qd-files/" + KEY)
+            self.send_header("Location", "/hb-files/" + KEY)
             self.send_header("Content-Length", "0")
             self.end_headers()
             return
@@ -409,7 +409,7 @@ def loopback_s3() -> Iterator[str]:
 def test_the_s3_store_over_http_round_trips_binary_content(loopback_s3: str) -> None:
     store = S3FileStore(
         endpoint=loopback_s3,
-        bucket="qd-files",
+        bucket="hb-files",
         region="garage",
         access_key="GKtest",
         secret_key="test-only-secret",
@@ -417,7 +417,7 @@ def test_the_s3_store_over_http_round_trips_binary_content(loopback_s3: str) -> 
     )
     content = bytes(range(256)) * 8
     run(store.put(KEY, content, "application/pdf"))
-    assert _Handler.objects == {f"/qd-files/{KEY}": content}
+    assert _Handler.objects == {f"/hb-files/{KEY}": content}
     assert run(store.get(KEY)) == content
     run(store.delete(KEY))
     run(store.delete(KEY))
@@ -435,16 +435,16 @@ def test_the_s3_store_over_http_round_trips_binary_content(loopback_s3: str) -> 
 def test_a_redirect_is_not_followed_and_an_oversized_answer_is_refused(loopback_s3: str) -> None:
     store = S3FileStore(
         endpoint=loopback_s3,
-        bucket="qd-files",
+        bucket="hb-files",
         region="garage",
         access_key="GKtest",
         secret_key="test-only-secret",
         max_object_bytes=16,
     )
-    _Handler.objects[f"/qd-files/{KEY}"] = b"x" * 17
+    _Handler.objects[f"/hb-files/{KEY}"] = b"x" * 17
     with pytest.raises(FileStoreError):
         run(store.get(KEY))
-    _Handler.objects[f"/qd-files/{KEY}"] = b"x" * 16
+    _Handler.objects[f"/hb-files/{KEY}"] = b"x" * 16
     assert run(store.get(KEY)) == b"x" * 16
     with pytest.raises(FileStoreError, match="302"):
         run(store.get("re/direct"))
@@ -454,7 +454,7 @@ def test_an_unreachable_store_is_an_error_not_a_hang() -> None:
     transport = HttpTransport("http://127.0.0.1:1", timeout=2, max_response_bytes=16)
     store = S3FileStore(
         endpoint="http://127.0.0.1:1",
-        bucket="qd-files",
+        bucket="hb-files",
         region="garage",
         access_key="GKtest",
         secret_key="test-only-secret",
@@ -473,7 +473,7 @@ def test_the_transport_speaks_http_or_https_only(endpoint: str) -> None:
 
 # --- which store the environment names -------------------------------------------------------------------
 
-DB = "postgresql://qd_app:unused@127.0.0.1:1/unused"
+DB = "postgresql://hb_app:unused@127.0.0.1:1/unused"
 
 
 def test_the_store_is_chosen_by_the_environment(tmp_path: Path) -> None:
@@ -487,7 +487,7 @@ def test_the_store_is_chosen_by_the_environment(tmp_path: Path) -> None:
             database_url=DB,
             file_store="S3",
             s3_endpoint="http://127.0.0.1:3900",
-            s3_bucket="qd-files",
+            s3_bucket="hb-files",
             s3_region="garage",
             s3_access_key="GKtest",
             s3_secret_key="test-only-secret",
@@ -502,13 +502,13 @@ def test_the_store_is_chosen_by_the_environment(tmp_path: Path) -> None:
     [
         {"file_store": "filesystem"},  # no directory
         {"file_store": "s3"},  # nothing about the bucket
-        {"file_store": "s3", "s3_endpoint": "http://127.0.0.1:3900", "s3_bucket": "qd-files"},  # no credentials
+        {"file_store": "s3", "s3_endpoint": "http://127.0.0.1:3900", "s3_bucket": "hb-files"},  # no credentials
         {"file_store": "minio"},
         {"file_store": "database"},
     ],
 )
 def test_a_store_that_is_named_but_not_configured_stops_the_start(settings: dict[str, str]) -> None:
-    with pytest.raises(ValueError, match=r"QD_FILE|file store"):
+    with pytest.raises(ValueError, match=r"HB_FILE|file store"):
         build_file_store(Settings(database_url=DB, **settings), max_object_bytes=16)
 
 
@@ -516,6 +516,6 @@ def test_every_setting_is_named_in_the_example_environment_file_without_a_secret
     example = (Path(__file__).resolve().parents[2] / ".env.example").read_text(encoding="utf-8")
     lines = {line.split("=", 1)[0]: line.split("=", 1)[1] for line in example.splitlines() if "=" in line[:40]}
     for field in Settings.model_fields:
-        assert f"QD_{field.upper()}" in lines, f"add QD_{field.upper()} to .env.example"
-    for secret in ("QD_S3_ACCESS_KEY", "QD_S3_SECRET_KEY", "QD_BOT_TOKEN", "QD_WEBHOOK_SECRET", "QD_SECRETS_KEY"):
+        assert f"HB_{field.upper()}" in lines, f"add HB_{field.upper()} to .env.example"
+    for secret in ("HB_S3_ACCESS_KEY", "HB_S3_SECRET_KEY", "HB_BOT_TOKEN", "HB_WEBHOOK_SECRET", "HB_SECRETS_KEY"):
         assert lines[secret] == "", f"{secret} must have no value in the example file"

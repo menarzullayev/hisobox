@@ -23,13 +23,13 @@ from cryptography.hazmat.primitives import hashes, serialization
 from cryptography.hazmat.primitives.asymmetric import ec
 from fastapi.testclient import TestClient
 
-from qarz.application.admin_access import AdminAccess
-from qarz.application.admin_passkeys import PasskeySite
-from qarz.application.admin_sign_in import AdminSignIn
-from qarz.application.auth import AuthService
-from qarz.domain import passkey
-from qarz.infrastructure.db import Database
-from qarz.interface.http import create_app
+from hiso_box.application.admin_access import AdminAccess
+from hiso_box.application.admin_passkeys import PasskeySite
+from hiso_box.application.admin_sign_in import AdminSignIn
+from hiso_box.application.auth import AuthService
+from hiso_box.domain import passkey
+from hiso_box.infrastructure.db import Database
+from hiso_box.interface.http import create_app
 
 from .conftest import (
     ADMIN_API,
@@ -380,13 +380,13 @@ def test_without_a_site_there_are_no_passkeys(
 
 
 def test_a_host_that_is_not_a_bare_host_name_refuses_to_start(monkeypatch: pytest.MonkeyPatch) -> None:
-    from qarz.infrastructure.settings import Settings
+    from hiso_box.infrastructure.settings import Settings
 
-    monkeypatch.delenv("QD_PASSKEY_HOST", raising=False)
+    monkeypatch.delenv("HB_PASSKEY_HOST", raising=False)
     assert Settings().passkey_site_host() is None
-    monkeypatch.setenv("QD_PASSKEY_HOST", "Admin.Example.UZ")
+    monkeypatch.setenv("HB_PASSKEY_HOST", "Admin.Example.UZ")
     assert Settings().passkey_site_host() == "admin.example.uz"
     for bad in ("https://admin.example.uz", "admin.example.uz:443", "admin.example.uz/panel", "localhost", "a b.uz"):
-        monkeypatch.setenv("QD_PASSKEY_HOST", bad)
-        with pytest.raises(ValueError, match="QD_PASSKEY_HOST"):
+        monkeypatch.setenv("HB_PASSKEY_HOST", bad)
+        with pytest.raises(ValueError, match="HB_PASSKEY_HOST"):
             Settings().passkey_site_host()

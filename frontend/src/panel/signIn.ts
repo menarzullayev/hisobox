@@ -1,7 +1,7 @@
 import { type ApiAuth, call, type Fetch, reading } from "../shared/api";
 
 /**
- * The web panel's session (ADR-017, backend/src/qarz/interface/auth_api.py).
+ * The web panel's session (ADR-017, backend/src/hiso_box/interface/auth_api.py).
  *
  * Telegram's Login Widget sends the browser back to the page with the person's signed data in the query
  * string, which the page takes out of the address at once (`loginReturn.ts`).

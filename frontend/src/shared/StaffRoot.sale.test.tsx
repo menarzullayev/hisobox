@@ -17,7 +17,7 @@ import { EAN, SALE_ID, saleBody, saleRowBody, salesListBody, stockItemBody, stoc
  * "stock.sell"), and nothing a screen asks may be refused.
  */
 
-const ON = { "X-Qarz-Stock": "on" };
+const ON = { "X-Shop-Stock": "on" };
 const NOT_FOUND = refusal(404, "NOT_FOUND", "Topilmadi.");
 const FIND = "Tovar: shtrix-kodni skanerlang yoki nom yozing";
 
@@ -56,7 +56,7 @@ function backend(role: Role, header: Record<string, string>, permissions?: strin
         return {
           status: 200,
           body: { items: [{ shop_id: SHOP_ID, name: "Baraka savdo", role, membership_id: "33333333-3333-4333-8333-333333333333" }], active_shop: SHOP_ID },
-          headers: { ...header, ...(permissions ? { "X-Qarz-Permissions": "on" } : {}) },
+          headers: { ...header, ...(permissions ? { "X-Shop-Permissions": "on" } : {}) },
         };
       case "/api/v1/me/accounts":
         return ok({ items: [] });
@@ -109,7 +109,7 @@ describe("a cash sale while the stock is switched off", () => {
   });
 
   it("is not switched on by the cash book's switch, nor by holding its permissions", async () => {
-    const server = backend("seller", { "X-Qarz-Cash-Book": "on" }, ["ledger.view", "stock.view", "stock.sell", "stock.sell.cancel"]);
+    const server = backend("seller", { "X-Shop-Cash-Book": "on" }, ["ledger.view", "stock.view", "stock.sell", "stock.sell.cancel"]);
     await miniApp(server);
     for (const address of SALE_ADDRESSES) {
       go(address);

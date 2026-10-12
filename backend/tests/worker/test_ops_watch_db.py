@@ -16,12 +16,12 @@ from datetime import UTC, datetime, timedelta
 import psycopg
 import pytest
 
-from qarz.application.ops_watch import AlertNotDelivered, OpsWatch
-from qarz.application.reminders import ReminderService
-from qarz.application.scheduler import LEDGER_CHECK, STOCK_CHECK, Scheduler
-from qarz.domain import ops_alerts as rules
-from qarz.domain.ops_alerts import Alert
-from qarz.infrastructure.db import Database
+from hiso_box.application.ops_watch import AlertNotDelivered, OpsWatch
+from hiso_box.application.reminders import ReminderService
+from hiso_box.application.scheduler import LEDGER_CHECK, STOCK_CHECK, Scheduler
+from hiso_box.domain import ops_alerts as rules
+from hiso_box.domain.ops_alerts import Alert
+from hiso_box.infrastructure.db import Database
 
 from ..conftest import AppSession, Shop, add_entry
 from ..db.test_stock_schema import item, move, supplier, supplier_entry

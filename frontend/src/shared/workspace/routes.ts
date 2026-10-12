@@ -7,6 +7,8 @@ export type WorkspaceRoute =
   | { screen: "pickCustomer" }
   | { screen: "newCustomer" }
   | { screen: "customer"; customerId: string }
+  | { screen: "payables" }
+  | { screen: "payableContact"; contactId: string }
   | { screen: "entry"; customerId: string; kind: EntryKind }
   | { screen: "addGoods"; customerId: string; entryId: string }
   | { screen: "waiting" }
@@ -67,6 +69,7 @@ export type WorkspaceMatch = {
 // Identifiers are UUIDs. Anything else in their place is an unknown route, not a request to the server.
 const ID = "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}";
 const CUSTOMER = new RegExp(`^/customers/(${ID})$`, "i");
+const PAYABLE_CONTACT = new RegExp(`^/payables/(${ID})$`, "i");
 const ENTRY = new RegExp(`^/customers/(${ID})/(credit|payment)$`, "i");
 const STOCK_ITEM = new RegExp(`^/stock/items/(${ID})$`, "i");
 const STOCK_DOCUMENT = new RegExp(`^/stock-documents/(${ID})$`, "i");
@@ -89,6 +92,8 @@ export function matchWorkspaceRoute(path: string): WorkspaceMatch | null {
       return { route: { screen: "customers" }, sectionPath: "/customers", titleKey: "nav.customers" };
     case "/customers/new":
       return { route: { screen: "newCustomer" }, sectionPath: "/customers", titleKey: "customers.add" };
+    case "/payables":
+      return { route: { screen: "payables" }, sectionPath: "/payables", titleKey: "nav.payables" };
     // Connecting customers is part of the customer book, so the phone's tab bar stays as it is.
     case "/customers/waiting":
       return { route: { screen: "waiting" }, sectionPath: "/customers", titleKey: "waiting.title" };
@@ -134,6 +139,14 @@ export function matchWorkspaceRoute(path: string): WorkspaceMatch | null {
       route: { screen: "customer", customerId: customer[1] },
       sectionPath: "/customers",
       titleKey: "customer.title",
+    };
+  }
+  const payableContact = PAYABLE_CONTACT.exec(path);
+  if (payableContact?.[1]) {
+    return {
+      route: { screen: "payableContact", contactId: payableContact[1] },
+      sectionPath: "/payables",
+      titleKey: "payables.contact.title",
     };
   }
   const entry = ENTRY.exec(path);

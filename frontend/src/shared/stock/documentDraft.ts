@@ -5,7 +5,7 @@ import type { NewDocument, NewDocumentLine, PaymentMethod, StockDocument, StockD
 
 /**
  * A stock document while a person fills it in, and the check that turns it into a request. The rules
- * are the server's (backend/src/qarz/application/stock_documents.py, `clean_document`), repeated here
+ * are the server's (backend/src/hiso_box/application/stock_documents.py, `clean_document`), repeated here
  * so that a mistake is shown beside its field before anything is sent; the server checks again.
  */
 

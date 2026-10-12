@@ -10,11 +10,11 @@ from pathlib import Path
 
 import pytest
 
-from qarz.application.chat_texts import CATALOGS
-from qarz.application.reminders import reminder_text
-from qarz.domain.languages import LANGUAGES, SMS_LANGUAGES
-from qarz.domain.reminders import TEMPLATES, Channel, ReminderKind, ReminderPlan
-from qarz.infrastructure.eskiz_sms import wire_text
+from hiso_box.application.chat_texts import CATALOGS
+from hiso_box.application.reminders import reminder_text
+from hiso_box.domain.languages import LANGUAGES, SMS_LANGUAGES
+from hiso_box.domain.reminders import TEMPLATES, Channel, ReminderKind, ReminderPlan
+from hiso_box.infrastructure.eskiz_sms import wire_text
 
 RUNBOOKS = Path(__file__).resolve().parents[2] / "docs" / "10-operations" / "runbooks.md"
 HEADING = "### Templates to register in the Eskiz cabinet"

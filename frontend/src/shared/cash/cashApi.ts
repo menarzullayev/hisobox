@@ -5,7 +5,7 @@ import { CURRENCIES, type Currency } from "../money";
  * The cash book of a shop (expansion module H): income and expense by cash, card or transfer, under the
  * shop's own categories. Built on the shop API's `send` in the module that is loaded with the cash
  * screen, so these calls are not part of the first load. Shapes follow
- * backend/src/qarz/interface/cash_answers.py.
+ * backend/src/hiso_box/interface/cash_answers.py.
  *
  * Every amount is a whole number of its currency's minor unit (so'm, or cents), and every figure is of
  * one currency: nothing here adds two. All of it is behind a platform switch; while that is off every

@@ -8,7 +8,7 @@ from urllib.parse import urlencode
 
 import pytest
 
-from qarz.domain.telegram_auth import InvalidTelegramData, verify_login_data, verify_webapp_init_data
+from hiso_box.domain.telegram_auth import InvalidTelegramData, verify_login_data, verify_webapp_init_data
 
 BOT_TOKEN = "1234567890:TEST-ONLY-token-not-a-real-bot"
 OTHER_TOKEN = "1234567890:another-bot-entirely"

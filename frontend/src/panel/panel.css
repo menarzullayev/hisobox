@@ -7,9 +7,9 @@
 
 .nav__side {
   display: grid;
-  gap: var(--qd-space-3);
-  padding: var(--qd-space-4);
-  border-top: 1px solid var(--qd-line);
+  gap: var(--hb-space-3);
+  padding: var(--hb-space-4);
+  border-top: 1px solid var(--hb-line);
 }
 
 .nav__side .field {
@@ -18,14 +18,14 @@
 
 .signin__widget {
   min-height: 3rem;
-  margin: var(--qd-space-4) 0;
+  margin: var(--hb-space-4) 0;
 }
 
 .filters {
   display: grid;
-  gap: var(--qd-space-2) var(--qd-space-4);
+  gap: var(--hb-space-2) var(--hb-space-4);
   align-items: end;
-  margin: var(--qd-space-3) 0;
+  margin: var(--hb-space-3) 0;
 }
 
 .filters .field,
@@ -44,12 +44,12 @@
 /* A table is a card, like the rows it replaces. A table that is wider than its card (larger text, long
    names) is scrolled inside it: hidden, its last columns could not be reached at all. */
 .table-wrap {
-  margin: var(--qd-space-3) 0;
+  margin: var(--hb-space-3) 0;
   overflow-x: auto;
-  border: 1px solid var(--qd-line);
-  border-radius: var(--qd-radius-lg);
-  background: var(--qd-bg);
-  box-shadow: var(--qd-shadow-sm);
+  border: 1px solid var(--hb-line);
+  border-radius: var(--hb-radius-lg);
+  background: var(--hb-bg);
+  box-shadow: var(--hb-shadow-sm);
 }
 
 .table {
@@ -60,8 +60,8 @@
 
 .table th,
 .table td {
-  padding: var(--qd-space-3) var(--qd-space-4);
-  border-bottom: 1px solid var(--qd-line);
+  padding: var(--hb-space-3) var(--hb-space-4);
+  border-bottom: 1px solid var(--hb-line);
   font-weight: 400;
   text-align: left;
   vertical-align: top;
@@ -74,11 +74,11 @@
 }
 
 .table thead th {
-  background: var(--qd-surface);
-  color: var(--qd-muted);
-  font: var(--qd-type-label);
+  background: var(--hb-surface);
+  color: var(--hb-muted);
+  font: var(--hb-type-label);
   font-size: 0.75rem;
-  letter-spacing: var(--qd-tracking-label);
+  letter-spacing: var(--hb-tracking-label);
   text-transform: uppercase;
 }
 
@@ -90,9 +90,9 @@
 
 .table tfoot th,
 .table tfoot td {
-  border-top: 1px solid var(--qd-line);
+  border-top: 1px solid var(--hb-line);
   border-bottom: 0;
-  background: var(--qd-surface);
+  background: var(--hb-surface);
 }
 
 .table .table__num {
@@ -111,7 +111,7 @@
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: var(--qd-space-2);
+  gap: var(--hb-space-2);
 }
 
 .table .notice,
@@ -145,8 +145,8 @@
   }
 
   .table tr {
-    padding: var(--qd-space-3) var(--qd-space-4);
-    border-bottom: 1px solid var(--qd-line);
+    padding: var(--hb-space-3) var(--hb-space-4);
+    border-bottom: 1px solid var(--hb-line);
   }
 
   .table tbody tr:last-child {
@@ -160,9 +160,9 @@
   }
 
   .table tfoot tr {
-    border-top: 1px solid var(--qd-line);
+    border-top: 1px solid var(--hb-line);
     border-bottom: 0;
-    background: var(--qd-surface);
+    background: var(--hb-surface);
   }
 
   .table tfoot th,
@@ -172,7 +172,7 @@
 
   .table td[data-label]::before {
     display: block;
-    color: var(--qd-muted);
+    color: var(--hb-muted);
     font-size: 0.75rem;
     content: attr(data-label);
   }
@@ -192,7 +192,7 @@
   }
 
   .table tbody tr:hover {
-    background: var(--qd-surface);
+    background: var(--hb-surface);
   }
 
   /* The customer book on the left, the open customer on the right. The book is 18 to 24rem wide and
@@ -201,16 +201,16 @@
   .panes {
     display: grid;
     grid-template-columns: minmax(min(18rem, 40%), min(24rem, 53.4%)) minmax(0, 1fr);
-    gap: var(--qd-space-6);
+    gap: var(--hb-space-6);
     align-items: start;
   }
 
   /* Padded all round so the list's own scrolling never cuts a ring drawn around a row. */
   .panes__list {
     position: sticky;
-    top: calc(var(--qd-header-height) + var(--qd-space-4));
-    max-height: calc(100vh - var(--qd-header-height) - var(--qd-space-8));
-    padding: var(--qd-space-1);
+    top: calc(var(--hb-header-height) + var(--hb-space-4));
+    max-height: calc(100vh - var(--hb-header-height) - var(--hb-space-8));
+    padding: var(--hb-space-1);
     overflow-y: auto;
   }
 
@@ -222,30 +222,30 @@
 /* ---------- A member's permissions: one box each, grouped by area ---------- */
 
 .matrix__group {
-  padding: var(--qd-space-3) var(--qd-space-4);
-  border: 1px solid var(--qd-line);
-  border-radius: var(--qd-radius-lg);
-  background: var(--qd-bg);
+  padding: var(--hb-space-3) var(--hb-space-4);
+  border: 1px solid var(--hb-line);
+  border-radius: var(--hb-radius-lg);
+  background: var(--hb-bg);
 }
 
 .matrix__group > legend {
-  padding: 0 var(--qd-space-1);
+  padding: 0 var(--hb-space-1);
 }
 
 /* Where the answer of a box comes from, in words beside it: the state is never told by colour. */
 .matrix__state {
   margin-left: auto;
-  color: var(--qd-muted);
-  font: var(--qd-type-small);
+  color: var(--hb-muted);
+  font: var(--hb-type-small);
 }
 
 /* Across the top of the panel while the device has no connection (pwa/OfflineNotice.tsx). */
 .offline {
-  padding: var(--qd-space-3) var(--qd-space-4);
-  border-bottom: 1px solid var(--qd-line);
-  background: var(--qd-bad-soft);
-  color: var(--qd-bad);
-  font: var(--qd-type-control);
+  padding: var(--hb-space-3) var(--hb-space-4);
+  border-bottom: 1px solid var(--hb-line);
+  background: var(--hb-bad-soft);
+  color: var(--hb-bad);
+  font: var(--hb-type-control);
 }
 
 .offline p {
@@ -253,5 +253,5 @@
 }
 
 .offline .offline__detail {
-  font: var(--qd-type-small);
+  font: var(--hb-type-small);
 }

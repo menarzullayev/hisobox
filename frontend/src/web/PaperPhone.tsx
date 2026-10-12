@@ -12,7 +12,7 @@
  *
  * Two rules it keeps:
  *   - It shows only what the product does. The entry the card shows is a message typed into Telegram,
- *     which is how an entry is really made (backend/src/qarz/domain/chat_entry.py). There is no voice
+ *     which is how an entry is really made (backend/src/hiso_box/domain/chat_entry.py). There is no voice
  *     input and no photographing of a notebook anywhere in the product, so neither is drawn.
  *   - The figures are demonstration figures, and the page says so where it shows them.
  *

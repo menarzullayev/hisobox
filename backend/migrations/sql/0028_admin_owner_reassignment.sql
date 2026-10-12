@@ -126,4 +126,4 @@ BEGIN
 END $$;
 
 REVOKE ALL ON FUNCTION admin_reassign_owner(uuid, uuid, bigint, text, timestamptz) FROM PUBLIC;
-GRANT EXECUTE ON FUNCTION admin_reassign_owner(uuid, uuid, bigint, text, timestamptz) TO qd_app;
+GRANT EXECUTE ON FUNCTION admin_reassign_owner(uuid, uuid, bigint, text, timestamptz) TO hb_app;

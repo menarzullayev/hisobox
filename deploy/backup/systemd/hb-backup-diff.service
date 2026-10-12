@@ -1,0 +1,21 @@
+# Runs on the standby server. Output goes to the journal: journalctl -u hb-backup-diff.service
+[Unit]
+Description=hiso-box: daily differential database backup (pgBackRest)
+After=network-online.target postgresql.service
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=postgres
+Group=postgres
+EnvironmentFile=-/etc/hiso-box-backup/backup.env
+ExecStart=/opt/hiso-box-backup/scripts/backup.sh diff
+SyslogIdentifier=hb-backup-diff
+StandardOutput=journal
+StandardError=journal
+TimeoutStartSec=4h
+NoNewPrivileges=yes
+ProtectHome=yes
+Nice=10
+IOSchedulingClass=best-effort
+IOSchedulingPriority=7

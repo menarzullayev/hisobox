@@ -4,7 +4,7 @@ import type { PaymentCard, SettingValue, SubscriptionAction, SubscriptionState }
 
 /**
  * What the administrator's forms check before anything is sent. Ports of the server's rules, which are
- * the authority and are applied again there: backend/src/qarz/domain/platform_settings.py,
+ * the authority and are applied again there: backend/src/hiso_box/domain/platform_settings.py,
  * domain/admin_subscription.py and application/admin.py (`clean_reason`).
  */
 
@@ -256,7 +256,7 @@ export function isOwnerRefusal(value: unknown): value is OwnerRefusal {
 
 // --- support access --------------------------------------------------------------------------------------
 
-/** How long a support access may last, in whole hours (backend/src/qarz/domain/support_access.py, BR-31). */
+/** How long a support access may last, in whole hours (backend/src/hiso_box/domain/support_access.py, BR-31). */
 export const SUPPORT_HOURS_MIN = 1;
 export const SUPPORT_HOURS_MAX = 24;
 
@@ -281,11 +281,11 @@ export function isOpenAccess(access: { state: string; endsAt: string }, now: Dat
 
 // --- subscription receipts -----------------------------------------------------------------------------
 
-/** The statuses a receipt has, as the queue filters by them (backend/src/qarz/domain/subscription_receipts.py). */
+/** The statuses a receipt has, as the queue filters by them (backend/src/hiso_box/domain/subscription_receipts.py). */
 export const RECEIPT_STATUSES = ["submitted", "approved", "rejected"] as const;
 export const RECEIPT_MONTHS_MAX = 36;
 
-/** The statuses a suggestion for the shared catalogue has (backend/src/qarz/domain/shared_catalog.py). */
+/** The statuses a suggestion for the shared catalogue has (backend/src/hiso_box/domain/shared_catalog.py). */
 export const SUGGESTION_STATUSES = ["pending", "approved", "rejected"] as const;
 /** The longest name an item of the shared catalogue may have. */
 export const SHARED_NAME_MAX = 300;

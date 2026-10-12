@@ -65,8 +65,8 @@ describe("the panel's manifest", () => {
   });
 
   it("takes its colors from the tokens: the page's ground in the light theme", () => {
-    expect(manifest.background_color).toBe(lightToken("--qd-bg"));
-    expect(manifest.theme_color).toBe(lightToken("--qd-bg"));
+    expect(manifest.background_color).toBe(lightToken("--hb-bg"));
+    expect(manifest.theme_color).toBe(lightToken("--hb-bg"));
   });
 
   it("lists icons that are files of the repository, of the size and kind it says", () => {
@@ -102,7 +102,7 @@ describe("the panel's icons", () => {
   const { ground, ink } = iconColors();
 
   it("are the brand's mark in the color of text on the accent, on the accent", () => {
-    expect([ground, ink]).toEqual([lightToken("--qd-accent"), lightToken("--qd-on-accent")]);
+    expect([ground, ink]).toEqual([lightToken("--hb-accent"), lightToken("--hb-on-accent")]);
   });
 
   it.each(PNG_ICONS)("$file is exactly what the script draws", (icon) => {
@@ -162,9 +162,9 @@ describe("the three pages: only the panel can be installed", () => {
   });
 
   it("colors the browser's bars with the page's ground of each theme", () => {
-    expect(panel).toContain(`<meta name="theme-color" media="(prefers-color-scheme: light)" content="${lightToken("--qd-bg")}" />`);
-    expect(panel).toContain(`<meta name="theme-color" media="(prefers-color-scheme: dark)" content="${darkToken("--qd-bg")}" />`);
-    expect(lightToken("--qd-bg")).not.toBe(darkToken("--qd-bg"));
+    expect(panel).toContain(`<meta name="theme-color" media="(prefers-color-scheme: light)" content="${lightToken("--hb-bg")}" />`);
+    expect(panel).toContain(`<meta name="theme-color" media="(prefers-color-scheme: dark)" content="${darkToken("--hb-bg")}" />`);
+    expect(lightToken("--hb-bg")).not.toBe(darkToken("--hb-bg"));
   });
 
   it.each(["app", "admin", "k"])("/%s/ has no manifest, and no code of it registers a worker", (entry) => {

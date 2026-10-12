@@ -14,13 +14,13 @@ import psycopg
 import pytest
 from fastapi.testclient import TestClient
 
-from qarz.application.auth import AuthService
-from qarz.application.chat_texts import money, say
-from qarz.application.files import FileService
-from qarz.domain.file_links import derive_key, expiry, sign
-from qarz.infrastructure.db import Database
-from qarz.infrastructure.file_store import FilesystemFileStore
-from qarz.interface.http import create_app
+from hiso_box.application.auth import AuthService
+from hiso_box.application.chat_texts import money, say
+from hiso_box.application.files import FileService
+from hiso_box.domain.file_links import derive_key, expiry, sign
+from hiso_box.infrastructure.db import Database
+from hiso_box.infrastructure.file_store import FilesystemFileStore
+from hiso_box.interface.http import create_app
 
 from ..receipt_samples import EXIF, JPEG, PDF, PNG, jpeg
 from .conftest import TEST_BOT_TOKEN, TEST_SECRETS_KEY, HeaderAuthenticator, World, as_user

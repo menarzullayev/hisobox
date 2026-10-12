@@ -17,18 +17,18 @@ html {
 
 body {
   margin: 0;
-  background: var(--qd-surface);
-  color: var(--qd-text);
-  font: var(--qd-type-body);
+  background: var(--hb-surface);
+  color: var(--hb-text);
+  font: var(--hb-type-body);
   -webkit-font-smoothing: antialiased;
 }
 
 a {
-  color: var(--qd-link);
+  color: var(--hb-link);
 }
 
 :focus-visible {
-  outline: 3px solid var(--qd-focus);
+  outline: 3px solid var(--hb-focus);
   outline-offset: 2px;
 }
 
@@ -63,16 +63,16 @@ a {
 
 .skip-link {
   position: absolute;
-  top: var(--qd-space-2);
-  left: var(--qd-space-2);
+  top: var(--hb-space-2);
+  left: var(--hb-space-2);
   z-index: 3;
-  min-height: var(--qd-control-height);
-  padding: var(--qd-space-3) var(--qd-space-4);
+  min-height: var(--hb-control-height);
+  padding: var(--hb-space-3) var(--hb-space-4);
   border: 0;
-  border-radius: var(--qd-radius-md);
-  background: var(--qd-accent);
-  color: var(--qd-on-accent);
-  font: var(--qd-type-control);
+  border-radius: var(--hb-radius-md);
+  background: var(--hb-accent);
+  color: var(--hb-on-accent);
+  font: var(--hb-type-control);
   transform: translateY(-200%);
 }
 
@@ -95,7 +95,7 @@ a {
 
 /* A screen without navigation (sign-in, a closed door) ends where one with the bar ends. */
 .shell:not(:has(> .shell__nav)) {
-  padding-bottom: calc(var(--qd-nav-height) + env(safe-area-inset-bottom, 0px));
+  padding-bottom: calc(var(--hb-nav-height) + env(safe-area-inset-bottom, 0px));
 }
 
 .shell__header {
@@ -104,11 +104,11 @@ a {
   flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
-  gap: var(--qd-space-2) var(--qd-space-4);
-  min-height: var(--qd-header-height);
-  padding: var(--qd-space-2) var(--qd-space-4);
-  border-bottom: 1px solid var(--qd-line);
-  background: var(--qd-bg);
+  gap: var(--hb-space-2) var(--hb-space-4);
+  min-height: var(--hb-header-height);
+  padding: var(--hb-space-2) var(--hb-space-4);
+  border-bottom: 1px solid var(--hb-line);
+  background: var(--hb-bg);
 }
 
 .shell__identity {
@@ -124,9 +124,9 @@ a {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 0 var(--qd-space-2);
-  color: var(--qd-muted);
-  font: var(--qd-type-small);
+  gap: 0 var(--hb-space-2);
+  color: var(--hb-muted);
+  font: var(--hb-type-small);
   font-weight: 600;
 }
 
@@ -138,15 +138,15 @@ a {
 }
 
 .shell__mark-ground {
-  fill: var(--qd-accent);
+  fill: var(--hb-accent);
 }
 
 .shell__mark-block {
-  fill: var(--qd-on-accent);
+  fill: var(--hb-on-accent);
 }
 
 .shell__product {
-  color: var(--qd-text);
+  color: var(--hb-text);
   font-size: 1rem;
   font-weight: 800;
   letter-spacing: -0.01em;
@@ -154,7 +154,7 @@ a {
 
 .shell__context {
   overflow-wrap: anywhere;
-  color: var(--qd-muted);
+  color: var(--hb-muted);
   font-size: 0.875rem;
   line-height: 1.3;
 }
@@ -163,7 +163,7 @@ a {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: var(--qd-space-2);
+  gap: var(--hb-space-2);
 }
 
 /* The language picker: one control for six languages, as wide as the name of the one chosen. */
@@ -180,8 +180,8 @@ a {
   flex-wrap: wrap;
   gap: 2px;
   padding: 3px;
-  border-radius: var(--qd-radius-md);
-  background: var(--qd-surface-2);
+  border-radius: var(--hb-radius-md);
+  background: var(--hb-surface-2);
 }
 
 .theme-toggle__option,
@@ -189,16 +189,16 @@ a {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: var(--qd-space-2);
-  min-width: var(--qd-control-height);
+  gap: var(--hb-space-2);
+  min-width: var(--hb-control-height);
   /* The whole option is the target, so it is as tall as any other control. */
-  min-height: var(--qd-control-height);
-  padding: var(--qd-space-1) var(--qd-space-3);
+  min-height: var(--hb-control-height);
+  padding: var(--hb-space-1) var(--hb-space-3);
   border: 0;
-  border-radius: var(--qd-radius-sm);
+  border-radius: var(--hb-radius-sm);
   background: transparent;
-  color: var(--qd-muted);
-  font: var(--qd-type-control);
+  color: var(--hb-muted);
+  font: var(--hb-type-control);
   font-size: 0.875rem;
   font-weight: 700;
   cursor: pointer;
@@ -207,9 +207,9 @@ a {
 /* Chosen: a raised chip in the text color, and a line under the word for when shadows are not seen. */
 .theme-toggle__option[aria-pressed="true"],
 .toggle__option[aria-pressed="true"] {
-  background: var(--qd-bg);
-  color: var(--qd-text);
-  box-shadow: var(--qd-shadow-sm);
+  background: var(--hb-bg);
+  color: var(--hb-text);
+  box-shadow: var(--hb-shadow-sm);
   text-decoration: underline;
   text-decoration-thickness: 2px;
   text-underline-offset: 0.25em;
@@ -217,7 +217,7 @@ a {
 
 /* A narrow header keeps the theme's three icons and drops their words (each button has an aria-label). */
 .theme-toggle__option {
-  padding: var(--qd-space-1);
+  padding: var(--hb-space-1);
 }
 
 .theme-toggle__label {
@@ -227,8 +227,8 @@ a {
 /* Its icons cannot be underlined, so the chosen theme has the line drawn inside the chip. */
 .theme-toggle__option[aria-pressed="true"] {
   box-shadow:
-    var(--qd-shadow-sm),
-    inset 0 -2px 0 var(--qd-text);
+    var(--hb-shadow-sm),
+    inset 0 -2px 0 var(--hb-text);
   text-decoration: none;
 }
 
@@ -241,8 +241,8 @@ a {
   /* Its top line lies over the last pixel of the content's own padding, not under it. */
   margin-top: -1px;
   padding-bottom: env(safe-area-inset-bottom, 0px);
-  border-top: 1px solid var(--qd-line);
-  background: var(--qd-bg);
+  border-top: 1px solid var(--hb-line);
+  background: var(--hb-bg);
 }
 
 .nav {
@@ -267,12 +267,12 @@ a {
   align-items: center;
   justify-content: center;
   gap: 2px;
-  min-height: var(--qd-nav-height);
-  padding: var(--qd-space-1);
+  min-height: var(--hb-nav-height);
+  padding: var(--hb-space-1);
   /* The current item is marked by this line, a heavier icon and bold text: not by its color alone. */
   border-top: 3px solid transparent;
-  color: var(--qd-muted);
-  font: var(--qd-type-caption);
+  color: var(--hb-muted);
+  font: var(--hb-type-caption);
   text-align: center;
   text-decoration: none;
   overflow-wrap: anywhere;
@@ -284,8 +284,8 @@ a {
 }
 
 .nav__link[aria-current="page"] {
-  border-color: var(--qd-link);
-  color: var(--qd-link);
+  border-color: var(--hb-link);
+  color: var(--hb-link);
   font-weight: 700;
 }
 
@@ -298,24 +298,24 @@ a {
   /* Takes the height the header and the bar leave, and is never squeezed below its content. */
   flex: 1 0 auto;
   min-width: 0;
-  padding: var(--qd-space-4);
+  padding: var(--hb-space-4);
 }
 
 .shell__title {
-  margin: 0 0 var(--qd-space-4);
-  font: var(--qd-type-title);
-  letter-spacing: var(--qd-tracking-tight);
+  margin: 0 0 var(--hb-space-4);
+  font: var(--hb-type-title);
+  letter-spacing: var(--hb-tracking-tight);
 }
 
 /* ---------- Card ---------- */
 
 .card {
-  margin: var(--qd-space-3) 0;
-  padding: var(--qd-space-4);
-  border: 1px solid var(--qd-line);
-  border-radius: var(--qd-radius-lg);
-  background: var(--qd-bg);
-  box-shadow: var(--qd-shadow-sm);
+  margin: var(--hb-space-3) 0;
+  padding: var(--hb-space-4);
+  border: 1px solid var(--hb-line);
+  border-radius: var(--hb-radius-lg);
+  background: var(--hb-bg);
+  box-shadow: var(--hb-shadow-sm);
 }
 
 .card > :first-child {
@@ -336,8 +336,8 @@ a {
   flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
-  gap: var(--qd-space-2);
-  margin-bottom: var(--qd-space-3);
+  gap: var(--hb-space-2);
+  margin-bottom: var(--hb-space-3);
 }
 
 .card__title {
@@ -351,12 +351,12 @@ a {
 .badge {
   display: inline-flex;
   align-items: center;
-  gap: var(--qd-space-1);
+  gap: var(--hb-space-1);
   max-width: 100%;
-  padding: 0.125rem var(--qd-space-2);
-  border-radius: var(--qd-radius-pill);
-  background: var(--qd-surface-2);
-  color: var(--qd-text);
+  padding: 0.125rem var(--hb-space-2);
+  border-radius: var(--hb-radius-pill);
+  background: var(--hb-surface-2);
+  color: var(--hb-text);
   font-size: 0.75rem;
   font-weight: 700;
   line-height: 1.4;
@@ -369,23 +369,23 @@ a {
 }
 
 .badge--accent {
-  background: var(--qd-accent-soft);
-  color: var(--qd-link);
+  background: var(--hb-accent-soft);
+  color: var(--hb-link);
 }
 
 .badge--success {
-  background: var(--qd-ok-soft);
-  color: var(--qd-ok);
+  background: var(--hb-ok-soft);
+  color: var(--hb-ok);
 }
 
 .badge--warning {
-  background: var(--qd-pending-soft);
-  color: var(--qd-pending);
+  background: var(--hb-pending-soft);
+  color: var(--hb-pending);
 }
 
 .badge--danger {
-  background: var(--qd-bad-soft);
-  color: var(--qd-bad);
+  background: var(--hb-bad-soft);
+  color: var(--hb-bad);
 }
 
 /* ---------- Tiles (section shortcuts) ---------- */
@@ -393,7 +393,7 @@ a {
 .tiles {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(10rem, 1fr));
-  gap: var(--qd-space-3);
+  gap: var(--hb-space-3);
   margin: 0;
   padding: 0;
   list-style: none;
@@ -401,34 +401,34 @@ a {
 
 .tile {
   display: grid;
-  gap: var(--qd-space-1);
+  gap: var(--hb-space-1);
   align-content: start;
   width: 100%;
   height: 100%;
   min-height: 6rem;
-  padding: var(--qd-space-4);
-  border: 1px solid var(--qd-line);
-  border-radius: var(--qd-radius-lg);
-  background: var(--qd-bg);
-  color: var(--qd-text);
+  padding: var(--hb-space-4);
+  border: 1px solid var(--hb-line);
+  border-radius: var(--hb-radius-lg);
+  background: var(--hb-bg);
+  color: var(--hb-text);
   font: inherit;
   text-align: left;
   text-decoration: none;
-  box-shadow: var(--qd-shadow-sm);
+  box-shadow: var(--hb-shadow-sm);
   cursor: pointer;
 }
 
 .tile:hover {
-  border-color: var(--qd-border);
-  box-shadow: var(--qd-shadow-md);
+  border-color: var(--hb-border);
+  box-shadow: var(--hb-shadow-md);
 }
 
 .tile__top {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  gap: var(--qd-space-2);
-  margin-bottom: var(--qd-space-2);
+  gap: var(--hb-space-2);
+  margin-bottom: var(--hb-space-2);
 }
 
 .tile__icon {
@@ -437,10 +437,10 @@ a {
   place-items: center;
   width: 2.5rem;
   height: 2.5rem;
-  margin-bottom: var(--qd-space-2);
-  border-radius: var(--qd-radius-md);
-  background: var(--qd-accent-soft);
-  color: var(--qd-link);
+  margin-bottom: var(--hb-space-2);
+  border-radius: var(--hb-radius-md);
+  background: var(--hb-accent-soft);
+  color: var(--hb-link);
 }
 
 .tile__top .tile__icon {
@@ -448,30 +448,30 @@ a {
 }
 
 .tile__icon--success {
-  background: var(--qd-ok-soft);
-  color: var(--qd-ok);
+  background: var(--hb-ok-soft);
+  color: var(--hb-ok);
 }
 
 .tile__icon--warning {
-  background: var(--qd-pending-soft);
-  color: var(--qd-pending);
+  background: var(--hb-pending-soft);
+  color: var(--hb-pending);
 }
 
 .tile__icon--danger {
-  background: var(--qd-bad-soft);
-  color: var(--qd-bad);
+  background: var(--hb-bad-soft);
+  color: var(--hb-bad);
 }
 
 .tile__title {
-  font: var(--qd-type-control);
+  font: var(--hb-type-control);
   font-weight: 700;
   line-height: 1.3;
   overflow-wrap: anywhere;
 }
 
 .tile__text {
-  color: var(--qd-muted);
-  font: var(--qd-type-small);
+  color: var(--hb-muted);
+  font: var(--hb-type-small);
 }
 
 /* From 720px: navigation becomes a list down the left side and every section is visible. */
@@ -483,7 +483,7 @@ a {
     /* The side column is as wide as its token says, and never more than a third of the window: with
        larger text (the token is in rem) it would otherwise leave the screens no room at all. At the
        ordinary text size the third is never the smaller of the two. */
-    grid-template-columns: min(var(--qd-side-width), 33.34vw) 1fr;
+    grid-template-columns: min(var(--hb-side-width), 33.34vw) 1fr;
     grid-template-rows: auto 1fr;
     display: grid;
   }
@@ -504,7 +504,7 @@ a {
   }
 
   .theme-toggle__option {
-    padding: var(--qd-space-1) var(--qd-space-3);
+    padding: var(--hb-space-1) var(--hb-space-3);
   }
 
   .theme-toggle__label {
@@ -520,10 +520,10 @@ a {
     margin-top: 0;
     height: 100vh;
     height: 100dvh;
-    padding: var(--qd-space-3);
+    padding: var(--hb-space-3);
     overflow-y: auto;
     border-top: 0;
-    border-right: 1px solid var(--qd-line);
+    border-right: 1px solid var(--hb-line);
   }
 
   .nav {
@@ -546,18 +546,18 @@ a {
   .nav__link {
     flex-direction: row;
     justify-content: flex-start;
-    gap: var(--qd-space-3);
-    min-height: var(--qd-control-height);
-    padding: var(--qd-space-2) var(--qd-space-3);
+    gap: var(--hb-space-3);
+    min-height: var(--hb-control-height);
+    padding: var(--hb-space-2) var(--hb-space-3);
     border-top: 0;
     border-left: 3px solid transparent;
-    border-radius: var(--qd-radius-md);
-    font: var(--qd-type-control);
+    border-radius: var(--hb-radius-md);
+    font: var(--hb-type-control);
     text-align: left;
   }
 
   .nav__link:hover {
-    background: var(--qd-surface);
+    background: var(--hb-surface);
   }
 
   .nav__link .icon {
@@ -566,20 +566,20 @@ a {
   }
 
   .nav__link[aria-current="page"] {
-    background: var(--qd-accent-soft);
+    background: var(--hb-accent-soft);
     font-weight: 700;
   }
 
   /* Controls under the side list (the web panel's shop switcher and sign-out). */
   .shell__nav .nav__side {
-    margin-top: var(--qd-space-4);
-    padding: var(--qd-space-4) 0 0;
+    margin-top: var(--hb-space-4);
+    padding: var(--hb-space-4) 0 0;
   }
 
   /* The side padding gives way before the content does, for the same reason. */
   .shell__main {
     max-width: 64rem;
-    padding: var(--qd-space-6) min(var(--qd-space-8), 4.45vw);
+    padding: var(--hb-space-6) min(var(--hb-space-8), 4.45vw);
   }
 }
 
@@ -593,10 +593,10 @@ a {
 .crash {
   max-width: 32rem;
   margin: 0 auto;
-  padding: var(--qd-space-8) var(--qd-space-4);
+  padding: var(--hb-space-8) var(--hb-space-4);
 }
 
 .crash__title {
-  margin: 0 0 var(--qd-space-4);
-  font: var(--qd-type-title);
+  margin: 0 0 var(--hb-space-4);
+  font: var(--hb-type-title);
 }

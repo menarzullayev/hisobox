@@ -8,7 +8,7 @@ import psycopg
 import pytest
 from fastapi.testclient import TestClient
 
-from qarz.domain.promise import tashkent_date
+from hiso_box.domain.promise import tashkent_date
 
 from .conftest import World, as_user
 from .test_customers_ledger import key, record, reverse, seed_customer, seed_entry, shop

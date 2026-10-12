@@ -18,9 +18,9 @@ function contrast(foreground: string, background: string): number {
 
 type Theme = Readonly<Record<string, string>>;
 
-/** The six-digit hex colors a block of declarations gives to `--qd-*` variables. */
+/** The six-digit hex colors a block of declarations gives to `--hb-*` variables. */
 function colorsOf(block: string): Theme {
-  return Object.fromEntries([...block.matchAll(/(--qd-[\w-]+):\s*(#[0-9a-f]{6})\s*;/gi)].map((m) => [m[1], m[2]]));
+  return Object.fromEntries([...block.matchAll(/(--hb-[\w-]+):\s*(#[0-9a-f]{6})\s*;/gi)].map((m) => [m[1], m[2]]));
 }
 
 const css = readStyleSheet("shared", "tokens.css");
@@ -46,60 +46,60 @@ type Pair = readonly [foreground: string, background: string];
  */
 const TEXT_PAIRS: readonly Pair[] = [
   // Body copy and headings: on cards, the page ground, tracks, and every soft ground.
-  ["--qd-text", "--qd-bg"],
-  ["--qd-text", "--qd-surface"],
-  ["--qd-text", "--qd-surface-2"],
-  ["--qd-text", "--qd-accent-soft"],
-  ["--qd-text", "--qd-ok-soft"],
-  ["--qd-text", "--qd-pending-soft"],
-  ["--qd-text", "--qd-bad-soft"],
+  ["--hb-text", "--hb-bg"],
+  ["--hb-text", "--hb-surface"],
+  ["--hb-text", "--hb-surface-2"],
+  ["--hb-text", "--hb-accent-soft"],
+  ["--hb-text", "--hb-ok-soft"],
+  ["--hb-text", "--hb-pending-soft"],
+  ["--hb-text", "--hb-bad-soft"],
   // Labels, hints, meta lines, idle navigation.
-  ["--qd-muted", "--qd-bg"],
-  ["--qd-muted", "--qd-surface"],
-  ["--qd-muted", "--qd-surface-2"],
+  ["--hb-muted", "--hb-bg"],
+  ["--hb-muted", "--hb-surface"],
+  ["--hb-muted", "--hb-surface-2"],
   // Links, the current navigation item, accent text.
-  ["--qd-link", "--qd-bg"],
-  ["--qd-link", "--qd-surface"],
-  ["--qd-link", "--qd-accent-soft"],
+  ["--hb-link", "--hb-bg"],
+  ["--hb-link", "--hb-surface"],
+  ["--hb-link", "--hb-accent-soft"],
   // The primary button and the main figure, at rest and under the pointer.
-  ["--qd-on-accent", "--qd-accent"],
-  ["--qd-on-accent", "--qd-accent-hover"],
+  ["--hb-on-accent", "--hb-accent"],
+  ["--hb-on-accent", "--hb-accent-hover"],
   // Status text on a card and on its own soft ground (badges, notices).
-  ["--qd-ok", "--qd-bg"],
-  ["--qd-ok", "--qd-ok-soft"],
-  ["--qd-pending", "--qd-bg"],
-  ["--qd-pending", "--qd-pending-soft"],
-  ["--qd-bad", "--qd-bg"],
-  ["--qd-bad", "--qd-bad-soft"],
-  ["--qd-on-bad", "--qd-bad"],
+  ["--hb-ok", "--hb-bg"],
+  ["--hb-ok", "--hb-ok-soft"],
+  ["--hb-pending", "--hb-bg"],
+  ["--hb-pending", "--hb-pending-soft"],
+  ["--hb-bad", "--hb-bg"],
+  ["--hb-bad", "--hb-bad-soft"],
+  ["--hb-on-bad", "--hb-bad"],
   // The toast is the page inverted.
-  ["--qd-bg", "--qd-text"],
+  ["--hb-bg", "--hb-text"],
   // Combined by the style sheets beyond the notes: a warning line or a field's error that sits on the
   // page ground or inside an information notice.
-  ["--qd-bad", "--qd-surface"],
-  ["--qd-bad", "--qd-accent-soft"],
+  ["--hb-bad", "--hb-surface"],
+  ["--hb-bad", "--hb-accent-soft"],
   // The landing page's drawn notebook: the handwriting has to be readable on the sheet it is written
   // on, in both themes. The sheet is a depicted object rather than a surface, so it is dimmed for a
   // dark theme but never turned into a dark rectangle — the two are checked together.
-  ["--qd-ink", "--qd-paper"],
+  ["--hb-ink", "--hb-paper"],
 ];
 
 /** Borders of controls and the focus ring, against every ground a control sits on. */
 const NON_TEXT_PAIRS: readonly Pair[] = [
-  ["--qd-border", "--qd-bg"],
-  ["--qd-border", "--qd-surface"],
-  ["--qd-focus", "--qd-bg"],
-  ["--qd-focus", "--qd-surface"],
-  ["--qd-focus", "--qd-surface-2"],
-  ["--qd-focus", "--qd-accent-soft"],
-  ["--qd-focus", "--qd-ok-soft"],
-  ["--qd-focus", "--qd-pending-soft"],
-  ["--qd-focus", "--qd-bad-soft"],
+  ["--hb-border", "--hb-bg"],
+  ["--hb-border", "--hb-surface"],
+  ["--hb-focus", "--hb-bg"],
+  ["--hb-focus", "--hb-surface"],
+  ["--hb-focus", "--hb-surface-2"],
+  ["--hb-focus", "--hb-accent-soft"],
+  ["--hb-focus", "--hb-ok-soft"],
+  ["--hb-focus", "--hb-pending-soft"],
+  ["--hb-focus", "--hb-bad-soft"],
   // The marks of a notice and of a field's error are drawn in these.
-  ["--qd-bad", "--qd-bad-soft"],
-  ["--qd-ok", "--qd-ok-soft"],
-  ["--qd-pending", "--qd-pending-soft"],
-  ["--qd-link", "--qd-accent-soft"],
+  ["--hb-bad", "--hb-bad-soft"],
+  ["--hb-ok", "--hb-ok-soft"],
+  ["--hb-pending", "--hb-pending-soft"],
+  ["--hb-link", "--hb-accent-soft"],
 ];
 
 /** The pairs of a theme that fall short of a ratio, or name a color the theme does not have. */
@@ -131,16 +131,16 @@ describe.each([
 describe("the themes of tokens.css", () => {
   it("has the 38 color tokens, 37 of them plain hex and the overlay translucent", () => {
     expect(Object.keys(light)).toHaveLength(38);
-    expect(BLOCKS.light).toMatch(/--qd-overlay:\s*rgba\(/);
+    expect(BLOCKS.light).toMatch(/--hb-overlay:\s*rgba\(/);
     // The nine names the Telegram theme replaces (shared/telegram.ts) are still there.
     for (const name of ["bg", "surface", "text", "muted", "link", "accent", "on-accent", "border", "focus"]) {
-      expect(light[`--qd-${name}`], name).toBeDefined();
+      expect(light[`--hb-${name}`], name).toBeDefined();
     }
   });
 
   it("gives the dark theme every color the light theme has", () => {
     expect(Object.keys(dark).sort()).toEqual(Object.keys(light).sort());
-    expect(BLOCKS.dark).toMatch(/--qd-overlay:\s*rgba\(/);
+    expect(BLOCKS.dark).toMatch(/--hb-overlay:\s*rgba\(/);
   });
 
   it("uses the same dark colors for a chosen dark theme and for a device that asks for dark", () => {
@@ -169,27 +169,27 @@ describe("the check itself", () => {
   });
 
   it("fails on a weak pair: grey text that is a little too light for a white card", () => {
-    const weak = { ...light, "--qd-muted": "#777777" };
+    const weak = { ...light, "--hb-muted": "#777777" };
     expect(failures(weak, TEXT_PAIRS, AA_TEXT)).toEqual([
-      "--qd-muted on --qd-bg: 4.22",
-      "--qd-muted on --qd-surface: 4.48",
-      "--qd-muted on --qd-surface-2: 3.87",
+      "--hb-muted on --hb-bg: 4.22",
+      "--hb-muted on --hb-surface: 4.48",
+      "--hb-muted on --hb-surface-2: 3.87",
     ]);
   });
 
   it("fails on a dark theme that kept a light theme's color", () => {
     // The light theme's link blue on the dark theme's card: the mistake of filling in a theme halfway.
-    const half = { ...dark, "--qd-link": light["--qd-link"] ?? "" };
+    const half = { ...dark, "--hb-link": light["--hb-link"] ?? "" };
     const failed = failures(half, TEXT_PAIRS, AA_TEXT);
     expect(failed).toHaveLength(3);
-    expect(failed[0]).toMatch(/^--qd-link on --qd-bg: [12]\.\d\d$/);
+    expect(failed[0]).toMatch(/^--hb-link on --hb-bg: [12]\.\d\d$/);
   });
 
   it("fails on a border too faint to show where a field is, and on a color that is missing", () => {
-    expect(failures({ ...light, "--qd-border": light["--qd-line"] ?? "" }, NON_TEXT_PAIRS, AA_NON_TEXT)).toHaveLength(2);
-    const withoutSoft = Object.fromEntries(Object.entries(light).filter(([name]) => name !== "--qd-bad-soft"));
-    expect(failures(withoutSoft, [["--qd-bad", "--qd-bad-soft"]], AA_TEXT)).toEqual([
-      "--qd-bad on --qd-bad-soft: not defined",
+    expect(failures({ ...light, "--hb-border": light["--hb-line"] ?? "" }, NON_TEXT_PAIRS, AA_NON_TEXT)).toHaveLength(2);
+    const withoutSoft = Object.fromEntries(Object.entries(light).filter(([name]) => name !== "--hb-bad-soft"));
+    expect(failures(withoutSoft, [["--hb-bad", "--hb-bad-soft"]], AA_TEXT)).toEqual([
+      "--hb-bad on --hb-bad-soft: not defined",
     ]);
   });
 });

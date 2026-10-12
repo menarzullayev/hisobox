@@ -279,7 +279,7 @@ export type OpenPaymentNotice = PaymentNotice & { customerId: string; customerNa
 /** Where a receipt can be opened for a few minutes. The address is a credential: it is never stored. */
 export type ReceiptLink = { url: string; expiresAt: string };
 
-/** What a receipt may be (backend/src/qarz/domain/files.py). */
+/** What a receipt may be (backend/src/hiso_box/domain/files.py). */
 export const RECEIPT_MAX_BYTES = 5 * 1024 * 1024;
 export const RECEIPT_TYPES: readonly string[] = ["image/jpeg", "image/png", "image/webp", "application/pdf"];
 
@@ -342,6 +342,54 @@ export type StockWarning =
   | { kind: "negative"; itemId: string; name: string; onHand: string }
   | { kind: "unit"; itemId: string; name: string; unit: string };
 export type StockNoted = { stockWarnings?: StockWarning[] };
+
+/**
+ * One currency of a contact's account ("Men qarzdarman"): what the shop owes (`balance`, above zero),
+ * what of it is overdue, what falls due today, and what it has paid ahead (`advance`, when it has).
+ * So'm and dollars are two books of one contact, so a contact carries one of these per currency.
+ */
+export type PayableBook = { currency: string; balance: number; advance: number; overdue: number; dueToday: number };
+
+/** A contact the shop owes: a supplier it buys from on credit, a lender, staff. `status` is "active" or "archived". */
+export type PayableContact = {
+  id: string;
+  name: string;
+  phone: string | null;
+  note: string | null;
+  status: string;
+  books: PayableBook[];
+  createdAt: string;
+};
+
+/** One line of a contact's account. `kind` is "credit", "opening", "payment" or "reversal". */
+export type PayableEntry = {
+  id: string;
+  seq: number;
+  kind: string;
+  amount: number;
+  currency: string;
+  note: string | null;
+  reversesId: string | null;
+  reversed: boolean;
+  promisedDate: string | null;
+  authorId: string;
+  createdAt: string;
+};
+
+/** A contact and the page of their account's entries, newest first. */
+export type PayableContactDetail = { contact: PayableContact; entries: PayableEntry[]; nextCursor: string | null };
+
+/** What is recorded against a contact: a debt taken on, an opening balance, or a payment. */
+export type NewPayableEntry = {
+  kind: "credit" | "opening" | "payment";
+  amount: number;
+  currency?: Currency;
+  note?: string | null;
+  promisedDate?: string | null;
+};
+
+/** The name, phone and note of a contact, as a form sends them. */
+export type PayableContactInput = { name: string; phone: string | null; note: string | null };
 
 /**
  * What a payment larger than the debt would do, as an `ADVANCE_NOT_CONFIRMED` refusal states it in the
@@ -1010,6 +1058,70 @@ function page<T>(item: (element: unknown) => T): (value: unknown) => Page<T> {
   };
 }
 
+// The contacts ("Men qarzdarman") have no response models in the description, so their shapes are read
+// field by field here, as strictly as any: a missing or ill-typed field means the answer is not the API.
+
+function payableBook(value: unknown): PayableBook {
+  const body = record(value);
+  return {
+    currency: text(body["currency"]),
+    balance: whole(body["balance"]),
+    advance: whole(body["advance"]),
+    overdue: whole(body["overdue"]),
+    dueToday: whole(body["due_today"]),
+  };
+}
+
+function payableContact(value: unknown): PayableContact {
+  const body = record(value);
+  return {
+    id: text(body["id"]),
+    name: text(body["name"]),
+    phone: textOrNull(body["phone"]),
+    note: textOrNull(body["note"]),
+    status: text(body["status"]),
+    books: list(body["books"], payableBook),
+    createdAt: text(body["created_at"]),
+  };
+}
+
+function payableEntry(value: unknown): PayableEntry {
+  const body = record(value);
+  return {
+    id: text(body["id"]),
+    seq: whole(body["seq"]),
+    kind: text(body["kind"]),
+    amount: whole(body["amount"]),
+    currency: text(body["currency"]),
+    note: textOrNull(body["note"]),
+    reversesId: textOrNull(body["reverses_id"]),
+    reversed: flag(body["reversed"]),
+    promisedDate: textOrNull(body["promised_date"]),
+    authorId: text(body["author_id"]),
+    createdAt: text(body["created_at"]),
+  };
+}
+
+/** The contacts' page: the customers' cursor shape under the field the contacts route names it. */
+function payablePage(value: unknown): Page<PayableContact> {
+  const body = record(value);
+  return { items: list(body["contacts"], payableContact), nextCursor: textOrNull(body["next_cursor"]) };
+}
+
+function payableContactDetail(value: unknown): PayableContactDetail {
+  const body = record(value);
+  return {
+    contact: payableContact(body["contact"]),
+    entries: list(body["entries"], payableEntry),
+    nextCursor: textOrNull(body["next_cursor"]),
+  };
+}
+
+/** A write against a contact answers with the entry it made and the contact as it now stands. */
+function payableWritten(value: unknown): PayableContact {
+  return payableContact(record(value)["contact"]);
+}
+
 function overviewFigures(value: unknown): OverviewFigures {
   const body = fieldsOf<Wire["OverviewFigures"]>(value);
   const late = fieldsOf<Wire["OverviewOverdue"]>(body.raw("overdue"));
@@ -1291,18 +1403,30 @@ function linesBody(lines: readonly NewLine[]): Wire["GoodsLine"][] {
   });
 }
 
+/** The name, phone and note of a contact as its route takes them; an empty phone or note is left out. */
+function payableBody(input: PayableContactInput): { name: string; phone?: string; note?: string } {
+  const body: { name: string; phone?: string; note?: string } = { name: input.name };
+  if (input.phone !== null && input.phone !== "") {
+    body.phone = input.phone;
+  }
+  if (input.note !== null && input.note !== "") {
+    body.note = input.note;
+  }
+  return body;
+}
+
 /** The header the server sends with a person's shops while the permission matrix is switched on. */
-export const PERMISSIONS_HEADER = "X-Qarz-Permissions";
+export const PERMISSIONS_HEADER = "X-Shop-Permissions";
 /** The header the server sends with a person's shops while the cash book is switched on. */
-export const CASH_BOOK_HEADER = "X-Qarz-Cash-Book";
+export const CASH_BOOK_HEADER = "X-Shop-Cash-Book";
 /** The header the server sends with a person's shops while the stock is switched on. */
-export const STOCK_HEADER = "X-Qarz-Stock";
+export const STOCK_HEADER = "X-Shop-Stock";
 /** The header the server sends with a person's shops while the network between shops is switched on. */
-export const NETWORK_HEADER = "X-Qarz-Network";
+export const NETWORK_HEADER = "X-Shop-Network";
 /** The header the server sends with a person's shops while the shared product catalogue is switched on. */
-export const CATALOG_HEADER = "X-Qarz-Catalog";
+export const CATALOG_HEADER = "X-Shop-Catalog";
 /** The header the server sends with a person's shops while a customer's address is switched on. */
-export const ADDRESS_HEADER = "X-Qarz-Address";
+export const ADDRESS_HEADER = "X-Shop-Address";
 
 function myShops(value: unknown, headers: Headers): MyShops {
   const body = fieldsOf<Wire["MyShops"]>(value);
@@ -1840,6 +1964,109 @@ function shopApi(transport: Transport, shopId: string) {
         body: { lines: linesBody(lines) } satisfies Wire["NewLines"],
         idempotencyKey,
         read: addedLines,
+      });
+    },
+
+    // --- the contacts the shop owes ("Men qarzdarman") ----------------------------------------------
+
+    /** The contacts, by name, with the account of each: searched, and split by active or archived. */
+    listPayables(
+      params: { q?: string; status?: "active" | "archived"; cursor?: string | null; limit?: number },
+      signal?: AbortSignal,
+    ): Promise<Page<PayableContact>> {
+      return call(transport, {
+        method: "GET",
+        path: `${base}/contacts`,
+        query: { q: params.q, status: params.status, cursor: params.cursor, limit: params.limit?.toString() },
+        signal,
+        read: payablePage,
+      });
+    },
+
+    createPayable(input: PayableContactInput, idempotencyKey: string): Promise<PayableContact> {
+      return call(transport, {
+        method: "POST",
+        path: `${base}/contacts`,
+        body: payableBody(input),
+        idempotencyKey,
+        read: payableContact,
+      });
+    },
+
+    /** One contact and the page of their account's entries, newest first. */
+    readPayable(
+      contactId: string,
+      params: { cursor?: string | null; limit?: number } = {},
+      signal?: AbortSignal,
+    ): Promise<PayableContactDetail> {
+      return call(transport, {
+        method: "GET",
+        path: `${base}/contacts/${segment(contactId)}`,
+        query: { cursor: params.cursor, limit: params.limit?.toString() },
+        signal,
+        read: payableContactDetail,
+      });
+    },
+
+    updatePayable(contactId: string, input: PayableContactInput, idempotencyKey: string): Promise<PayableContact> {
+      return call(transport, {
+        method: "PUT",
+        path: `${base}/contacts/${segment(contactId)}`,
+        body: payableBody(input),
+        idempotencyKey,
+        read: payableContact,
+      });
+    },
+
+    setPayableArchived(contactId: string, archived: boolean, idempotencyKey: string): Promise<PayableContact> {
+      return call(transport, {
+        method: "POST",
+        path: `${base}/contacts/${segment(contactId)}/${archived ? "archive" : "unarchive"}`,
+        idempotencyKey,
+        read: payableContact,
+      });
+    },
+
+    /** Records a debt taken on, an opening balance or a payment against a contact's account. */
+    recordPayable(contactId: string, input: NewPayableEntry, idempotencyKey: string): Promise<PayableContact> {
+      if (!Number.isSafeInteger(input.amount)) {
+        throw new RangeError("amount must be a whole number of UZS, or of cents");
+      }
+      const body: { kind: string; amount: number; currency?: string; note?: string; promised_date?: string } = {
+        kind: input.kind,
+        amount: input.amount,
+      };
+      if (input.currency === "USD") {
+        body.currency = "USD"; // so'm is the absence of the field, as everywhere else
+      }
+      if (input.note !== undefined && input.note !== null && input.note !== "") {
+        body.note = input.note;
+      }
+      if (input.promisedDate !== undefined && input.promisedDate !== null) {
+        body.promised_date = input.promisedDate;
+      }
+      return call(transport, {
+        method: "POST",
+        path: `${base}/contacts/${segment(contactId)}/entries`,
+        body,
+        idempotencyKey,
+        read: payableWritten,
+      });
+    },
+
+    /** Cancels one entry of a contact's account, saying why; the entry itself stays. */
+    reversePayable(
+      contactId: string,
+      entryId: string,
+      reason: string,
+      idempotencyKey: string,
+    ): Promise<PayableContact> {
+      return call(transport, {
+        method: "POST",
+        path: `${base}/contacts/${segment(contactId)}/entries/${segment(entryId)}/cancel`,
+        body: { reason },
+        idempotencyKey,
+        read: payableWritten,
       });
     },
 

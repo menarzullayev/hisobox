@@ -14,7 +14,7 @@ import { PRICE_RANGE, PRICE_UZS_DEFAULT } from "./src/web/tariff.ts";
 /** Where the web panel's service worker is built to: a name that never changes, beside the panel's page. */
 export const WORKER_FILE = "panel/sw.js";
 /** What the build replaces in the worker's script with this build's list of shell files. */
-export const WORKER_MARK = "__QD_PANEL_WORKER_MANIFEST__";
+export const WORKER_MARK = "__HB_PANEL_WORKER_MANIFEST__";
 const WORKER_ENTRY = "panel-sw";
 
 /**
@@ -42,7 +42,7 @@ export function quotedManifest(manifest: { build: string; shell: string[] }): st
 function panelWorker(): Plugin {
   let outDir = "dist";
   return {
-    name: "qd-panel-worker",
+    name: "hb-panel-worker",
     apply: "build",
     configResolved(config) {
       outDir = resolve(config.root, config.build.outDir);
@@ -94,7 +94,7 @@ export function brandedHtml(html: string): string {
 /** Fills the product's name into every page, in the build and in the development server alike. */
 function brandPages(): Plugin {
   return {
-    name: "qd-brand-pages",
+    name: "hb-brand-pages",
     transformIndexHtml: { order: "pre", handler: brandedHtml },
   };
 }
@@ -129,7 +129,7 @@ function webSeo(): Plugin {
   let origin: string | null = null;
   let price = PRICE_UZS_DEFAULT;
   return {
-    name: "qd-web-seo",
+    name: "hb-web-seo",
     apply: "build",
     configResolved(config) {
       outDir = resolve(config.root, config.build.outDir);
@@ -138,7 +138,7 @@ function webSeo(): Plugin {
       price = priceOf(env);
       if (origin === null) {
         config.logger.warn(
-          "qd-web-seo: VITE_PUBLIC_ORIGIN is not set, so the landing page carries no canonical link, no sharing image and no sitemap. Set it to the site's own address (for example https://qarz.example.uz) for a production build.",
+          "hb-web-seo: VITE_PUBLIC_ORIGIN is not set, so the landing page carries no canonical link, no sharing image and no sitemap. Set it to the site's own address (for example https://qarz.example.uz) for a production build.",
         );
       }
     },

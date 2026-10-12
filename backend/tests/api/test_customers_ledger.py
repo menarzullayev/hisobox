@@ -13,12 +13,12 @@ import psycopg
 import pytest
 from fastapi.testclient import TestClient
 
-from qarz.application.auth import AuthService
-from qarz.domain import ledger
-from qarz.domain.ledger import Entry, EntryKind
-from qarz.domain.promise import tashkent_date
-from qarz.infrastructure.db import Database
-from qarz.interface.http import create_app
+from hiso_box.application.auth import AuthService
+from hiso_box.domain import ledger
+from hiso_box.domain.ledger import Entry, EntryKind
+from hiso_box.domain.promise import tashkent_date
+from hiso_box.infrastructure.db import Database
+from hiso_box.interface.http import create_app
 
 from .conftest import TEST_BOT_TOKEN, HeaderAuthenticator, World, as_user
 
@@ -851,7 +851,7 @@ def _random_account(rng: random.Random, start: date) -> list[Entry]:
 def test_the_database_figures_agree_with_the_domain_rules_on_generated_accounts(
     client: TestClient, world: World, owner: psycopg.Connection
 ) -> None:
-    """Lists and totals are computed in SQL; the customer detail is computed by `qarz.domain.ledger`."""
+    """Lists and totals are computed in SQL; the customer detail is computed by `hiso_box.domain.ledger`."""
     rng = random.Random(20261006)  # noqa: S311 - a fixed seed for repeatable test data, not a secret
     expected: dict[str, tuple[int, dict[str, Any]]] = {}
     for index in range(40):

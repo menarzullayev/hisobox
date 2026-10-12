@@ -1,4 +1,4 @@
-"""The operations watch, round by round (qarz.application.ops_watch), with the database, Telegram and
+"""The operations watch, round by round (hiso_box.application.ops_watch), with the database, Telegram and
 the clock replaced: an alert is told once, repeated after the interval, taken back once, kept quiet with
 no chat configured, and survives Telegram failing. Nothing here touches a database or a network.
 """
@@ -12,7 +12,7 @@ from typing import Any
 
 import pytest
 
-from qarz.application.ops_watch import (
+from hiso_box.application.ops_watch import (
     DATABASE_DOWN_FOR,
     MAX_LINES,
     AlertNotDelivered,
@@ -25,9 +25,9 @@ from qarz.application.ops_watch import (
     send_test_alert,
     trial_text,
 )
-from qarz.domain import brand
-from qarz.domain import ops_alerts as rules
-from qarz.domain.ops_alerts import Alert, DatabaseFigures
+from hiso_box.domain import brand
+from hiso_box.domain import ops_alerts as rules
+from hiso_box.domain.ops_alerts import Alert, DatabaseFigures
 
 START = datetime(2026, 10, 7, 7, 0, tzinfo=UTC)  # 12:00 in Tashkent
 CHAT, GROUP = 700100, -1001234567890
@@ -456,17 +456,17 @@ def test_what_a_deployment_does_not_configure_is_not_watched() -> None:
 
 
 def test_stale_backup_figures_fire_and_fresh_ones_resolve() -> None:
-    figures = {"value": {"qd_wal_archive_newest_age_seconds": 9999.0}}
+    figures = {"value": {"hb_wal_archive_newest_age_seconds": 9999.0}}
     stage = Stage(sources=Sources(backup=lambda: figures["value"]))
     stage.round()
     told = stage.round(minutes=12).told
     assert told == ["BackupMissing", "RestoreTestNotPassed", "WalArchiveStale"]
     now = stage.time.current.timestamp() + 60
     figures["value"] = {
-        'qd_backup_last_success_timestamp_seconds{type="full"}': now - 100,
-        "qd_wal_archive_newest_age_seconds": 20.0,
-        "qd_backup_check_timestamp_seconds": now - 30,
-        "qd_backup_restore_test_last_success_timestamp_seconds": now - 50,
+        'hb_backup_last_success_timestamp_seconds{type="full"}': now - 100,
+        "hb_wal_archive_newest_age_seconds": 20.0,
+        "hb_backup_check_timestamp_seconds": now - 30,
+        "hb_backup_restore_test_last_success_timestamp_seconds": now - 50,
     }
     assert sorted(stage.round(minutes=1).resolved) == told
     assert stage.store.alerts == {}
@@ -520,9 +520,9 @@ def test_the_api_not_answering_fires_after_two_minutes() -> None:
 def test_security_events_and_errors_are_read_from_the_apis_counters_across_rounds() -> None:
     def metrics(ok: int, failed: int, cross: int) -> dict[str, float]:
         return {
-            'qd_requests_total{method="GET",route="/api/v1/me",status="200"}': float(ok),
-            'qd_requests_total{method="GET",route="/api/v1/me",status="500"}': float(failed),
-            'qd_security_events_total{kind="shop_not_member"}': float(cross),
+            'hb_requests_total{method="GET",route="/api/v1/me",status="200"}': float(ok),
+            'hb_requests_total{method="GET",route="/api/v1/me",status="500"}': float(failed),
+            'hb_security_events_total{kind="shop_not_member"}': float(cross),
         }
 
     api = FakeApi(metrics=metrics(100, 0, 0))
@@ -550,13 +550,13 @@ def test_security_events_and_errors_are_read_from_the_apis_counters_across_round
 
 
 def test_a_second_factor_that_is_off_is_a_standing_warning_said_again_until_it_is_required_again() -> None:
-    api = FakeApi(metrics={"qd_admin_second_factor_off": 1.0})
+    api = FakeApi(metrics={"hb_admin_second_factor_off": 1.0})
     stage = Stage(sources=Sources(api=api, metrics=True))
     assert stage.round().told == ["AdminSecondFactorOff"], "said at once"
-    assert "QD_ADMIN_SECOND_FACTOR=off" in stage.texts()[0]
+    assert "HB_ADMIN_SECOND_FACTOR=off" in stage.texts()[0]
     assert stage.round(hours=3, minutes=59).told == []
     assert stage.round(minutes=1).told == ["AdminSecondFactorOff"], "and again while it stays"
-    api.metrics = {"qd_admin_second_factor_off": 0.0}
+    api.metrics = {"hb_admin_second_factor_off": 0.0}
     assert stage.round(minutes=1).resolved == ["AdminSecondFactorOff"]
     # An API that says nothing of it (no administrators' side, or an older release) is not judged.
     quiet = Stage(sources=Sources(api=FakeApi(metrics={}), metrics=True))

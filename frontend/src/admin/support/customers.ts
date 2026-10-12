@@ -6,7 +6,7 @@ import type { AdminApi } from "../adminApi";
  * customer's page, both read-only, both answered only while the caller's own support access to that
  * shop is open. Without one the server answers SUPPORT_ACCESS_REQUIRED, and records the attempt. Every
  * successful call is recorded too, and shown to the shop's owner. The shapes are the shop API's own
- * (backend/src/qarz/application/support_access.py: `list_customers`, `read_customer`).
+ * (backend/src/hiso_box/application/support_access.py: `list_customers`, `read_customer`).
  *
  * Only the two screens beside this file may use it; a test holds that line.
  */

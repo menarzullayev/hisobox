@@ -20,12 +20,12 @@ import psycopg
 import pytest
 from fastapi.testclient import TestClient
 
-from qarz.application.auth import AuthService
-from qarz.application.chat_texts import say
-from qarz.application.reminders import ReminderService
-from qarz.application.scheduler import Scheduler
-from qarz.infrastructure.db import Database
-from qarz.interface.http import create_app
+from hiso_box.application.auth import AuthService
+from hiso_box.application.chat_texts import say
+from hiso_box.application.reminders import ReminderService
+from hiso_box.application.scheduler import Scheduler
+from hiso_box.infrastructure.db import Database
+from hiso_box.interface.http import create_app
 from tests.test_telegram_auth import login_data, webapp_init_data
 
 from .conftest import TEST_BOT_TOKEN, WEBHOOK_SECRET, HeaderAuthenticator, SessionClient, World, as_user
@@ -46,7 +46,7 @@ def test_a_stranger_is_refused_even_when_the_database_role_bypasses_row_level_se
     """REQ-N12 promises isolation in the application "as well as" below it.
 
     The application is connected here as a role that bypasses row-level security (the migration owner),
-    which is what a wrong QD_DATABASE_URL would do. The membership lookup has no shop condition of its
+    which is what a wrong HB_DATABASE_URL would do. The membership lookup has no shop condition of its
     own, so the owner of shop B passes as a member of shop A, and of a shop that does not exist.
     """
     database = Database(database_url)
@@ -362,12 +362,12 @@ def test_web_login_data_signs_in_once_and_the_first_session_stays(session_client
     data = login_data(next(_tg_ids), token=TEST_BOT_TOKEN, auth_date=_signed_at())
     first = session_client.http.post(_LOGIN, json=data)
     assert first.status_code == 200, first.text
-    token = first.headers["set-cookie"].split("qd_session=")[1].split(";")[0]
+    token = first.headers["set-cookie"].split("hb_session=")[1].split(";")[0]
     session_client.http.cookies.clear()
 
     again = session_client.http.post(_LOGIN, json=data)
     assert again.status_code == 401 and "set-cookie" not in again.headers
-    assert session_client.http.get("/api/v1/me", headers={"Cookie": f"qd_session={token}"}).status_code == 200
+    assert session_client.http.get("/api/v1/me", headers={"Cookie": f"hb_session={token}"}).status_code == 200
 
 
 def test_a_person_signs_in_again_with_data_signed_anew(session_client: SessionClient) -> None:

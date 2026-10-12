@@ -1,4 +1,4 @@
-"""Pure rules of the stock: barcodes, quantities, and the weighted-average cost (qarz.domain.stock).
+"""Pure rules of the stock: barcodes, quantities, and the weighted-average cost (hiso_box.domain.stock).
 
 Each rule has the case that must work and the case that must be refused.
 """
@@ -8,8 +8,8 @@ from decimal import Decimal
 
 import pytest
 
-from qarz.domain import stock
-from qarz.domain.stock import EMPTY, Level
+from hiso_box.domain import stock
+from hiso_box.domain.stock import EMPTY, Level
 
 D = Decimal
 
@@ -31,7 +31,7 @@ def test_the_units_and_the_reasons_are_keys_and_their_names_are_texts() -> None:
 
 def test_the_units_are_the_forms_the_catalogue_folds_spellings_to() -> None:
     """A counted item's unit must be one the catalogue itself would store for the usual spellings."""
-    from qarz.domain.catalog import normalize_unit
+    from hiso_box.domain.catalog import normalize_unit
 
     for unit in stock.UNITS:
         assert normalize_unit(unit.key) == unit.key

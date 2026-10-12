@@ -1,10 +1,10 @@
-"""Currencies and amounts (qarz.domain.money): minor units, ranges, reading and writing, and never mixing."""
+"""Currencies and amounts (hiso_box.domain.money): minor units, ranges, reading and writing, and never mixing."""
 
 from typing import Any
 
 import pytest
 
-from qarz.domain.money import (
+from hiso_box.domain.money import (
     DEFAULT,
     NBSP,
     RULES,

@@ -15,7 +15,7 @@ export function readStyleSheet(...path: string[]): string {
 /** Every custom property tokens.css defines: the only names a style sheet may use. */
 export function definedTokens(): Set<string> {
   const css = readStyleSheet("shared", "tokens.css");
-  return new Set([...css.matchAll(/(--qd-[\w-]+)\s*:/g)].map((match) => match[1] ?? ""));
+  return new Set([...css.matchAll(/(--hb-[\w-]+)\s*:/g)].map((match) => match[1] ?? ""));
 }
 
 export function usedTokens(css: string): string[] {

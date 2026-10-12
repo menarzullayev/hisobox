@@ -2,8 +2,8 @@ from datetime import UTC, datetime, timedelta
 
 import pytest
 
-from qarz.domain.disputes import DisputeRefusal, clean_reason, may_dispute
-from qarz.domain.ledger import EntryKind
+from hiso_box.domain.disputes import DisputeRefusal, clean_reason, may_dispute
+from hiso_box.domain.ledger import EntryKind
 
 NOW = datetime(2026, 10, 7, 12, 0, tzinfo=UTC)
 

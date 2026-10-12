@@ -1,7 +1,7 @@
 import type { CalendarDay } from "./format";
 
 /**
- * Promised repayment dates on the credit form (REQ-008). A port of backend/src/qarz/domain/promise.py,
+ * Promised repayment dates on the credit form (REQ-008). A port of backend/src/hiso_box/domain/promise.py,
  * which is the authority: the server checks every date again. Everything here is a pure function of the
  * Tashkent calendar date of the sale.
  */

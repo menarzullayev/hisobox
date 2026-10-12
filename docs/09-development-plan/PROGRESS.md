@@ -113,7 +113,7 @@ Each is implemented. If one is rejected, the named story must be revisited.
 
 | Record | Subject | Affects |
 |---|---|---|
-| DEC-021 | Role `qd_app` created without login; two cross-tenant SECURITY DEFINER functions; their owner must bypass row-level security | S1.2, S1.4, S3.2; deployment (S1.5) |
+| DEC-021 | Role `hb_app` created without login; two cross-tenant SECURITY DEFINER functions; their owner must bypass row-level security | S1.2, S1.4, S3.2; deployment (S1.5) |
 | DEC-022 | `user_session` table; one-hour limit on signed Telegram data; CSRF failure answers 401; session kinds not interchangeable | S2.1 |
 | DEC-023 | 7-day staff invitations; a re-invited removed member keeps the same membership; invitation token handed out once; shop identifier derived from the idempotency key | S3.1, S3.2 |
 | DEC-024 | Front-end shell choices: catalogs, plurals, fixed UTC+5 dates, hash router, not-found for sections a role may not open | S2.2 |
@@ -175,10 +175,10 @@ Decided by the founder on 2026-10-07, and so not awaiting review: DEC-058 (nginx
 
 | Item | Approved text | Implementation | Why |
 |---|---|---|---|
-| Creation of role `qd_app` | `LOGIN PASSWORD 'set-at-deploy'` in `schema.sql` | Created `NOLOGIN`; login and password set at deploy | No password literal in the repository (DEC-021) |
+| Creation of role `hb_app` | `LOGIN PASSWORD 'set-at-deploy'` in `schema.sql` | Created `NOLOGIN`; login and password set at deploy | No password literal in the repository (DEC-021) |
 | Layer order for the import contract | Layers named without ordering infrastructure | interface, infrastructure, application, domain | A single order is needed for an automatic check |
 | Dependency lock | "Pinned with hashes" | Hash-pinned Linux lock generated with uv | pip-tools did not finish |
-| Tables, columns and functions beyond `schema.sql` | Not present | Tables `user_session`, `ownership_transfer`, `chat_pending`; `job_run`, `measure.weekly`, `online_payment`, `admin_audit`, `admin_session`, `admin_request_key`, `export_job`, `open_debt`, `signin_replay`; columns `app_user.trial_used_at`, `catalog_item.merged_into`, `customer_link.waiting_name`, `date_change_request.decline_reason`; functions `mark_recipient_unreachable`, `accept_staff_invitation`, `my_memberships`, `customer_token_info`, `link_customer`, `my_accounts`, `my_link`, `end_my_link`, `mark_recipient_reachable`, `forget_user_if_unused`, `shops_due_for_reminders`, `subscriptions_to_review`, `shops_to_erase`, `erase_shop`, `online_payment_shop`, `online_payment_shop_by_txn`, `payme_statement`, `shops_with_receipt_work`, `admin_shop_search`, `admin_shop_receipts`, `admin_lock_subscription`, `admin_store_subscription`, `admin_set_platform_setting`, `purge_expired_sign_ins`, `claim_owned_shop`, `admin_notice_recipients`; roles `qd_admin`, `qd_worker`; trigger `shop_deletion_guard`; indexes `ledger_reversal_shop`, `ledger_shop_customer` | DEC-021, DEC-022, DEC-025, DEC-029, DEC-030, DEC-032, DEC-033, DEC-035, DEC-038, DEC-039, DEC-041, DEC-044, DEC-045, DEC-047, DEC-048, DEC-049, DEC-053, DEC-055, DEC-056, DEC-057, DEC-068 |
+| Tables, columns and functions beyond `schema.sql` | Not present | Tables `user_session`, `ownership_transfer`, `chat_pending`; `job_run`, `measure.weekly`, `online_payment`, `admin_audit`, `admin_session`, `admin_request_key`, `export_job`, `open_debt`, `signin_replay`; columns `app_user.trial_used_at`, `catalog_item.merged_into`, `customer_link.waiting_name`, `date_change_request.decline_reason`; functions `mark_recipient_unreachable`, `accept_staff_invitation`, `my_memberships`, `customer_token_info`, `link_customer`, `my_accounts`, `my_link`, `end_my_link`, `mark_recipient_reachable`, `forget_user_if_unused`, `shops_due_for_reminders`, `subscriptions_to_review`, `shops_to_erase`, `erase_shop`, `online_payment_shop`, `online_payment_shop_by_txn`, `payme_statement`, `shops_with_receipt_work`, `admin_shop_search`, `admin_shop_receipts`, `admin_lock_subscription`, `admin_store_subscription`, `admin_set_platform_setting`, `purge_expired_sign_ins`, `claim_owned_shop`, `admin_notice_recipients`; roles `hb_admin`, `hb_worker`; trigger `shop_deletion_guard`; indexes `ledger_reversal_shop`, `ledger_shop_customer` | DEC-021, DEC-022, DEC-025, DEC-029, DEC-030, DEC-032, DEC-033, DEC-035, DEC-038, DEC-039, DEC-041, DEC-044, DEC-045, DEC-047, DEC-048, DEC-049, DEC-053, DEC-055, DEC-056, DEC-057, DEC-068 |
 | Order of consent and the waiting entry | BR-16 allows the waiting entry before consent | Consent first; a constraint refuses a waiting entry without it | Stricter, and simpler to explain to a customer (DEC-032) |
 | Ruff rule S608 in the storage module | All security rules on | Off for `infrastructure/db.py`, replaced by a stricter project test | The rule cannot tell a constant SQL fragment from user input (DEC-027) |
 | Rate limits on sign-in | Specified | The API limits signed-in callers per user and per shop; requests that are not signed in are left to the proxy, which does not exist yet | Limits by network address belong in front of the application (DEC-042) |
@@ -230,7 +230,7 @@ Decided by the founder on 2026-10-07, and so not awaiting review: DEC-058 (nginx
 
 ## What the founder is needed for
 
-1. A public HTTPS address for the development bot (a tunnel or a server), so that the webhook, the Mini App and Telegram Login can be exercised from a real Telegram client. Put it in `QD_PUBLIC_BASE_URL`.
+1. A public HTTPS address for the development bot (a tunnel or a server), so that the webhook, the Mini App and Telegram Login can be exercised from a real Telegram client. Put it in `HB_PUBLIC_BASE_URL`.
 2. Two hosting providers or facilities in Uzbekistan (S1.5).
 3. The shopkeeper interviews and the pDaftar test (launch criterion 1). By DEC-020 they no longer block the build.
 4. Review of the pending decisions listed above.

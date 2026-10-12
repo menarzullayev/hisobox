@@ -4,7 +4,7 @@ from datetime import date, timedelta
 
 import pytest
 
-from qarz.domain.admin_subscription import (
+from hiso_box.domain.admin_subscription import (
     MAX_PAID_DAYS_AHEAD,
     MAX_TRIAL_DAYS_AHEAD,
     ChangeRefused,

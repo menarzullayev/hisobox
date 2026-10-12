@@ -18,12 +18,12 @@ import psycopg
 import pytest
 from fastapi.testclient import TestClient
 
-from qarz.application import texts_en, texts_kaa, texts_tg
-from qarz.application.chat_texts import say
-from qarz.domain import permissions
-from qarz.domain.access import Role
-from qarz.domain.languages import LANGUAGES
-from qarz.domain.promise import tashkent_date
+from hiso_box.application import texts_en, texts_kaa, texts_tg
+from hiso_box.application.chat_texts import say
+from hiso_box.domain import permissions
+from hiso_box.domain.access import Role
+from hiso_box.domain.languages import LANGUAGES
+from hiso_box.domain.promise import tashkent_date
 
 from .conftest import World, as_user, set_overrides, switch_permissions_on
 from .test_authorization_suite import (
@@ -246,10 +246,10 @@ def test_a_client_is_told_in_a_header_that_permissions_are_kept_and_only_then(
     client: TestClient, world: World, owner: psycopg.Connection
 ) -> None:
     off = client.get("/api/v1/me/shops", headers=as_user(world.seller_a))
-    assert "x-qarz-permissions" not in off.headers
+    assert "x-shop-permissions" not in off.headers
     switch_permissions_on(owner)
     on = client.get("/api/v1/me/shops", headers=as_user(world.seller_a))
-    assert on.headers["x-qarz-permissions"] == "on"
+    assert on.headers["x-shop-permissions"] == "on"
     assert on.json() == off.json(), "the body is the same either way"
 
 

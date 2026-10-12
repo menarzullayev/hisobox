@@ -2,7 +2,7 @@ from datetime import date
 
 import pytest
 
-from qarz.domain.promise import parse_day_month
+from hiso_box.domain.promise import parse_day_month
 
 TODAY = date(2026, 10, 6)
 

@@ -9,5 +9,5 @@ RUN apt-get update \
     && rm -rf /var/lib/apt/lists/* \
     && groupadd -o -g 999 postgres \
     && useradd -o -u 999 -g 999 -d /var/lib/postgresql -m postgres \
-    && install -d -o postgres -g postgres /var/lib/qarz-backup \
-    && ln -s /qd-backup /opt/qarz-backup
+    && install -d -o postgres -g postgres /var/lib/hiso-box-backup \
+    && ln -s /hb-backup /opt/hiso-box-backup

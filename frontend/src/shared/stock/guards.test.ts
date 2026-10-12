@@ -119,7 +119,7 @@ describe("the stock's style sheet", () => {
 
   it("would be refused for a color, an unknown variable or a removed outline", () => {
     expect(styleProblems(css + ".scan { color: #c00; }", tokens)).toEqual(["color written out: #c00"]);
-    expect(styleProblems(css + ".scan { color: var(--qd-scan); }", tokens)).toEqual(["unknown variable: --qd-scan"]);
+    expect(styleProblems(css + ".scan { color: var(--hb-scan); }", tokens)).toEqual(["unknown variable: --hb-scan"]);
     expect(styleProblems(css + ".scan__video { outline: none; }", tokens)).toEqual(["outline changed"]);
   });
 });

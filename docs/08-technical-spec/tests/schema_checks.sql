@@ -15,9 +15,9 @@ INSERT INTO ledger_entry(id,shop_id,customer_id,seq,kind,amount,author_id) VALUE
  ('00000000-0000-7000-8000-0000000000b3',:B,'00000000-0000-7000-8000-0000000000b2',1,'credit',99000,'00000000-0000-7000-8000-0000000000b1');
 
 \echo == POS1 app role in shop A records an entry with goods lines that sum to the total (expect COMMIT)
-SET ROLE qd_app;
+SET ROLE hb_app;
 BEGIN;
-SET LOCAL qd.shop_id = '00000000-0000-7000-8000-00000000000a';
+SET LOCAL hb.shop_id = '00000000-0000-7000-8000-00000000000a';
 INSERT INTO ledger_entry(id,shop_id,customer_id,seq,kind,amount,author_id) VALUES
  ('00000000-0000-7000-8000-0000000000a3',:A,'00000000-0000-7000-8000-0000000000a2',1,'credit',45000,'00000000-0000-7000-8000-0000000000a1');
 INSERT INTO goods_line(id,shop_id,entry_id,line_no,name,qty,unit,unit_price,line_total) VALUES
@@ -27,14 +27,14 @@ COMMIT;
 
 \echo == NEG1 second batch of lines for the same entry in a later transaction (expect: already recorded)
 BEGIN;
-SET LOCAL qd.shop_id = '00000000-0000-7000-8000-00000000000a';
+SET LOCAL hb.shop_id = '00000000-0000-7000-8000-00000000000a';
 INSERT INTO goods_line(id,shop_id,entry_id,line_no,name,qty,unit,unit_price,line_total) VALUES
  ('00000000-0000-7000-8000-0000000000a6',:A,'00000000-0000-7000-8000-0000000000a3',3,'Choy',1,'dona',1000,1000);
 COMMIT;
 
 \echo == NEG2 lines that do not sum to the entry total (expect: sum error at COMMIT)
 BEGIN;
-SET LOCAL qd.shop_id = '00000000-0000-7000-8000-00000000000a';
+SET LOCAL hb.shop_id = '00000000-0000-7000-8000-00000000000a';
 INSERT INTO ledger_entry(id,shop_id,customer_id,seq,kind,amount,author_id) VALUES
  ('00000000-0000-7000-8000-0000000000a7',:A,'00000000-0000-7000-8000-0000000000a2',2,'credit',10000,'00000000-0000-7000-8000-0000000000a1');
 INSERT INTO goods_line(id,shop_id,entry_id,line_no,name,qty,unit,unit_price,line_total) VALUES
@@ -43,19 +43,19 @@ COMMIT;
 
 \echo == NEG3 app role updates a ledger entry (expect: permission denied)
 BEGIN;
-SET LOCAL qd.shop_id = '00000000-0000-7000-8000-00000000000a';
+SET LOCAL hb.shop_id = '00000000-0000-7000-8000-00000000000a';
 UPDATE ledger_entry SET amount = 1;
 ROLLBACK;
 
 \echo == NEG4 app role deletes a goods line (expect: permission denied)
 BEGIN;
-SET LOCAL qd.shop_id = '00000000-0000-7000-8000-00000000000a';
+SET LOCAL hb.shop_id = '00000000-0000-7000-8000-00000000000a';
 DELETE FROM goods_line;
 ROLLBACK;
 
 \echo == NEG5 shop A reads shop B (expect: 0 customers, 0 entries, own counts 1 and 1)
 BEGIN;
-SET LOCAL qd.shop_id = '00000000-0000-7000-8000-00000000000a';
+SET LOCAL hb.shop_id = '00000000-0000-7000-8000-00000000000a';
 SELECT (SELECT count(*) FROM customer WHERE shop_id = :B) AS b_customers,
        (SELECT count(*) FROM ledger_entry WHERE customer_id = '00000000-0000-7000-8000-0000000000b2') AS b_entries,
        (SELECT count(*) FROM customer) AS visible_customers,
@@ -65,7 +65,7 @@ ROLLBACK;
 
 \echo == NEG6 shop A inserts a row tagged as shop B (expect: row-level security violation)
 BEGIN;
-SET LOCAL qd.shop_id = '00000000-0000-7000-8000-00000000000a';
+SET LOCAL hb.shop_id = '00000000-0000-7000-8000-00000000000a';
 INSERT INTO customer(id,shop_id,display_name,name_norm) VALUES ('00000000-0000-7000-8000-0000000000b9',:B,'X','x');
 ROLLBACK;
 

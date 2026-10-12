@@ -1,6 +1,6 @@
 """In whose name a confirmed delivery note is posted on the supplier's side: the rule itself.
 
-`author_of` (qarz.application.network_orders) decides it from the issuer's membership as it stands now
+`author_of` (hiso_box.application.network_orders) decides it from the issuer's membership as it stands now
 and the shop's owner. The database decides the same in `network_note_author` (migration 0048), which says
 "holds `credits.record`" in SQL for that one key; what that SQL takes for granted about the catalogue is
 held here, and tests/db/test_network_note_author.py holds the two answers together case by case.
@@ -11,11 +11,11 @@ from pathlib import Path
 
 import pytest
 
-from qarz.application.errors import NotFound
-from qarz.application.network_orders import ISSUER_NOT_ACTIVE, ISSUER_NOT_PERMITTED, author_of
-from qarz.application.ports import Membership
-from qarz.domain import permissions
-from qarz.domain.access import Role
+from hiso_box.application.errors import NotFound
+from hiso_box.application.network_orders import ISSUER_NOT_ACTIVE, ISSUER_NOT_PERMITTED, author_of
+from hiso_box.application.ports import Membership
+from hiso_box.domain import permissions
+from hiso_box.domain.access import Role
 
 ISSUER, OWNER = uuid.uuid4(), uuid.uuid4()
 DENIED = frozenset({permissions.CREDITS_RECORD})

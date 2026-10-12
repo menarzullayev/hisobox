@@ -15,11 +15,11 @@ from dataclasses import replace
 import psycopg
 import pytest
 
-from qarz.application.errors import NotFound
-from qarz.application.network_orders import author_of
-from qarz.application.ports import Membership
-from qarz.domain import permissions
-from qarz.domain.access import Role
+from hiso_box.application.errors import NotFound
+from hiso_box.application.network_orders import author_of
+from hiso_box.application.ports import Membership
+from hiso_box.domain import permissions
+from hiso_box.domain.access import Role
 
 from ..conftest import AppSession, Shop
 from .test_network_schema import Books, everything, refusal, switches, turn

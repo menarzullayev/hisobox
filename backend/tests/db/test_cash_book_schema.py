@@ -328,7 +328,7 @@ def test_the_worker_reads_the_book_for_the_export_and_writes_nothing(
 
 # --- reading without walking the table -----------------------------------------------------------------
 
-# The statements of qarz.infrastructure.db_cash, with their parameters.
+# The statements of hiso_box.infrastructure.db_cash, with their parameters.
 READS = {
     "the balances before a day": (
         "SELECT method, currency, direction, sum(amount)::bigint, count(*) FROM cash_entry "
