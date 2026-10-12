@@ -14,7 +14,7 @@
  *     tour is a real tab list, the questions are real `<details>`, and every call to action is a link
  *     that works with the keyboard alone.
  */
-import { Suspense, lazy, useCallback, useEffect, useRef, useState } from "react";
+import { Suspense, lazy, useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 
 import { useI18n } from "../i18n/I18nProvider";
 import { LANGUAGES, type Language, type MessageKey } from "../i18n/types";
@@ -23,6 +23,27 @@ import { BrandMark } from "../shared/BrandMark";
 import illustrationLedger from "../assets/brand/illustration-ledger.png";
 import mascotCalculator from "../assets/brand/mascot-calculator.png";
 import { BOT_USERNAME } from "../shared/settings";
+import {
+  BoxIcon,
+  ChartIcon,
+  CheckIcon,
+  ClockIcon,
+  CloudIcon,
+  DatabaseIcon,
+  DownloadIcon,
+  EyeIcon,
+  GlobeIcon,
+  KeyIcon,
+  LightbulbIcon,
+  ListIcon,
+  LockIcon,
+  SendIcon,
+  ShieldIcon,
+  TrendingDownIcon,
+  UserIcon,
+  UsersIcon,
+  WalletIcon,
+} from "../shared/icons";
 import { start as startAnalytics, track } from "./analytics";
 import { PaperPhone, PaperToPhone } from "./PaperPhone";
 import { pricingParams } from "./pricing";
@@ -37,23 +58,23 @@ const PRICING = pricingParams();
 
 /** The six feature areas, in the order the page argues them: the debt first, the money, then the rest. */
 const FEATURES = [
-  { id: "ledger", title: "landing.feature.ledger", text: "landing.feature.ledger.text" },
-  { id: "cash", title: "landing.feature.cash", text: "landing.feature.cash.text" },
-  { id: "stock", title: "landing.feature.stock", text: "landing.feature.stock.text" },
-  { id: "reports", title: "landing.feature.reports", text: "landing.feature.reports.text" },
-  { id: "customers", title: "landing.feature.customers", text: "landing.feature.customers.text" },
-  { id: "staff", title: "landing.feature.staff", text: "landing.feature.staff.text" },
-] as const satisfies readonly { id: string; title: MessageKey; text: MessageKey }[];
+  { id: "ledger", title: "landing.feature.ledger", text: "landing.feature.ledger.text", icon: ListIcon },
+  { id: "cash", title: "landing.feature.cash", text: "landing.feature.cash.text", icon: WalletIcon },
+  { id: "stock", title: "landing.feature.stock", text: "landing.feature.stock.text", icon: BoxIcon },
+  { id: "reports", title: "landing.feature.reports", text: "landing.feature.reports.text", icon: ChartIcon },
+  { id: "customers", title: "landing.feature.customers", text: "landing.feature.customers.text", icon: UsersIcon },
+  { id: "staff", title: "landing.feature.staff", text: "landing.feature.staff.text", icon: UserIcon },
+] as const satisfies readonly { id: string; title: MessageKey; text: MessageKey; icon: () => ReactNode }[];
 
 /** The screens of the product tour. Each is a tab, and each tab draws a small stand-in of the screen. */
 const SCREENS = [
-  { id: "customers", label: "landing.showcase.tab.customers" },
-  { id: "ledger", label: "landing.showcase.tab.ledger" },
-  { id: "cash", label: "landing.showcase.tab.cash" },
-  { id: "stock", label: "landing.showcase.tab.stock" },
-  { id: "reports", label: "landing.showcase.tab.reports" },
-  { id: "staff", label: "landing.showcase.tab.staff" },
-] as const satisfies readonly { id: string; label: MessageKey }[];
+  { id: "customers", label: "landing.showcase.tab.customers", icon: UsersIcon },
+  { id: "ledger", label: "landing.showcase.tab.ledger", icon: ListIcon },
+  { id: "cash", label: "landing.showcase.tab.cash", icon: WalletIcon },
+  { id: "stock", label: "landing.showcase.tab.stock", icon: BoxIcon },
+  { id: "reports", label: "landing.showcase.tab.reports", icon: ChartIcon },
+  { id: "staff", label: "landing.showcase.tab.staff", icon: UserIcon },
+] as const satisfies readonly { id: string; label: MessageKey; icon: () => ReactNode }[];
 
 const STEPS = [
   { id: "1", title: "landing.how.1.title", text: "landing.how.1.text" },
@@ -62,22 +83,22 @@ const STEPS = [
 ] as const satisfies readonly { id: string; title: MessageKey; text: MessageKey }[];
 
 const BENEFITS = [
-  { id: "control", title: "landing.benefit.control", text: "landing.benefit.control.text" },
-  { id: "time", title: "landing.benefit.time", text: "landing.benefit.time.text" },
-  { id: "losses", title: "landing.benefit.losses", text: "landing.benefit.losses.text" },
-  { id: "team", title: "landing.benefit.team", text: "landing.benefit.team.text" },
-  { id: "anywhere", title: "landing.benefit.anywhere", text: "landing.benefit.anywhere.text" },
-  { id: "decisions", title: "landing.benefit.decisions", text: "landing.benefit.decisions.text" },
-] as const satisfies readonly { id: string; title: MessageKey; text: MessageKey }[];
+  { id: "control", title: "landing.benefit.control", text: "landing.benefit.control.text", icon: EyeIcon },
+  { id: "time", title: "landing.benefit.time", text: "landing.benefit.time.text", icon: ClockIcon },
+  { id: "losses", title: "landing.benefit.losses", text: "landing.benefit.losses.text", icon: TrendingDownIcon },
+  { id: "team", title: "landing.benefit.team", text: "landing.benefit.team.text", icon: UsersIcon },
+  { id: "anywhere", title: "landing.benefit.anywhere", text: "landing.benefit.anywhere.text", icon: GlobeIcon },
+  { id: "decisions", title: "landing.benefit.decisions", text: "landing.benefit.decisions.text", icon: LightbulbIcon },
+] as const satisfies readonly { id: string; title: MessageKey; text: MessageKey; icon: () => ReactNode }[];
 
 const TRUST = [
-  { id: "isolation", title: "landing.trust.isolation", text: "landing.trust.isolation.text" },
-  { id: "roles", title: "landing.trust.roles", text: "landing.trust.roles.text" },
-  { id: "telegram", title: "landing.trust.telegram", text: "landing.trust.telegram.text" },
-  { id: "backup", title: "landing.trust.backup", text: "landing.trust.backup.text" },
-  { id: "export", title: "landing.trust.export", text: "landing.trust.export.text" },
-  { id: "access", title: "landing.trust.access", text: "landing.trust.access.text" },
-] as const satisfies readonly { id: string; title: MessageKey; text: MessageKey }[];
+  { id: "isolation", title: "landing.trust.isolation", text: "landing.trust.isolation.text", icon: ShieldIcon },
+  { id: "roles", title: "landing.trust.roles", text: "landing.trust.roles.text", icon: KeyIcon },
+  { id: "telegram", title: "landing.trust.telegram", text: "landing.trust.telegram.text", icon: SendIcon },
+  { id: "backup", title: "landing.trust.backup", text: "landing.trust.backup.text", icon: DatabaseIcon },
+  { id: "export", title: "landing.trust.export", text: "landing.trust.export.text", icon: DownloadIcon },
+  { id: "access", title: "landing.trust.access", text: "landing.trust.access.text", icon: LockIcon },
+] as const satisfies readonly { id: string; title: MessageKey; text: MessageKey; icon: () => ReactNode }[];
 
 const TRIAL_POINTS = [
   "landing.pricing.trial.point1",
@@ -210,7 +231,9 @@ function Showcase() {
   return (
     <div className="tour">
       <div className="tour__tabs" role="tablist" aria-label={t("landing.showcase.title")}>
-        {SCREENS.map((screen, index) => (
+        {SCREENS.map((screen, index) => {
+          const ScreenIcon = screen.icon;
+          return (
           <button
             key={screen.id}
             ref={(node) => {
@@ -229,9 +252,11 @@ function Showcase() {
               track("section_view", { id: `showcase_${screen.id}` });
             }}
           >
+            <ScreenIcon />
             {t(screen.label)}
           </button>
-        ))}
+          );
+        })}
       </div>
       <div
         className="tour__screen"
@@ -398,9 +423,18 @@ export function Landing() {
             </div>
             <p className="hero__promise">{t("landing.hero.promise")}</p>
             <ul className="hero__trust">
-              <li>{t("landing.hero.trust.languages", { count: LANGUAGES.length })}</li>
-              <li>{t("landing.hero.trust.telegram")}</li>
-              <li>{t("landing.hero.trust.cloud")}</li>
+              <li>
+                <GlobeIcon />
+                {t("landing.hero.trust.languages", { count: LANGUAGES.length })}
+              </li>
+              <li>
+                <SendIcon />
+                {t("landing.hero.trust.telegram")}
+              </li>
+              <li>
+                <CloudIcon />
+                {t("landing.hero.trust.cloud")}
+              </li>
             </ul>
           </div>
           <div className="hero__stage">
@@ -438,12 +472,18 @@ export function Landing() {
             <p className="band__lead">{t("landing.features.lead")}</p>
           </div>
           <div className="grid grid--three">
-            {FEATURES.map((feature) => (
-              <article className="card" key={feature.id}>
-                <h3 className="card__title">{t(feature.title)}</h3>
-                <p className="card__text">{t(feature.text)}</p>
-              </article>
-            ))}
+            {FEATURES.map((feature) => {
+              const FeatureIcon = feature.icon;
+              return (
+                <article className="card" key={feature.id}>
+                  <span className="card__icon" aria-hidden="true">
+                    <FeatureIcon />
+                  </span>
+                  <h3 className="card__title">{t(feature.title)}</h3>
+                  <p className="card__text">{t(feature.text)}</p>
+                </article>
+              );
+            })}
           </div>
         </section>
 
@@ -501,12 +541,18 @@ export function Landing() {
             <p className="band__lead">{t("landing.benefits.lead")}</p>
           </div>
           <div className="grid grid--three">
-            {BENEFITS.map((benefit) => (
-              <article className="card card--plain" key={benefit.id}>
-                <h3 className="card__title">{t(benefit.title)}</h3>
-                <p className="card__text">{t(benefit.text)}</p>
-              </article>
-            ))}
+            {BENEFITS.map((benefit) => {
+              const BenefitIcon = benefit.icon;
+              return (
+                <article className="card card--plain" key={benefit.id}>
+                  <span className="card__icon" aria-hidden="true">
+                    <BenefitIcon />
+                  </span>
+                  <h3 className="card__title">{t(benefit.title)}</h3>
+                  <p className="card__text">{t(benefit.text)}</p>
+                </article>
+              );
+            })}
           </div>
         </section>
 
@@ -518,12 +564,18 @@ export function Landing() {
             <p className="band__lead">{t("landing.trust.lead")}</p>
           </div>
           <div className="grid grid--three">
-            {TRUST.map((item) => (
-              <article className="card" key={item.id}>
-                <h3 className="card__title">{t(item.title)}</h3>
-                <p className="card__text">{t(item.text)}</p>
-              </article>
-            ))}
+            {TRUST.map((item) => {
+              const TrustIcon = item.icon;
+              return (
+                <article className="card" key={item.id}>
+                  <span className="card__icon" aria-hidden="true">
+                    <TrustIcon />
+                  </span>
+                  <h3 className="card__title">{t(item.title)}</h3>
+                  <p className="card__text">{t(item.text)}</p>
+                </article>
+              );
+            })}
           </div>
         </section>
 
@@ -541,7 +593,10 @@ export function Landing() {
               <p className="plan__period">{t("landing.pricing.trial.period", PRICING)}</p>
               <ul className="plan__points">
                 {TRIAL_POINTS.map((point) => (
-                  <li key={point}>{t(point)}</li>
+                  <li key={point}>
+                    <CheckIcon />
+                    {t(point)}
+                  </li>
                 ))}
               </ul>
               <StartLink id="pricing_trial" className="btn btn--ghost btn--block">
@@ -555,7 +610,10 @@ export function Landing() {
               <p className="plan__period">{t("landing.pricing.paid.period")}</p>
               <ul className="plan__points">
                 {PAID_POINTS.map((point) => (
-                  <li key={point}>{t(point)}</li>
+                  <li key={point}>
+                    <CheckIcon />
+                    {t(point)}
+                  </li>
                 ))}
               </ul>
               <StartLink id="pricing_paid" className="btn btn--primary btn--block">

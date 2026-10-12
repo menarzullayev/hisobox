@@ -75,6 +75,39 @@ const MOON_1_STROKE_LINECAP = "round";
 const MOON_1_STROKE_LINEJOIN = "round";
 const MOON_1_D = "M20.985 12.486a9 9 0 1 1-9.473-9.472c.405-.022.617.46.402.803a6 6 0 0 0 8.268 8.268c.344-.215.825-.004.803.401";
 const MONITOR_2_D = "M8 21h8m-4-4v4";
+const WALLET_1_D = "M19 7V4a1 1 0 0 0-1-1H5a2 2 0 0 0 0 4h15a1 1 0 0 1 1 1v4h-3a2 2 0 0 0 0 4h3a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1";
+const WALLET_2_D = "M3 5v14a2 2 0 0 0 2 2h15a1 1 0 0 0 1-1v-4";
+const EYE_1_D = "M2.062 12.348a1 1 0 0 1 0-.696a10.75 10.75 0 0 1 19.876 0a1 1 0 0 1 0 .696a10.75 10.75 0 0 1-19.876 0";
+const TRENDING_DOWN_1_D = "M16 17h6v-6";
+const TRENDING_DOWN_2_D = "m22 17l-8.5-8.5l-5 5L2 7";
+const GLOBE_2_D = "M12 2a14.5 14.5 0 0 0 0 20a14.5 14.5 0 0 0 0-20M2 12h20";
+const LIGHTBULB_1_FILL = "none";
+const LIGHTBULB_1_STROKE = "currentColor";
+const LIGHTBULB_1_STROKE_LINECAP = "round";
+const LIGHTBULB_1_STROKE_LINEJOIN = "round";
+const LIGHTBULB_1_D = "M15 14c.2-1 .7-1.7 1.5-2.5c1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5c.7.7 1.3 1.5 1.5 2.5m0 4h6m-5 4h4";
+const SHIELD_1_D = "M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z";
+const SHIELD_2_D = "m9 12l2 2l4-4";
+const KEY_1_D = "M2.586 17.414A2 2 0 0 0 2 18.828V21a1 1 0 0 0 1 1h3a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1h1a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1h.172a2 2 0 0 0 1.414-.586l.814-.814a6.5 6.5 0 1 0-4-4z";
+const KEY_2_FILL = "currentColor";
+const SEND_1_FILL = "none";
+const SEND_1_STROKE = "currentColor";
+const SEND_1_STROKE_LINECAP = "round";
+const SEND_1_STROKE_LINEJOIN = "round";
+const SEND_1_D = "M14.536 21.686a.5.5 0 0 0 .937-.024l6.5-19a.496.496 0 0 0-.635-.635l-19 6.5a.5.5 0 0 0-.024.937l7.93 3.18a2 2 0 0 1 1.112 1.11zm7.318-19.539l-10.94 10.939";
+const DATABASE_2_D = "M3 5v14a9 3 0 0 0 18 0V5";
+const DATABASE_3_D = "M3 12a9 3 0 0 0 18 0";
+const LOCK_2_D = "M7 11V7a5 5 0 0 1 10 0v4";
+const CLOUD_1_FILL = "none";
+const CLOUD_1_STROKE = "currentColor";
+const CLOUD_1_STROKE_LINECAP = "round";
+const CLOUD_1_STROKE_LINEJOIN = "round";
+const CLOUD_1_D = "M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9";
+const CHEVRON_DOWN_1_FILL = "none";
+const CHEVRON_DOWN_1_STROKE = "currentColor";
+const CHEVRON_DOWN_1_STROKE_LINECAP = "round";
+const CHEVRON_DOWN_1_STROKE_LINEJOIN = "round";
+const CHEVRON_DOWN_1_D = "m6 9l6 6l6-6";
 
 export function HomeIcon() {
   return (
@@ -225,6 +258,99 @@ export function MonitorIcon() {
     <Icon>
       <rect width="20" height="14" x="2" y="3" rx="2" />
       <path d={MONITOR_2_D} />
+    </Icon>
+  );
+}
+export function WalletIcon() {
+  return (
+    <Icon>
+      <path d={WALLET_1_D} />
+      <path d={WALLET_2_D} />
+    </Icon>
+  );
+}
+export function EyeIcon() {
+  return (
+    <Icon>
+      <path d={EYE_1_D} />
+      <circle cx="12" cy="12" r="3" />
+    </Icon>
+  );
+}
+export function TrendingDownIcon() {
+  return (
+    <Icon>
+      <path d={TRENDING_DOWN_1_D} />
+      <path d={TRENDING_DOWN_2_D} />
+    </Icon>
+  );
+}
+export function GlobeIcon() {
+  return (
+    <Icon>
+      <circle cx="12" cy="12" r="10" />
+      <path d={GLOBE_2_D} />
+    </Icon>
+  );
+}
+export function LightbulbIcon() {
+  return (
+    <Icon>
+      <path fill={LIGHTBULB_1_FILL} stroke={LIGHTBULB_1_STROKE} strokeLinecap={LIGHTBULB_1_STROKE_LINECAP} strokeLinejoin={LIGHTBULB_1_STROKE_LINEJOIN} strokeWidth="2" d={LIGHTBULB_1_D} />
+    </Icon>
+  );
+}
+export function ShieldIcon() {
+  return (
+    <Icon>
+      <path d={SHIELD_1_D} />
+      <path d={SHIELD_2_D} />
+    </Icon>
+  );
+}
+export function KeyIcon() {
+  return (
+    <Icon>
+      <path d={KEY_1_D} />
+      <circle cx="16.5" cy="7.5" r=".5" fill={KEY_2_FILL} />
+    </Icon>
+  );
+}
+export function SendIcon() {
+  return (
+    <Icon>
+      <path fill={SEND_1_FILL} stroke={SEND_1_STROKE} strokeLinecap={SEND_1_STROKE_LINECAP} strokeLinejoin={SEND_1_STROKE_LINEJOIN} strokeWidth="2" d={SEND_1_D} />
+    </Icon>
+  );
+}
+export function DatabaseIcon() {
+  return (
+    <Icon>
+      <ellipse cx="12" cy="5" rx="9" ry="3" />
+      <path d={DATABASE_2_D} />
+      <path d={DATABASE_3_D} />
+    </Icon>
+  );
+}
+export function LockIcon() {
+  return (
+    <Icon>
+      <rect width="18" height="11" x="3" y="11" rx="2" ry="2" />
+      <path d={LOCK_2_D} />
+    </Icon>
+  );
+}
+export function CloudIcon() {
+  return (
+    <Icon>
+      <path fill={CLOUD_1_FILL} stroke={CLOUD_1_STROKE} strokeLinecap={CLOUD_1_STROKE_LINECAP} strokeLinejoin={CLOUD_1_STROKE_LINEJOIN} strokeWidth="2" d={CLOUD_1_D} />
+    </Icon>
+  );
+}
+export function ChevronDownIcon() {
+  return (
+    <Icon>
+      <path fill={CHEVRON_DOWN_1_FILL} stroke={CHEVRON_DOWN_1_STROKE} strokeLinecap={CHEVRON_DOWN_1_STROKE_LINECAP} strokeLinejoin={CHEVRON_DOWN_1_STROKE_LINEJOIN} strokeWidth="2" d={CHEVRON_DOWN_1_D} />
     </Icon>
   );
 }

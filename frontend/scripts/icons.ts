@@ -39,6 +39,19 @@ const ICONS: [string, string][] = [
   ["SunIcon", "sun"],
   ["MoonIcon", "moon"],
   ["MonitorIcon", "monitor"],
+  // The landing page's own needs: what each feature, benefit and trust point is about.
+  ["WalletIcon", "wallet"],
+  ["EyeIcon", "eye"],
+  ["TrendingDownIcon", "trending-down"],
+  ["GlobeIcon", "globe"],
+  ["LightbulbIcon", "lightbulb"],
+  ["ShieldIcon", "shield-check"],
+  ["KeyIcon", "key-round"],
+  ["SendIcon", "send"],
+  ["DatabaseIcon", "database"],
+  ["LockIcon", "lock"],
+  ["CloudIcon", "cloud"],
+  ["ChevronDownIcon", "chevron-down"],
 ];
 
 type Definition = { body?: string; parent?: string };

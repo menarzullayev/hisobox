@@ -1058,3 +1058,61 @@ a {
   color: var(--hb-muted);
   text-align: center;
 }
+
+/* Icons from the shared set (src/shared/icons.tsx): the same artwork the panel uses. */
+.card__icon {
+  display: grid;
+  place-items: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  margin-bottom: var(--hb-space-3);
+  border-radius: var(--hb-radius-md);
+  background: var(--hb-accent-soft);
+  color: var(--hb-accent);
+}
+
+.card__icon .icon {
+  width: 1.375rem;
+  height: 1.375rem;
+}
+
+.band--deep .card__icon {
+  background: color-mix(in srgb, var(--hb-on-accent) 14%, transparent);
+  color: var(--hb-on-accent);
+}
+
+.hero__trust li {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--hb-space-2);
+}
+
+.hero__trust .icon {
+  width: 1rem;
+  height: 1rem;
+  color: var(--hb-accent);
+}
+
+.plan__points li {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--hb-space-2);
+}
+
+.plan__points .icon {
+  width: 1rem;
+  height: 1rem;
+  margin-top: 0.15rem;
+  color: var(--hb-accent);
+}
+
+.tour__tab {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--hb-space-2);
+}
+
+.tour__tab .icon {
+  width: 1rem;
+  height: 1rem;
+}
