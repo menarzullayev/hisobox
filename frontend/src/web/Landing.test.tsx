@@ -23,9 +23,10 @@ function renderPage(): HTMLElement {
   return container;
 }
 
-/** The nine sections the page must carry, in the order they are read. */
+/** The sections the page must carry, in the order they are read. */
 const SECTION_IDS = [
   "bosh",
+  "daftar",
   "funksiyalar",
   "mahsulot",
   "qanday",
@@ -66,6 +67,23 @@ describe("the landing page", () => {
     const nav = container.querySelector("#landing-nav");
     expect(nav).toBeTruthy();
     expect(within(nav as HTMLElement).getAllByRole("link")).toHaveLength(7);
+  });
+
+  it("opens on the notebook and the phone, and keeps the workspace for the product's own section", () => {
+    const container = renderPage();
+    // The hero's picture: the shop's paper, the handset, and the message that made an entry.
+    const hero = container.querySelector("#bosh");
+    expect(hero?.querySelector(".pp__paper--behind")).toBeTruthy();
+    expect(hero?.querySelector(".pp__device--front")).toBeTruthy();
+    expect(hero?.querySelector(".pp__card")).toBeTruthy();
+    // The workspace is not in the hero any more; it is the product section's own picture.
+    expect(hero?.querySelector(".ws")).toBeNull();
+    const product = container.querySelector("#mahsulot");
+    expect(product?.querySelector(".band__stage")).toBeTruthy();
+    // And the notebook-turned-application pair stands in its own section, labelled as demonstration.
+    const notebook = container.querySelector("#daftar");
+    expect(notebook?.querySelectorAll(".pp-pair__side")).toHaveLength(2);
+    expect(within(notebook as HTMLElement).getByText("Namoyish ma'lumotlari")).toBeTruthy();
   });
 
   it("names the six feature areas the product has", () => {

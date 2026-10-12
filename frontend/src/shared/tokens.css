@@ -123,6 +123,13 @@ color-scheme: light;
   --qd-gap:         var(--qd-space-3);
   --qd-target-size: var(--qd-target);
 
+  /* qog'oz va qurilma: landingsahifadagi tasvir. Qog'oz -- "jism": mavzu bilan qoraymaydi, faqat
+     yorug'ligi pasayadi, aks holda metafora (qog'oz daftar -> telefon) yo'qoladi. */
+  --qd-paper:        #fbfaf4;
+  --qd-paper-line:   #d7dac9;
+  --qd-paper-margin: #ce4848;
+  --qd-ink:          #23408e;
+  --qd-device-frame: #0a0a0c;
   /* orqaga moslik: eski nomlar (T2 bosqichma-bosqich almashtirishdan oldin) */
   --qd-link:            #4b3fd6;
   --qd-border:          #76829a;
@@ -171,6 +178,11 @@ color-scheme: light;
   --qd-gap:         var(--qd-space-3);
   --qd-target-size: var(--qd-target);
 
+  --qd-paper:        #e9e7db;
+  --qd-paper-line:   #c3c6b4;
+  --qd-paper-margin: #b4453f;
+  --qd-ink:          #24418c;
+  --qd-device-frame: #000000;
   /* orqaga moslik */
   --qd-link:            #8b7cf6;
   --qd-border:          #7e8aa0;
@@ -212,6 +224,11 @@ color-scheme: light;
 
   --qd-focus: #00308f;
 
+  --qd-paper:        #ffffff;
+  --qd-paper-line:   #7a7f6a;
+  --qd-paper-margin: #a81b1b;
+  --qd-ink:          #10276b;
+  --qd-device-frame: #000000;
   /* orqaga moslik */
   --qd-link:            #00308f;
   --qd-border:          #76829a;
@@ -253,6 +270,11 @@ color-scheme: light;
 
   --qd-focus: #a3b8ff;
 
+  --qd-paper:        #f2f0e6;
+  --qd-paper-line:   #6f7466;
+  --qd-paper-margin: #ff8a84;
+  --qd-ink:          #0b1b4d;
+  --qd-device-frame: #f0f0f5;
   /* orqaga moslik */
   --qd-link:            #a3b8ff;
   --qd-border:          #7e8aa0;
@@ -301,6 +323,12 @@ color-scheme: light;
     --qd-card-pad:    var(--qd-space-3);
     --qd-gap:         var(--qd-space-3);
     --qd-target-size: var(--qd-target);
+
+    --qd-paper:        #e9e7db;
+    --qd-paper-line:   #c3c6b4;
+    --qd-paper-margin: #b4453f;
+    --qd-ink:          #24418c;
+    --qd-device-frame: #000000;
 
     /* orqaga moslik */
     --qd-link:            #8b7cf6;
