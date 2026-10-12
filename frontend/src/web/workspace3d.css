@@ -1,0 +1,298 @@
+/*
+ * The hero's workspace (Workspace3D.tsx): the product's board with its screens floating around it.
+ *
+ * Like every style sheet but tokens.css, this one writes no colour of its own: the surfaces, the lines
+ * and the shadows all come from the design tokens, so the composition follows the light theme, the dark
+ * theme and the two high-contrast modes without a line changing here. Every transition and keyframe is
+ * inside a `prefers-reduced-motion: no-preference` block, the rule the whole product follows: someone
+ * who asked for less motion gets the finished composition, not a moving one.
+ */
+
+.ws {
+  position: relative;
+  width: 100%;
+  min-height: 22rem;
+  perspective: 1400px;
+  perspective-origin: 50% 45%;
+  /* A drag turns the composition; a vertical swipe still scrolls the page, which is what a phone needs. */
+  touch-action: pan-y;
+}
+
+.ws__field {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  color: var(--qd-accent-ink);
+  opacity: 0.55;
+  pointer-events: none;
+}
+
+.ws__stage {
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+}
+
+/*
+ * The group holds what is scaled and what is turned. Its `scale` is a property of its own, not part of
+ * `transform`, so the turn the reader makes (written into `.ws__stage`'s transform from the component)
+ * and the size the screen calls for never fight over one declaration. A local custom property would be
+ * the other way to do this, and the project's style guard refuses one: every `var()` a sheet uses must
+ * be a token.
+ *
+ * Its bottom edge is raised so the composition sits above the hint rather than under it.
+ */
+.ws__group {
+  position: absolute;
+  inset: 0 0 3.25rem 0;
+  transform-style: preserve-3d;
+  scale: 1;
+}
+
+/* --- the board in the middle ------------------------------------------------------------------------ */
+
+.ws__board {
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  width: min(21rem, 74%);
+  height: 12.5rem;
+  padding: var(--qd-space-3);
+  display: flex;
+  flex-direction: column;
+  gap: var(--qd-space-3);
+  border: 1px solid var(--qd-line);
+  border-radius: var(--qd-radius-xl);
+  background: var(--qd-surface);
+  box-shadow: var(--qd-shadow-lg);
+}
+
+.ws__bar {
+  display: flex;
+  align-items: center;
+  gap: var(--qd-space-2);
+}
+
+.ws__dot {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: var(--qd-radius-pill);
+  background: var(--qd-surface-2);
+}
+
+.ws__board-name {
+  margin-left: var(--qd-space-2);
+  font: var(--qd-type-caption);
+  letter-spacing: var(--qd-tracking-label);
+  text-transform: uppercase;
+  color: var(--qd-faint);
+}
+
+.ws__figure {
+  display: flex;
+  flex-direction: column;
+  gap: var(--qd-space-2);
+  padding: var(--qd-space-3);
+  border-radius: var(--qd-radius-lg);
+  background: var(--qd-accent-soft);
+}
+
+.ws__figure-value {
+  width: 62%;
+  height: 1.125rem;
+  border-radius: var(--qd-radius-sm);
+  background: var(--qd-accent);
+}
+
+.ws__figure-label {
+  width: 38%;
+  height: 0.5rem;
+  border-radius: var(--qd-radius-pill);
+  background: var(--qd-accent-ink);
+  opacity: 0.55;
+}
+
+.ws__rows {
+  display: flex;
+  flex-direction: column;
+  gap: var(--qd-space-2);
+}
+
+.ws__row {
+  height: 0.5rem;
+  border-radius: var(--qd-radius-pill);
+  background: var(--qd-surface-2);
+}
+
+/* Each row a little shorter than the one above, so the block reads as a list of figures. */
+.ws__row:nth-child(1) {
+  width: 100%;
+}
+
+.ws__row:nth-child(2) {
+  width: 91%;
+}
+
+.ws__row:nth-child(3) {
+  width: 82%;
+}
+
+.ws__row:nth-child(4) {
+  width: 73%;
+}
+
+/* --- the floating screens --------------------------------------------------------------------------- */
+
+.ws__panel {
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  width: 10.5rem;
+  height: 5.25rem;
+  padding: var(--qd-space-3);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: var(--qd-space-2);
+  text-align: left;
+  border: 1px solid var(--qd-line);
+  border-radius: var(--qd-radius-lg);
+  background: var(--qd-surface);
+  box-shadow: var(--qd-shadow-md);
+  color: var(--qd-text);
+  cursor: pointer;
+}
+
+.ws__panel-title {
+  font: var(--qd-type-label);
+  letter-spacing: var(--qd-tracking-label);
+  text-transform: uppercase;
+  color: var(--qd-muted);
+}
+
+.ws__panel-lines {
+  display: flex;
+  flex-direction: column;
+  gap: var(--qd-space-2);
+}
+
+.ws__line {
+  height: 0.5rem;
+  border-radius: var(--qd-radius-pill);
+  background: var(--qd-surface-2);
+}
+
+.ws__line--short {
+  width: 58%;
+}
+
+/* The screen the reader picked comes forward and takes the accent; the rest step back. */
+.ws[data-selected] .ws__panel:not([aria-pressed="true"]) {
+  opacity: 0.62;
+}
+
+.ws__panel[aria-pressed="true"] {
+  border-color: var(--qd-accent);
+  background: var(--qd-surface);
+  box-shadow: var(--qd-shadow-lg);
+}
+
+.ws__panel[aria-pressed="true"] .ws__panel-title {
+  color: var(--qd-accent-ink);
+}
+
+/* --- the hint --------------------------------------------------------------------------------------- */
+
+.ws__hint {
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  transform: translateX(-50%);
+  padding: var(--qd-space-2) var(--qd-space-4);
+  border: 1px solid var(--qd-line);
+  border-radius: var(--qd-radius-pill);
+  background: var(--qd-chrome);
+  box-shadow: var(--qd-shadow-sm);
+  color: var(--qd-muted);
+  font: var(--qd-type-small);
+  cursor: pointer;
+}
+
+.ws__hint-text {
+  white-space: nowrap;
+}
+
+/* --- motion ----------------------------------------------------------------------------------------- */
+
+@media (prefers-reduced-motion: no-preference) {
+  .ws__stage {
+    transition: transform var(--qd-dur-slow) var(--qd-ease-out);
+  }
+
+  .ws__panel {
+    transition:
+      transform var(--qd-dur-slow) var(--qd-ease-out),
+      border-color var(--qd-dur-base) var(--qd-ease-out),
+      box-shadow var(--qd-dur-base) var(--qd-ease-out),
+      opacity var(--qd-dur-base) var(--qd-ease-out);
+  }
+
+  /* Until the reader touches it, the composition breathes: the screens settle in, then drift slowly.
+     The `translate` property is used rather than `transform`, because `transform` already holds each
+     screen's place in the three-dimensional group. */
+  .ws:not([data-moved]) .ws__panel {
+    animation: qd-ws-float 9s var(--qd-ease-in-out) infinite alternate;
+  }
+
+  .ws__hint {
+    animation: qd-ws-hint 2.6s var(--qd-ease-in-out) infinite;
+  }
+
+  @keyframes qd-ws-float {
+    from {
+      translate: 0 -0.25rem;
+    }
+    to {
+      translate: 0 0.25rem;
+    }
+  }
+
+  @keyframes qd-ws-hint {
+    0%,
+    100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.65;
+    }
+  }
+}
+
+/* --- the composition on smaller screens -------------------------------------------------------------- */
+
+@media (max-width: 64rem) {
+  .ws__group {
+    scale: 0.86;
+  }
+}
+
+@media (max-width: 48rem) {
+  .ws {
+    min-height: 18rem;
+  }
+
+  .ws__group {
+    scale: 0.72;
+  }
+}
+
+@media (max-width: 30rem) {
+  .ws {
+    min-height: 15rem;
+  }
+
+  .ws__group {
+    scale: 0.58;
+  }
+}

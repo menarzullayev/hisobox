@@ -3,11 +3,32 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="{brand} — {tagline}" />
-    <title>{brand}</title>
+    <!-- The public page: what a search engine and a person sharing the link see. Only the product's
+         name and its one line are written here as text; both are filled in from the single definition
+         when the page is built (vite.config.ts, brandedHtml). Everything that needs the site's own
+         address (the canonical link, the sharing card's image, the structured data) is added by the
+         webSeo plugin at the marker below, from VITE_PUBLIC_ORIGIN, and is left out rather than guessed
+         when that setting is empty. -->
+    <meta name="description" content="{brand} — {tagline}. Qarzlar, kassa, ombor, hisobotlar va xodimlar bitta ilovada." />
+    <title>{brand} — {tagline}</title>
+    <meta name="robots" content="index, follow, max-image-preview:large" />
+    <meta name="application-name" content="{brand}" />
     <meta name="theme-color" media="(prefers-color-scheme: light)" content="#f7f8fc" />
     <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#14152a" />
     <link rel="icon" type="image/svg+xml" href="/panel/icons/icon.svg" />
+    <link rel="apple-touch-icon" href="/panel/icons/icon-192.png" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="{brand}" />
+    <meta property="og:title" content="{brand} — {tagline}" />
+    <meta property="og:description" content="Qarzlar, kassa, ombor, hisobotlar va xodimlar bitta ilovada. Telegram orqali eslatmalar." />
+    <meta property="og:locale" content="uz_UZ" />
+    <meta property="og:locale:alternate" content="ru_RU" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="{brand} — {tagline}" />
+    <meta name="twitter:description" content="Qarzlar, kassa, ombor, hisobotlar va xodimlar bitta ilovada." />
+
+    <!--seo:origin-->
   </head>
   <body>
     <div id="root"></div>

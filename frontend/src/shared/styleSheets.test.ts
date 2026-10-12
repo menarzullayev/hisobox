@@ -11,6 +11,11 @@ const SHEETS: readonly (readonly string[])[] = [
   ["panel", "panel.css"],
   // The page behind a customer's read-only link: its own sheet, held to the same tokens.
   ["k", "k.css"],
+  // The public landing page and the hero's workspace: two sheets of their own, held to the same tokens.
+  // The landing draws the focus ring itself (it does not load shell.css), which is why it is not in the
+  // list below but has a case of its own.
+  ["web", "landing.css"],
+  ["web", "workspace3d.css"],
 ];
 
 /** A style sheet with its `prefers-reduced-motion: no-preference` blocks taken out. */
@@ -29,8 +34,18 @@ describe("the style sheets use the design tokens and nothing else", () => {
     [["shared", "reports", "reports.css"]],
     [["panel", "panel.css"]],
     [["k", "k.css"]],
+    [["web", "workspace3d.css"]],
   ])("%j: no color written out, no unknown variable, the focus ring left alone", (path) => {
     expect(styleProblems(readStyleSheet(...path), tokens)).toEqual([]);
+  });
+
+  it("landing.css: the same, except that it draws the focus ring for a page shell.css does not reach", () => {
+    const css = readStyleSheet("web", "landing.css");
+    expect(styleProblems(css, tokens, { ownsFocusRing: true })).toEqual([]);
+    // The same 3px ring, 2px away, that the applications get from shell.css.
+    expect(css).toMatch(/\n:focus-visible \{\s*outline: 3px solid var\(--qd-focus\);\s*outline-offset: 2px;\s*\}/);
+    // The only place the ring is moved is the skip link, which is out of sight until it takes focus.
+    expect([...css.matchAll(/([^{}]+)\{[^}]*outline:\s*(?:none|0)/g)].map((match) => (match[1] ?? "").trim())).toEqual([]);
   });
 
   it("shell.css: the same, except that it is the one that draws the focus ring", () => {

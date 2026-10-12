@@ -14,6 +14,12 @@ COPY backend/src/qarz/domain/brand.json /backend/src/qarz/domain/brand.json
 # part of the shipped script, so it is not a secret. Empty: the panel shows no sign-in widget.
 ARG VITE_BOT_USERNAME=""
 ENV VITE_BOT_USERNAME=$VITE_BOT_USERNAME
+# Public, build-time setting: the site's own address, as the public landing page's canonical link, its
+# sharing card and its sitemap are made from it (frontend/src/web/seo.ts). It is not a secret either.
+# Empty: the page carries no canonical link and no sitemap, and the build says so. Set it to the same
+# name the deployment uses (DEPLOY_PUBLIC_HOST, deploy/production/SINGLE-HOST.md).
+ARG VITE_PUBLIC_ORIGIN=""
+ENV VITE_PUBLIC_ORIGIN=$VITE_PUBLIC_ORIGIN
 RUN npm run build
 
 FROM nginx:1.30-alpine
