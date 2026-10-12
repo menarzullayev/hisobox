@@ -1059,6 +1059,19 @@ a {
   text-align: center;
 }
 
+/* Outline icons on a 24px grid, in the color of the text beside them. The landing does not load
+   shell.css, where the application keeps this rule, so the same rule is repeated here. */
+.icon {
+  flex: none;
+  width: 1.25rem;
+  height: 1.25rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.75;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
 /* Icons from the shared set (src/shared/icons.tsx): the same artwork the panel uses. */
 .card__icon {
   display: grid;
@@ -1074,11 +1087,6 @@ a {
 .card__icon .icon {
   width: 1.375rem;
   height: 1.375rem;
-}
-
-.band--deep .card__icon {
-  background: color-mix(in srgb, var(--hb-on-accent) 14%, transparent);
-  color: var(--hb-on-accent);
 }
 
 .hero__trust li {
