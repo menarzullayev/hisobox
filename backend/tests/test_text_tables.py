@@ -23,7 +23,7 @@ from hiso_box.application.stock import settings_body
 from hiso_box.domain import cash, languages, network, stock
 from hiso_box.domain.names import normalize_name
 
-SOURCE = Path(__file__).resolve().parent.parent / "src" / "qarz"
+SOURCE = Path(__file__).resolve().parent.parent / "src" / "hiso_box"
 WRITTEN = ("uz", "ru", "tg", "kaa", "en")  # Uzbek Cyrillic is made from Uzbek
 
 # What each list of the domain is called in the catalog of words.

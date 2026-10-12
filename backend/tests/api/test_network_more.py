@@ -39,7 +39,7 @@ from .test_network import (
 pytestmark = pytest.mark.db
 
 __all__ = ["no_jobs_left_by_earlier_tests", "on"]
-SOURCES = Path(__file__).resolve().parents[2] / "src" / "qarz"
+SOURCES = Path(__file__).resolve().parents[2] / "src" / "hiso_box"
 
 
 # --- dollars --------------------------------------------------------------------------------------------

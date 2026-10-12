@@ -53,7 +53,7 @@ pytestmark = pytest.mark.db
 
 __all__ = ["on"]
 
-SRC = Path(__file__).resolve().parents[2] / "src" / "qarz"
+SRC = Path(__file__).resolve().parents[2] / "src" / "hiso_box"
 
 
 def keyed(client: TestClient, user: uuid.UUID, method: str, path: str, key: str, body: Any = None) -> Any:

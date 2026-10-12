@@ -71,7 +71,7 @@ ADR-015, ADR-020) and are reached through `HB_DATABASE_URL`, `HB_ADMIN_DATABASE_
    ```sh
    sudo install -d /var/lib/hiso_box/acme /etc/hiso_box/tls
    # first issue: the proxy cannot start without a certificate, so use certbot's own listener once
-   sudo certbot certonly --standalone -d qarz.example.uz
+   sudo certbot certonly --standalone -d hiso-box.example.uz
    # every renewal after that goes through the running proxy
    sudo certbot renew --webroot -w /var/lib/hiso_box/acme --deploy-hook /etc/hiso_box/install-cert.sh
    ```
@@ -116,7 +116,7 @@ ADR-015, ADR-020) and are reached through `HB_DATABASE_URL`, `HB_ADMIN_DATABASE_
 
 ```sh
 deploy/production/scripts/deploy.sh <git-ref>
-deploy/production/scripts/smoke.sh https://qarz.example.uz
+deploy/production/scripts/smoke.sh https://hiso-box.example.uz
 ```
 
 `deploy.sh` resolves the reference to a commit, builds both images tagged with that commit (or reuses

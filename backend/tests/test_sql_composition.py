@@ -10,7 +10,7 @@ import ast
 import re
 from pathlib import Path
 
-DB_MODULE = Path(__file__).resolve().parents[1] / "src" / "qarz" / "infrastructure" / "db.py"
+DB_MODULE = Path(__file__).resolve().parents[1] / "src" / "hiso_box" / "infrastructure" / "db.py"
 # The parts of the storage layer kept in files of their own are held to the same rule.
 DB_MODULES = (
     DB_MODULE,

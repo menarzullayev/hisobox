@@ -66,7 +66,7 @@ services:
       POSTGRES_DB: hiso_box
     healthcheck:
       # Over TCP on purpose: during the very first start a temporary server answers on the socket only.
-      test: ["CMD", "pg_isready", "-h", "127.0.0.1", "-U", "postgres", "-d", "qarz"]
+      test: ["CMD", "pg_isready", "-h", "127.0.0.1", "-U", "postgres", "-d", "hiso_box"]
       interval: 5s
       timeout: 3s
       retries: 12
@@ -321,7 +321,7 @@ services:
       HB_PITR_TARGET: ${DEPLOY_PITR_TARGET:-}
     healthcheck:
       # Through the socket: healthy once the copy has been restored and has replayed the archive.
-      test: ["CMD", "pg_isready", "-U", "postgres", "-d", "qarz"]
+      test: ["CMD", "pg_isready", "-U", "postgres", "-d", "hiso_box"]
       interval: 5s
       timeout: 3s
       retries: 3

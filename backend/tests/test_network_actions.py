@@ -43,7 +43,7 @@ def logged_by_the_database(sql: str) -> tuple[set[str], set[str]]:
 def recorded_by_the_application() -> tuple[set[str], set[str]]:
     actions: set[str] = set()
     subjects: set[str] = set()
-    for path in sorted((BACKEND / "src" / "qarz").rglob("*.py")):
+    for path in sorted((BACKEND / "src" / "hiso_box").rglob("*.py")):
         source = path.read_text(encoding="utf-8")
         actions |= set(re.findall(r'action="(network\.[a-z_]+)"', source))
         subjects |= set(re.findall(r'subject_type="(network_[a-z_]+)"', source))

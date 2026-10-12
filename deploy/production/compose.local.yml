@@ -10,7 +10,7 @@ services:
       POSTGRES_DB: hiso_box
       POSTGRES_PASSWORD: ${LOCAL_POSTGRES_PASSWORD:?run scripts/local.sh, which generates the env file}
     healthcheck:
-      test: ["CMD", "pg_isready", "-h", "127.0.0.1", "-U", "postgres", "-d", "qarz"]
+      test: ["CMD", "pg_isready", "-h", "127.0.0.1", "-U", "postgres", "-d", "hiso_box"]
       interval: 2s
       timeout: 2s
       retries: 60
@@ -39,7 +39,7 @@ services:
     entrypoint: ["sh", "-c"]
     command:
       - |
-        psql -q -h db -U postgres -d qarz -v ON_ERROR_STOP=1 \
+        psql -q -h db -U postgres -d hiso_box -v ON_ERROR_STOP=1 \
           -v app="$$LOCAL_APP_PASSWORD" -v admin="$$LOCAL_ADMIN_PASSWORD" -v worker="$$LOCAL_WORKER_PASSWORD" <<'SQL'
         ALTER ROLE hb_app LOGIN PASSWORD :'app';
         ALTER ROLE hb_admin LOGIN PASSWORD :'admin';
