@@ -13,6 +13,7 @@ documented path once the book grows bigger than the reading of it.
 """
 
 from datetime import date, datetime
+from typing import Any
 from uuid import UUID
 
 from sqlalchemy import text
@@ -53,7 +54,7 @@ _FOLDERS = (
 )
 
 
-def _contact(row: object) -> ContactRecord:
+def _contact(row: Any) -> ContactRecord:
     return ContactRecord(
         contact_id=row.id,
         name=row.name,
@@ -65,7 +66,7 @@ def _contact(row: object) -> ContactRecord:
     )
 
 
-def _entry(row: object) -> PayableEntryRecord:
+def _entry(row: Any) -> PayableEntryRecord:
     return PayableEntryRecord(
         entry_id=row.id,
         contact_id=row.contact_id,
@@ -82,7 +83,7 @@ def _entry(row: object) -> PayableEntryRecord:
     )
 
 
-def _folder(row: object) -> FolderRecord:
+def _folder(row: Any) -> FolderRecord:
     return FolderRecord(
         folder_id=row.id,
         name=row.name,

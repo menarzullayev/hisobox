@@ -433,7 +433,7 @@ class CustomerService:
             name = clean_name(display_name) if display_name is not None else None
             number = _UNSET if phone is _UNSET else clean_phone(phone)
             place = None if address is _UNSET else await checked_address(session, parse_address(address))
-            folder = _UNSET if folder_id is _UNSET else _checked_folder(session, folder_id)
+            folder = _UNSET if folder_id is _UNSET else await _checked_folder(session, folder_id)
             await require_writable(session, self._today(), new_credit=False)
 
             async def apply() -> dict[str, Any]:

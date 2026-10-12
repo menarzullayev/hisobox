@@ -111,6 +111,11 @@ class PayablesSession(Protocol):
         """Every entry of the account, of every currency, in `seq` order: what the ledger is given."""
         ...
 
+    async def all_payable_entries(self) -> list[PayableEntryRecord]:
+        """Every entry of the shop, contact by contact and in each account's order: what the summary of
+        what the shop owes is computed from, one account at a time."""
+        ...
+
     async def get_payable_entry(self, entry_id: UUID) -> PayableEntryRecord | None: ...
 
     # --- folders --------------------------------------------------------------------------------------

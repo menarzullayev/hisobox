@@ -886,9 +886,7 @@ CALLS: dict[str, Call] = {
     # The debt core's other side: what the shop owes. The contacts and their accounts, and the folders
     # customers sit in. No platform switch: a ported core feature (migration 0054).
     "contacts.list": Call("GET", lambda w, shop: f"/api/v1/shops/{shop}/contacts", prepare=_payables),
-    "contacts.read": Call(
-        "GET", lambda w, shop: f"/api/v1/shops/{shop}/contacts/{_contact_id(w)}", prepare=_payables
-    ),
+    "contacts.read": Call("GET", lambda w, shop: f"/api/v1/shops/{shop}/contacts/{_contact_id(w)}", prepare=_payables),
     "contacts.create": Call(
         "POST",
         lambda w, shop: f"/api/v1/shops/{shop}/contacts",
@@ -1852,9 +1850,7 @@ def _snapshot(owner: psycopg.Connection, shop: uuid.UUID, *, shared: bool = True
             "FROM payable_entry WHERE shop_id = %s ORDER BY id",
             (shop,),
         ).fetchall(),
-        owner.execute(
-            "SELECT id, name, name_norm FROM folder WHERE shop_id = %s ORDER BY id", (shop,)
-        ).fetchall(),
+        owner.execute("SELECT id, name, name_norm FROM folder WHERE shop_id = %s ORDER BY id", (shop,)).fetchall(),
         owner.execute(
             "SELECT id, kind, number, status, total, paid, draft::text FROM stock_document "
             "WHERE shop_id = %s ORDER BY id",
