@@ -1,0 +1,315 @@
+
+[1m[30m[46m RUN [49m[39m[22m [36mv5.0.3 [39m[90mD:/Linux/qarz-daftari/frontend[39m
+
+ [31m❯[39m src/shared/Shell.test.tsx [2m([22m[2m14 tests[22m[2m | [22m[31m2 failed[39m[2m)[22m[33m 353[2mms[22m[39m
+   [31m❯[39m staff shell [2m(7)[22m
+     [32m✓[39m always names the active shop (REQ-064)[32m 115[2mms[22m[39m
+     [32m✓[39m offers a seller only the seller sections[32m 18[2mms[22m[39m
+[31m     [31m×[31m offers an owner every section plus the phone's More tab[39m[32m 27[2mms[22m[39m
+     [32m✓[39m has the landmarks, one h1, and marks the current section[32m 24[2mms[22m[39m
+     [32m✓[39m moves focus to the screen after a route change and from the skip button[32m 18[2mms[22m[39m
+[31m     [31m×[31m lists the remaining sections on the More screen[39m[32m 20[2mms[22m[39m
+     [32m✓[39m shows no navigation and no shop without a session[32m 9[2mms[22m[39m
+   [32m✓[39m routing [2m(3)[22m
+     [32m✓[39m shows the not-found screen in the current language for an unknown route[32m 37[2mms[22m[39m
+     [32m✓[39m does not open a section the role may not open, even by direct address[32m 32[2mms[22m[39m
+     [32m✓[39m opens the overview for Telegram's launch fragment[32m 7[2mms[22m[39m
+   [32m✓[39m language picker [2m(1)[22m
+     [32m✓[39m switches every text, the lang attribute, and persists the choice[32m 19[2mms[22m[39m
+   [32m✓[39m admin shell [2m(3)[22m
+     [32m✓[39m has its own navigation and no shop[32m 11[2mms[22m[39m
+     [32m✓[39m does not open staff routes[32m 10[2mms[22m[39m
+     [32m✓[39m shows nothing but the sign-in notice when not signed in[32m 4[2mms[22m[39m
+ [32m✓[39m src/app/miniApp.unchanged.test.tsx [2m([22m[2m37 tests[22m[2m)[22m[33m 6132[2mms[22m[39m
+   [32m✓[39m the Telegram Mini App is as it was before the web panel's layouts [2m(37)[22m
+     [33m[2m✓[22m[39m owner at #/shop-settings with 1 shop(s), 375 px wide[33m 387[2mms[22m[39m
+     [33m[2m✓[22m[39m owner at #/subscription with 1 shop(s), 375 px wide[33m 387[2mms[22m[39m
+     [33m[2m✓[22m[39m has no table and no Telegram sign-in script anywhere in these screens[33m 1329[2mms[22m[39m
+ [32m✓[39m src/shared/imports/ImportScreen.test.tsx [2m([22m[2m65 tests[22m[2m)[22m[33m 3551[2mms[22m[39m
+ [32m✓[39m src/shared/stock/SupplierPicker.test.tsx [2m([22m[2m12 tests[22m[2m)[22m[33m 2511[2mms[22m[39m
+   [32m✓[39m the choice of a supplier [2m(12)[22m
+     [33m[2m✓[22m[39m drops the answer to a search that was typed over[33m 572[2mms[22m[39m
+     [33m[2m✓[22m[39m offers no archived supplier where a document is being written[33m 349[2mms[22m[39m
+ [32m✓[39m src/shared/workspace/WaitingScreen.test.tsx [2m([22m[2m14 tests[22m[2m)[22m[33m 2426[2mms[22m[39m
+   [32m✓[39m attaching a waiting person to a customer [2m(6)[22m
+     [33m[2m✓[22m[39m searches active customers, asks, then posts one keyed attach and reads the list again[33m 386[2mms[22m[39m
+     [33m[2m✓[22m[39m goes back to the search when the answer is no, and sends nothing[33m 351[2mms[22m[39m
+     [33m[2m✓[22m[39m shows the server's refusal 409 CUSTOMER_ALREADY_LINKED and keeps the person in the list[33m 338[2mms[22m[39m
+     [33m[2m✓[22m[39m shows the server's refusal 409 CUSTOMER_ARCHIVED and keeps the person in the list[33m 351[2mms[22m[39m
+     [33m[2m✓[22m[39m shows the server's refusal 404 NOT_FOUND and keeps the person in the list[33m 355[2mms[22m[39m
+     [33m[2m✓[22m[39m retries with the same key, and sends one request for a double tap[33m 362[2mms[22m[39m
+ [32m✓[39m src/panel/PanelRoot.test.tsx [2m([22m[2m37 tests[22m[2m)[22m[33m 2409[2mms[22m[39m
+ [32m✓[39m src/admin/screens.test.tsx [2m([22m[2m60 tests[22m[2m)[22m[33m 2354[2mms[22m[39m
+ [32m✓[39m src/shared/workspace/EntryScreen.goods.test.tsx [2m([22m[2m38 tests[22m[2m)[22m[33m 2323[2mms[22m[39m
+   [32m✓[39m itemized credit sale (REQ-037) [2m(22)[22m
+     [33m[2m✓[22m[39m searches the catalog as the seller types, and Enter in the search does not save the entry[33m 342[2mms[22m[39m
+ [32m✓[39m src/shared/workspace/CatalogScreen.test.tsx [2m([22m[2m40 tests[22m[2m)[22m[33m 2162[2mms[22m[39m
+   [32m✓[39m catalog list (REQ-039) [2m(9)[22m
+     [33m[2m✓[22m[39m searches by what was typed once typing pauses, and at once when the form is submitted[33m 474[2mms[22m[39m
+   [32m✓[39m hiding, showing and reviewing [2m(12)[22m
+     [32m✓[39m merging a learned item [2m(4)[22m
+       [33m[2m✓[22m[39m offers only shown, reviewed items, found by search[33m 347[2mms[22m[39m
+ [32m✓[39m src/shared/StaffRoot.dates.test.tsx [2m([22m[2m13 tests[22m[2m)[22m[33m 2052[2mms[22m[39m
+   [32m✓[39m reports and date requests in the workspace [2m(9)[22m
+     [33m[2m✓[22m[39m opens the reports for a manager in place of the placeholder[33m 372[2mms[22m[39m
+     [33m[2m✓[22m[39m opens the export and the import for a manager at import and export[33m 395[2mms[22m[39m
+     [33m[2m✓[22m[39m reaches the date requests from the disputes, in the same section, and back[33m 366[2mms[22m[39m
+     [33m[2m✓[22m[39m gives the customer's own page the clock, so a recent decline is not offered again[33m 358[2mms[22m[39m
+ [32m✓[39m src/shared/StaffRoot.stock.test.tsx [2m([22m[2m19 tests[22m[2m)[22m[33m 1976[2mms[22m[39m
+   [32m✓[39m the stock switched on [2m(7)[22m
+     [33m[2m✓[22m[39m opens the stock's screen, whose code and text arrive when it is opened[33m 363[2mms[22m[39m
+ [32m✓[39m src/shared/stock/documents.test.tsx [2m([22m[2m27 tests[22m[2m)[22m[33m 1978[2mms[22m[39m
+   [32m✓[39m the supplier of a document [2m(3)[22m
+     [33m[2m✓[22m[39m is any of the shop's suppliers: one past the first hundred is found by name and sent[33m 307[2mms[22m[39m
+ [32m✓[39m src/shared/StaffRoot.test.tsx [2m([22m[2m31 tests[22m[2m)[22m[33m 1885[2mms[22m[39m
+   [32m✓[39m the cash book in the workspace [2m(3)[22m
+     [33m[2m✓[22m[39m is a section of a manager's workspace once the server says it is on[33m 369[2mms[22m[39m
+ [32m✓[39m src/shared/workspace/dollars.test.tsx [2m([22m[2m70 tests[22m[2m)[22m[33m 1771[2mms[22m[39m
+ [32m✓[39m src/shared/stock/sales.test.tsx [2m([22m[2m39 tests[22m[2m)[22m[33m 1769[2mms[22m[39m
+[90mstderr[2m | src/shared/exports/ExportsScreen.test.tsx[2m > [22m[2masking for an export[2m > [22m[2mresends the same key after a failure, and a new one for the next export
+[22m[39mEncountered two children with the same key, `bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbc`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+
+ [32m✓[39m src/shared/exports/ExportsScreen.test.tsx [2m([22m[2m44 tests[22m[2m)[22m[33m 1687[2mms[22m[39m
+ [32m✓[39m src/panel/StaffScreen.test.tsx [2m([22m[2m29 tests[22m[2m)[22m[33m 1634[2mms[22m[39m
+ [32m✓[39m src/shared/workspace/CustomerScreen.m5.test.tsx [2m([22m[2m38 tests[22m[2m)[22m[33m 1557[2mms[22m[39m
+ [32m✓[39m src/admin/AdminRoot.test.tsx [2m([22m[2m34 tests[22m[2m)[22m[33m 1524[2mms[22m[39m
+ [32m✓[39m src/shared/StaffRoot.customer.test.tsx [2m([22m[2m23 tests[22m[2m)[22m[33m 1314[2mms[22m[39m
+   [32m✓[39m a person who is only a customer [2m(6)[22m
+     [33m[2m✓[22m[39m sees their one account at once, without staff navigation[33m 434[2mms[22m[39m
+ [32m✓[39m src/shared/cash/CashScreen.test.tsx [2m([22m[2m44 tests[22m[2m)[22m[33m 1347[2mms[22m[39m
+ [32m✓[39m src/shared/customer/AccountScreen.test.tsx [2m([22m[2m53 tests[22m[2m)[22m[33m 1356[2mms[22m[39m
+ [32m✓[39m src/admin/support.test.tsx [2m([22m[2m52 tests[22m[2m)[22m[33m 1444[2mms[22m[39m
+ [32m✓[39m src/shared/StaffRoot.m5.test.tsx [2m([22m[2m16 tests[22m[2m)[22m[33m 1316[2mms[22m[39m
+ [32m✓[39m src/shared/network/contract.test.tsx [2m([22m[2m19 tests[22m[2m)[22m[33m 1251[2mms[22m[39m
+   [32m✓[39m choosing the row of the books a partner is [2m(2)[22m
+     [33m[2m✓[22m[39m reaches every supplier of the shop, not the first fifty: by a part of the name, or a page at a time[33m 379[2mms[22m[39m
+ [32m✓[39m src/shared/workspace/PaymentNoticesScreen.test.tsx [2m([22m[2m30 tests[22m[2m)[22m[33m 1424[2mms[22m[39m
+   [32m✓[39m reaching the notices [2m(2)[22m
+     [33m[2m✓[22m[39m opens for a seller from the customer book, inside the customers section[33m 349[2mms[22m[39m
+ [32m✓[39m src/shared/workspace/EntryScreen.test.tsx [2m([22m[2m44 tests[22m[2m)[22m[33m 1332[2mms[22m[39m
+ [32m✓[39m src/shared/workspace/SubscriptionScreen.test.tsx [2m([22m[2m46 tests[22m[2m)[22m[33m 1256[2mms[22m[39m
+ [32m✓[39m src/shared/reports/ReportsScreen.test.tsx [2m([22m[2m39 tests[22m[2m)[22m[33m 1359[2mms[22m[39m
+ [32m✓[39m src/shared/network/screens.test.tsx [2m([22m[2m32 tests[22m[2m)[22m[33m 1282[2mms[22m[39m
+ [32m✓[39m src/shared/hooks.test.tsx [2m([22m[2m16 tests[22m[2m)[22m[33m 1188[2mms[22m[39m
+ [32m✓[39m src/panel/PermissionMatrix.test.tsx [2m([22m[2m20 tests[22m[2m)[22m[33m 1229[2mms[22m[39m
+ [32m✓[39m src/shared/receipts/ReceiptSection.test.tsx [2m([22m[2m31 tests[22m[2m)[22m[33m 1205[2mms[22m[39m
+   [32m✓[39m who is offered to send a receipt [2m(3)[22m
+     [33m[2m✓[22m[39m shows the owner the section under the card, and sends nothing by opening the screen[33m 434[2mms[22m[39m
+ [32m✓[39m src/shared/workspace/RemindersScreen.test.tsx [2m([22m[2m30 tests[22m[2m)[22m[33m 1188[2mms[22m[39m
+ [32m✓[39m src/admin/receipts.test.tsx [2m([22m[2m32 tests[22m[2m)[22m[33m 1180[2mms[22m[39m
+ [32m✓[39m src/shared/workspace/CustomerScreen.test.tsx [2m([22m[2m46 tests[22m[2m)[22m[33m 1047[2mms[22m[39m
+ [32m✓[39m src/shared/customer/PaymentNoticeSection.test.tsx [2m([22m[2m33 tests[22m[2m)[22m[33m 1093[2mms[22m[39m
+ [32m✓[39m scripts/lintRules.test.ts [2m([22m[2m16 tests[22m[2m)[22m[33m 1492[2mms[22m[39m
+   [32m✓[39m the accessibility rules refuse [2m(11)[22m
+     [33m[2m✓[22m[39m a picture with no text[33m 1376[2mms[22m[39m
+ [32m✓[39m src/shared/StaffRoot.network.test.tsx [2m([22m[2m10 tests[22m[2m)[22m[33m 1098[2mms[22m[39m
+   [32m✓[39m the network switched on [2m(4)[22m
+     [33m[2m✓[22m[39m gives a manager the section under More, and its short screen: what awaits an answer comes first[33m 413[2mms[22m[39m
+ [32m✓[39m src/shared/StaffRoot.sale.test.tsx [2m([22m[2m9 tests[22m[2m)[22m[33m 1152[2mms[22m[39m
+   [32m✓[39m a cash sale while the stock is switched on [2m(5)[22m
+     [33m[2m✓[22m[39m is reached by a seller from the stock, sold in the Mini App, and found in the day's sales[33m 529[2mms[22m[39m
+ [32m✓[39m src/shared/workspace/EntryScreen.limit.test.tsx [2m([22m[2m20 tests[22m[2m)[22m[33m 1025[2mms[22m[39m
+ [32m✓[39m src/shared/customer/AccountScreen.dates.test.tsx [2m([22m[2m42 tests[22m[2m)[22m[33m 974[2mms[22m[39m
+ [32m✓[39m src/admin/freePlan.test.tsx [2m([22m[2m34 tests[22m[2m)[22m[33m 1014[2mms[22m[39m
+ [32m✓[39m src/shared/workspace/AddressFields.test.tsx [2m([22m[2m13 tests[22m[2m)[22m[33m 903[2mms[22m[39m
+   [32m✓[39m adding a customer while addresses are on [2m(6)[22m
+     [33m[2m✓[22m[39m goes from region to district to a mahalla found by typing to a street picked from the list[33m 411[2mms[22m[39m
+ [32m✓[39m src/panel/sale.test.tsx [2m([22m[2m6 tests[22m[2m)[22m[33m 900[2mms[22m[39m
+   [32m✓[39m a cash sale in the web panel [2m(6)[22m
+     [33m[2m✓[22m[39m has no section of its own: it is reached from the stock, whose section is the one it had[33m 405[2mms[22m[39m
+ [32m✓[39m src/shared/workspace/advances.test.tsx [2m([22m[2m72 tests[22m[2m)[22m[33m 846[2mms[22m[39m
+ [32m✓[39m src/shared/share/ShareSection.test.tsx [2m([22m[2m35 tests[22m[2m)[22m[33m 882[2mms[22m[39m
+ [32m✓[39m src/shared/StaffRoot.exports.test.tsx [2m([22m[2m9 tests[22m[2m)[22m[33m 870[2mms[22m[39m
+   [32m✓[39m support access in the Mini App [2m(3)[22m
+     [33m[2m✓[22m[39m shows the owner the section under the shop's settings, with the access that is open now[33m 396[2mms[22m[39m
+ [32m✓[39m src/shared/workspace/SharedPicker.test.tsx [2m([22m[2m10 tests[22m[2m)[22m[33m 824[2mms[22m[39m
+   [32m✓[39m picking an item from the shared catalogue [2m(6)[22m
+     [33m[2m✓[22m[39m searches as the person types and filters by category[33m 429[2mms[22m[39m
+ [32m✓[39m src/shared/SignOutEverywhere.test.tsx [2m([22m[2m9 tests[22m[2m)[22m[33m 894[2mms[22m[39m
+   [32m✓[39m signing out everywhere from the Mini App [2m(9)[22m
+     [33m[2m✓[22m[39m is offered to a person who is only a customer, under their accounts[33m 357[2mms[22m[39m
+ [32m✓[39m src/shared/workspace/CustomerScreen.dates.test.tsx [2m([22m[2m28 tests[22m[2m)[22m[33m 828[2mms[22m[39m
+ [32m✓[39m src/shared/workspace/CustomersScreen.test.tsx [2m([22m[2m12 tests[22m[2m)[22m[33m 841[2mms[22m[39m
+   [32m✓[39m customer book [2m(8)[22m
+     [33m[2m✓[22m[39m searches by what was typed once typing pauses[33m 465[2mms[22m[39m
+ [32m✓[39m src/panel/stock.test.tsx [2m([22m[2m23 tests[22m[2m)[22m[33m 817[2mms[22m[39m
+   [32m✓[39m the stock in the web panel [2m(6)[22m
+     [33m[2m✓[22m[39m draws the stock as a real table on a wide screen, with the cost columns the server sent[33m 428[2mms[22m[39m
+ [32m✓[39m src/shared/workspace/AddGoodsScreen.test.tsx [2m([22m[2m32 tests[22m[2m)[22m[33m 751[2mms[22m[39m
+ [32m✓[39m scripts/apiTypes.test.ts [2m([22m[2m5 tests[22m[2m)[22m[33m 762[2mms[22m[39m
+[90mstderr[2m | src/panel/support.test.tsx[2m > [22m[2msupport access under the shop's settings of the web panel[2m > [22m[2mdraws the history as a real table on a wide screen
+[22m[39mEncountered two children with the same key, `cccccccc-cccc-4ccc-8ccc-cccccccccccc`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version.
+
+ [32m✓[39m src/panel/support.test.tsx [2m([22m[2m23 tests[22m[2m)[22m[33m 784[2mms[22m[39m
+ [32m✓[39m src/panel/network.test.tsx [2m([22m[2m4 tests[22m[2m)[22m[33m 740[2mms[22m[39m
+   [32m✓[39m the network in the web panel [2m(4)[22m
+     [33m[2m✓[22m[39m opens on the overview: what awaits first, the section's lists beside it, and the links as a real table[33m 405[2mms[22m[39m
+ [32m✓[39m src/shared/ThemeToggle.test.tsx [2m([22m[2m11 tests[22m[2m)[22m[32m 223[2mms[22m[39m
+ [32m✓[39m src/shared/stock/StockScreen.test.tsx [2m([22m[2m15 tests[22m[2m)[22m[33m 612[2mms[22m[39m
+ [32m✓[39m src/shared/workspace/DisputesScreen.test.tsx [2m([22m[2m20 tests[22m[2m)[22m[33m 586[2mms[22m[39m
+ [32m✓[39m src/admin/owner.test.tsx [2m([22m[2m27 tests[22m[2m)[22m[33m 601[2mms[22m[39m
+ [32m✓[39m src/shared/workspace/CreditSettingsSection.test.tsx [2m([22m[2m25 tests[22m[2m)[22m[33m 694[2mms[22m[39m
+ [32m✓[39m src/shared/workspace/LinkSection.test.tsx [2m([22m[2m20 tests[22m[2m)[22m[33m 623[2mms[22m[39m
+ [32m✓[39m src/shared/workspace/permissionGating.test.tsx [2m([22m[2m32 tests[22m[2m)[22m[33m 553[2mms[22m[39m
+ [32m✓[39m src/shared/customer/dollars.test.tsx [2m([22m[2m19 tests[22m[2m)[22m[33m 611[2mms[22m[39m
+ [32m✓[39m src/shared/workspace/ShopSettingsScreen.test.tsx [2m([22m[2m25 tests[22m[2m)[22m[33m 637[2mms[22m[39m
+ [32m✓[39m src/shared/customer/advances.test.tsx [2m([22m[2m7 tests[22m[2m)[22m[32m 220[2mms[22m[39m
+ [32m✓[39m src/shared/workspace/DateRequestsScreen.test.tsx [2m([22m[2m16 tests[22m[2m)[22m[33m 544[2mms[22m[39m
+ [32m✓[39m src/panel/OfficeBanner.test.tsx [2m([22m[2m17 tests[22m[2m)[22m[33m 562[2mms[22m[39m
+ [32m✓[39m src/panel/ActivityScreen.test.tsx [2m([22m[2m13 tests[22m[2m)[22m[33m 602[2mms[22m[39m
+ [32m✓[39m src/shared/stock/ScanField.test.tsx [2m([22m[2m12 tests[22m[2m)[22m[33m 562[2mms[22m[39m
+   [32m✓[39m the camera [2m(5)[22m
+     [33m[2m✓[22m[39m is offered where labels can be read, opens only when asked, gives the code and stops the stream[33m 310[2mms[22m[39m
+ [32m✓[39m src/admin/secondFactorOff.test.tsx [2m([22m[2m8 tests[22m[2m)[22m[33m 528[2mms[22m[39m
+ [32m✓[39m src/shared/stock/CounterDocuments.test.tsx [2m([22m[2m14 tests[22m[2m)[22m[33m 496[2mms[22m[39m
+ [32m✓[39m src/panel/DeletionSection.test.tsx [2m([22m[2m14 tests[22m[2m)[22m[33m 561[2mms[22m[39m
+ [32m✓[39m src/shared/stock/suppliers.test.tsx [2m([22m[2m17 tests[22m[2m)[22m[33m 514[2mms[22m[39m
+ [32m✓[39m src/shared/ErrorBoundary.test.tsx [2m([22m[2m21 tests[22m[2m)[22m[33m 461[2mms[22m[39m
+   [32m✓[39m a part of the application that cannot be fetched [2m(3)[22m
+     [33m[2m✓[22m[39m loads the page again once, by itself, and says what is happening meanwhile[33m 335[2mms[22m[39m
+ [32m✓[39m src/shared/workspace/CounterCodeScreen.test.tsx [2m([22m[2m14 tests[22m[2m)[22m[33m 440[2mms[22m[39m
+ [32m✓[39m src/shared/support/SupportAccessSection.test.tsx [2m([22m[2m17 tests[22m[2m)[22m[33m 419[2mms[22m[39m
+ [32m✓[39m src/shared/reports/dollars.test.tsx [2m([22m[2m4 tests[22m[2m)[22m[32m 259[2mms[22m[39m
+ [32m✓[39m src/panel/pwa/pwaFiles.test.tsx [2m([22m[2m28 tests[22m[2m)[22m[33m 438[2mms[22m[39m
+ [32m✓[39m src/shared/workspace/EntryScreen.stock.test.tsx [2m([22m[2m8 tests[22m[2m)[22m[33m 343[2mms[22m[39m
+ [32m✓[39m src/admin/passwordSignIn.test.tsx [2m([22m[2m3 tests[22m[2m)[22m[32m 195[2mms[22m[39m
+ [32m✓[39m src/web/Landing.test.tsx [2m([22m[2m10 tests[22m[2m)[22m[33m 333[2mms[22m[39m
+ [32m✓[39m src/admin/catalogQueue.test.tsx [2m([22m[2m8 tests[22m[2m)[22m[33m 364[2mms[22m[39m
+ [32m✓[39m src/shared/workspace/OverviewScreen.test.tsx [2m([22m[2m8 tests[22m[2m)[22m[33m 371[2mms[22m[39m
+ [32m✓[39m src/testing/hardcodedText.test.ts [2m([22m[2m131 tests[22m[2m)[22m[33m 327[2mms[22m[39m
+ [32m✓[39m src/shared/workspace/NewCustomerScreen.test.tsx [2m([22m[2m9 tests[22m[2m)[22m[32m 279[2mms[22m[39m
+ [32m✓[39m src/panel/dollars.test.tsx [2m([22m[2m9 tests[22m[2m)[22m[32m 265[2mms[22m[39m
+ [32m✓[39m src/admin/passkey.test.tsx [2m([22m[2m9 tests[22m[2m)[22m[32m 282[2mms[22m[39m
+ [32m✓[39m src/shared/stock/sharedOffer.test.tsx [2m([22m[2m5 tests[22m[2m)[22m[33m 309[2mms[22m[39m
+ [32m✓[39m src/i18n/languages.test.tsx [2m([22m[2m41 tests[22m[2m)[22m[32m 292[2mms[22m[39m
+ [32m✓[39m src/shared/customer/AccountScreen.history.test.tsx [2m([22m[2m11 tests[22m[2m)[22m[32m 236[2mms[22m[39m
+ [32m✓[39m src/panel/permissionGating.test.tsx [2m([22m[2m5 tests[22m[2m)[22m[32m 202[2mms[22m[39m
+ [32m✓[39m src/shared/stock/guards.test.ts [2m([22m[2m14 tests[22m[2m)[22m[32m 213[2mms[22m[39m
+ [32m✓[39m src/k/page.test.ts [2m([22m[2m78 tests[22m[2m)[22m[32m 249[2mms[22m[39m
+ [32m✓[39m src/shared/network/guards.test.ts [2m([22m[2m11 tests[22m[2m)[22m[32m 214[2mms[22m[39m
+ [32m✓[39m src/panel/reports.test.tsx [2m([22m[2m3 tests[22m[2m)[22m[32m 216[2mms[22m[39m
+ [32m✓[39m src/admin/rules.test.ts [2m([22m[2m72 tests[22m[2m)[22m[32m 219[2mms[22m[39m
+ [32m✓[39m src/i18n/uzCyrillic.test.ts [2m([22m[2m149 tests[22m[2m)[22m[32m 140[2mms[22m[39m
+ [32m✓[39m src/panel/signIn.test.tsx [2m([22m[2m36 tests[22m[2m)[22m[32m 171[2mms[22m[39m
+ [32m✓[39m src/shared/reports/ReportsScreen.advances.test.tsx [2m([22m[2m4 tests[22m[2m)[22m[32m 202[2mms[22m[39m
+ [32m✓[39m src/panel/pwa/offlinePanel.test.tsx [2m([22m[2m3 tests[22m[2m)[22m[32m 137[2mms[22m[39m
+ [32m✓[39m src/panel/boundary.test.ts [2m([22m[2m12 tests[22m[2m)[22m[32m 130[2mms[22m[39m
+ [32m✓[39m src/brand.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 67[2mms[22m[39m
+ [32m✓[39m src/shared/telegramContrast.test.ts [2m([22m[2m26 tests[22m[2m)[22m[32m 79[2mms[22m[39m
+ [32m✓[39m src/web/PaperPhone.test.tsx [2m([22m[2m8 tests[22m[2m)[22m[32m 64[2mms[22m[39m
+ [32m✓[39m src/i18n/newLanguages.test.ts [2m([22m[2m156 tests[22m[2m)[22m[32m 63[2mms[22m[39m
+ [32m✓[39m src/shared/qr.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 55[2mms[22m[39m
+ [32m✓[39m src/panel/languages.test.tsx [2m([22m[2m8 tests[22m[2m)[22m[32m 49[2mms[22m[39m
+ [32m✓[39m src/i18n/catalog.test.ts [2m([22m[2m42 tests[22m[2m)[22m[32m 52[2mms[22m[39m
+ [32m✓[39m src/shared/api.timeout.test.ts [2m([22m[2m16 tests[22m[2m)[22m[32m 42[2mms[22m[39m
+ [32m✓[39m src/shared/promise.test.ts [2m([22m[2m47 tests[22m[2m)[22m[32m 40[2mms[22m[39m
+ [32m✓[39m src/shared/network/networkApi.test.ts [2m([22m[2m37 tests[22m[2m)[22m[32m 48[2mms[22m[39m
+ [32m✓[39m src/shared/api.test.ts [2m([22m[2m29 tests[22m[2m)[22m[32m 68[2mms[22m[39m
+ [32m✓[39m src/shared/money.currency.test.ts [2m([22m[2m89 tests[22m[2m)[22m[32m 36[2mms[22m[39m
+ [32m✓[39m src/shared/api.goods.test.ts [2m([22m[2m22 tests[22m[2m)[22m[32m 43[2mms[22m[39m
+ [32m✓[39m src/shared/api.dates.test.ts [2m([22m[2m18 tests[22m[2m)[22m[32m 44[2mms[22m[39m
+ [32m✓[39m src/shared/api.notices.test.ts [2m([22m[2m23 tests[22m[2m)[22m[32m 45[2mms[22m[39m
+ [32m✓[39m src/shared/api.m5.test.ts [2m([22m[2m32 tests[22m[2m)[22m[32m 46[2mms[22m[39m
+ [32m✓[39m src/shared/api.dollars.test.ts [2m([22m[2m20 tests[22m[2m)[22m[32m 50[2mms[22m[39m
+ [32m✓[39m src/shared/advances.api.test.ts [2m([22m[2m17 tests[22m[2m)[22m[32m 52[2mms[22m[39m
+ [32m✓[39m src/panel/pwa/worker.test.ts [2m([22m[2m62 tests[22m[2m)[22m[32m 44[2mms[22m[39m
+ [32m✓[39m src/shared/stock/stockApi.test.ts [2m([22m[2m22 tests[22m[2m)[22m[32m 57[2mms[22m[39m
+ [32m✓[39m src/shared/api.links.test.ts [2m([22m[2m19 tests[22m[2m)[22m[32m 55[2mms[22m[39m
+ [32m✓[39m src/shared/cash/cashApi.test.ts [2m([22m[2m25 tests[22m[2m)[22m[32m 47[2mms[22m[39m
+ [32m✓[39m src/shared/webAppSession.test.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 43[2mms[22m[39m
+ [32m✓[39m src/shared/roleGating.test.ts [2m([22m[2m33 tests[22m[2m)[22m[32m 26[2mms[22m[39m
+ [32m✓[39m src/shared/money.test.ts [2m([22m[2m120 tests[22m[2m)[22m[32m 26[2mms[22m[39m
+ [32m✓[39m src/shared/api.wire.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 36[2mms[22m[39m
+ [32m✓[39m src/shared/styleSheets.test.ts [2m([22m[2m18 tests[22m[2m)[22m[32m 14[2mms[22m[39m
+ [32m✓[39m src/shared/permissions.test.ts [2m([22m[2m115 tests[22m[2m)[22m[32m 14[2mms[22m[39m
+ [32m✓[39m src/shared/shell.contrast.test.ts [2m([22m[2m86 tests[22m[2m)[22m[32m 10[2mms[22m[39m
+ [32m✓[39m src/shared/navigation.stock.test.ts [2m([22m[2m18 tests[22m[2m)[22m[32m 10[2mms[22m[39m
+ [32m✓[39m src/shared/navigation.network.test.ts [2m([22m[2m13 tests[22m[2m)[22m[32m 9[2mms[22m[39m
+ [32m✓[39m src/shared/stock/documentDraft.test.ts [2m([22m[2m24 tests[22m[2m)[22m[32m 9[2mms[22m[39m
+ [32m✓[39m src/entryPoints.test.ts [2m([22m[2m20 tests[22m[2m)[22m[32m 10[2mms[22m[39m
+ [32m✓[39m src/shared/navigation.test.ts [2m([22m[2m25 tests[22m[2m)[22m[32m 10[2mms[22m[39m
+ [32m✓[39m src/panel/networkActivity.test.ts [2m([22m[2m30 tests[22m[2m)[22m[32m 9[2mms[22m[39m
+ [32m✓[39m src/web/analytics.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 7[2mms[22m[39m
+ [32m✓[39m src/shared/goods.test.ts [2m([22m[2m84 tests[22m[2m)[22m[32m 8[2mms[22m[39m
+ [32m✓[39m src/shared/telegram.test.ts [2m([22m[2m20 tests[22m[2m)[22m[32m 9[2mms[22m[39m
+ [32m✓[39m src/i18n/detect.test.ts [2m([22m[2m63 tests[22m[2m)[22m[32m 8[2mms[22m[39m
+ [32m✓[39m src/shared/workspace/routes.test.ts [2m([22m[2m47 tests[22m[2m)[22m[32m 8[2mms[22m[39m
+ [32m✓[39m src/shared/dateRules.test.ts [2m([22m[2m30 tests[22m[2m)[22m[32m 7[2mms[22m[39m
+ [32m✓[39m src/shared/stock/barcode.test.ts [2m([22m[2m20 tests[22m[2m)[22m[32m 7[2mms[22m[39m
+ [32m✓[39m scripts/size.test.ts [2m([22m[2m11 tests[22m[2m)[22m[32m 6[2mms[22m[39m
+ [32m✓[39m src/web/seo.test.ts [2m([22m[2m11 tests[22m[2m)[22m[32m 6[2mms[22m[39m
+ [32m✓[39m src/shared/workspace/creditRules.test.ts [2m([22m[2m28 tests[22m[2m)[22m[32m 6[2mms[22m[39m
+ [32m✓[39m src/shared/format.test.ts [2m([22m[2m16 tests[22m[2m)[22m[32m 6[2mms[22m[39m
+ [32m✓[39m src/shared/router.test.ts [2m([22m[2m11 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+ [32m✓[39m src/i18n/addMessages.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+ [32m✓[39m scripts/firstLoadLanguages.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m src/shared/theme.test.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m src/panel/panelCss.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m src/web/pricing.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 3[2mms[22m[39m
+
+[31m⎯⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 2 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m src/shared/Shell.test.tsx[2m > [22mstaff shell[2m > [22moffers an owner every section plus the phone's More tab
+[31m[1mAssertionError[22m: expected [ 'Обзор', 'Клиенты', …(12) ] to deeply equal [ 'Обзор', 'Клиенты', …(11) ][39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[33m@@ -1,10 +1,11 @@[39m
+[2m  [[22m
+[2m    "Обзор",[22m
+[2m    "Клиенты",[22m
+[2m    "Новая запись",[22m
+[2m    "Каталог",[22m
+[31m+   "Мои долги",[39m
+[2m    "Напоминания",[22m
+[2m    "Отчёты",[22m
+[2m    "Споры и запросы",[22m
+[2m    "Импорт и экспорт",[22m
+[2m    "Сотрудники",[22m
+
+[36m [2m❯[22m src/shared/Shell.test.tsx:[2m63:25[22m[39m
+    [90m 61|[39m   it("offers an owner every section plus the phone's More tab", () => {
+    [90m 62|[39m     renderStaff("owner", "ru");
+    [90m 63|[39m     expect(navLabels()).toEqual([
+    [90m   |[39m                         [31m^[39m
+    [90m 64|[39m       "Обзор",
+    [90m 65|[39m       "Клиенты",
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m src/shared/Shell.test.tsx[2m > [22mstaff shell[2m > [22mlists the remaining sections on the More screen
+[31m[1mAssertionError[22m: expected [ 'Katalog', 'Qarzlarim', …(5) ] to deeply equal [ 'Katalog', 'Eslatmalar', …(4) ][39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[33m@@ -1,7 +1,8 @@[39m
+[2m  [[22m
+[2m    "Katalog",[22m
+[31m+   "Qarzlarim",[39m
+[2m    "Eslatmalar",[22m
+[2m    "Hisobotlar",[22m
+[2m    "E'tirozlar va so'rovlar",[22m
+[2m    "Import va eksport",[22m
+[2m    "Do'kon sozlamalari",[22m
+
+[36m [2m❯[22m src/shared/Shell.test.tsx:[2m110:51[22m[39m
+    [90m108|[39m     expect(heading()).toBe("Yana");
+    [90m109|[39m     const links = within(screen.getByRole("main")).getAllByRole("link"…
+    [90m110|[39m     expect(links.map((link) => link.textContent)).toEqual([
+    [90m   |[39m                                                   [31m^[39m
+    [90m111|[39m       "Katalog",
+    [90m112|[39m       "Eslatmalar",
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯[22m[39m
+
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[2m | [22m[1m[32m154 passed[39m[22m[90m (155)[39m
+[2m      Tests [22m [1m[31m2 failed[39m[22m[2m | [22m[1m[32m4332 passed[39m[22m[90m (4334)[39m
+[2m   Start at [22m 13:26:47
+[2m   Duration [22m 202.47s[2m (tests 55%, environment 32%, import 9%, transform 2%, setup 2%)[22m
+
+[2m    Isolate [22m [33m155 workers spawned[39m[2m · ~484ms startup each (spawn + environment, per file)[22m
+[2m            [22m [2mat least ~74.48s faster with [22m[33misolate: false[39m[2m — reuses workers across files instead of one per file[22m
+

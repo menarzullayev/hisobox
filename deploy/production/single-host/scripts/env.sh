@@ -6,7 +6,7 @@
 # Nothing in this file prints a value.
 
 : "${HB_STANZA:=qarz}"
-: "${HB_DATABASE:=qarz}"
+: "${HB_DATABASE:=hiso_box}"
 : "${HB_PGUSER:=postgres}"
 : "${HB_STATE_DIR:=/var/lib/hiso-box-backup}"
 # The figures (*.prom) go to a directory of their own, outside the state directory: it is a volume
