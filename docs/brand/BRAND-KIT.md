@@ -49,7 +49,17 @@ docs/brand/assets/mascot-calculator.png    maskot
 
 Originallar: `D:/Linux/qarz-brand-naming/logo-concepts/` (5 yo'nalish, 10 variant).
 
-## 5 Kelasi qadamlar (tavsiya)
+## 6. Ikonka tizimi (2026-10-12, qabul qilindi)
+
+**Lucide** (MIT) — 7 paket taqqoslab tanlandi (panel: `D:/Linux/qarz-brand-naming/icon-system/`).
+
+- Manba: `frontend/scripts/icons.ts` (`@iconify-json/lucide`, dev-dependency) → `src/shared/icons.tsx` generatsiya qiladi.
+- 20 glyph + `NavIcon` resolver = 21 eksport (ilovaning butun ehtiyoji).
+- Nega Lucide: joriy qo'lda chizilgan 24px stroke uslubiga aynan mos (`.icon` CSS allaqachon Lucide qoidalari: stroke 1.75, round caps), 41/41 qoplaydi, 1.9 KB gzip, MIT, eng katta ekotizim.
+- Yangi ikonka qo'shish: `ICONS` ro'yxatiga satr + `node scripts/icons.ts`.
+- Tekshiruv: `node scripts/icons.ts --check` (fayl manbaga mos kelmasa yiqiladi); Mini App snapshot'i ikonkalarni ushlab turadi.
+
+## 5. Kelasi qadamlar (tavsiya)
 
 - [ ] Telegram avatari: `mark-icon-depth.png` (1024×1024) — BotFather'da o'rnatiladi (API ruxsat bermaydi)
 - [ ] OG/share rasmi: C1 lockup asosida 1200×630 — keyingi ish
