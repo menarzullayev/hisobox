@@ -776,6 +776,7 @@ export const tg: PartialCatalog<typeof uz> = {
   "landing.nav.faq": "Саволҳо",
   "landing.nav.menu": "Меню",
   "landing.nav.close": "Пӯшидан",
+  "landing.nav.telegram": "Telegram",
 
   "landing.hero.eyebrow": "Ҳисоб барои мағоза ва тиҷорат",
   "landing.hero.title1": "Ҳисоби тартибнок.",

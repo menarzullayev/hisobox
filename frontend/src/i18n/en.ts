@@ -788,6 +788,7 @@ export const en: PartialCatalog<typeof uz, EnPlural> = {
   "landing.nav.faq": "Questions",
   "landing.nav.menu": "Menu",
   "landing.nav.close": "Close",
+  "landing.nav.telegram": "Telegram",
 
   "landing.hero.eyebrow": "Bookkeeping for shops and businesses",
   "landing.hero.title1": "Books in order.",

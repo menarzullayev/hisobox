@@ -768,6 +768,7 @@ export const uz = {
   "landing.nav.faq": "Savollar",
   "landing.nav.menu": "Menyu",
   "landing.nav.close": "Yopish",
+  "landing.nav.telegram": "Telegram",
 
   "landing.hero.eyebrow": "Do'kon va biznes uchun hisob tizimi",
   "landing.hero.title1": "Tartibli hisob.",

@@ -102,11 +102,19 @@ a {
   gap: var(--qd-space-4);
 }
 
+/*
+ * Nothing in the header wraps or shrinks: a flex item whose text is allowed to wrap makes the bar a
+ * different height on a different language, and one that is allowed to shrink breaks a label in two.
+ * The bar therefore holds its items at their own width, and the list gives way to the menu button
+ * below the width where they all fit (see the last media query in this file).
+ */
 .hdr__brand {
   display: inline-flex;
   align-items: center;
   gap: var(--qd-space-3);
   min-height: var(--qd-control-height);
+  flex: none;
+  white-space: nowrap;
   color: var(--qd-text);
   text-decoration: none;
 }
@@ -134,6 +142,7 @@ a {
   align-items: center;
   gap: var(--qd-space-1);
   margin-left: var(--qd-space-4);
+  flex: none;
 }
 
 .hdr__link {
@@ -144,6 +153,7 @@ a {
   border-radius: var(--qd-radius-md);
   color: var(--qd-muted);
   font: var(--qd-type-control);
+  white-space: nowrap;
   text-decoration: none;
 }
 
@@ -152,6 +162,7 @@ a {
   display: flex;
   align-items: center;
   gap: var(--qd-space-3);
+  flex: none;
 }
 
 .hdr__lang {
@@ -173,6 +184,7 @@ a {
   display: inline-flex;
   align-items: center;
   min-height: var(--qd-control-height);
+  white-space: nowrap;
   color: var(--qd-link);
   font: var(--qd-type-control);
   text-decoration: none;
@@ -342,6 +354,7 @@ a {
   border: 1px solid transparent;
   border-radius: var(--qd-radius-md);
   font: var(--qd-type-control);
+  white-space: nowrap;
   text-decoration: none;
   cursor: pointer;
 }
@@ -467,6 +480,7 @@ a {
   background: var(--qd-surface);
   color: var(--qd-muted);
   font: var(--qd-type-control);
+  white-space: nowrap;
   cursor: pointer;
 }
 
@@ -948,8 +962,13 @@ a {
   }
 }
 
-@media (max-width: 62rem) {
-  /* The list would crowd the header; it becomes a disclosure under it instead. */
+/*
+ * Below the width the header's items need together, the list becomes a disclosure under the bar. The
+ * number is the sum the wide bar actually needs — the name, the seven links, the language picker, the
+ * Telegram link and the call to action, none of which shrinks — measured with the longest language, not
+ * a round figure chosen by eye. Above it the bar never wraps and never breaks a label in two.
+ */
+@media (max-width: 80rem) {
   .hdr__toggle {
     display: grid;
   }

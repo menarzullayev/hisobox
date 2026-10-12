@@ -318,7 +318,7 @@ function Header() {
               href={telegramHref}
               onClick={() => track("app_navigate", { id: "header_telegram", target: "telegram" })}
             >
-              {t("landing.hero.trust.telegram")}
+              {t("landing.nav.telegram")}
             </a>
           )}
           <StartLink id="header_start" className="btn btn--primary btn--small">

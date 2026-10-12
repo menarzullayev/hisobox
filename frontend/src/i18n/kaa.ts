@@ -765,6 +765,7 @@ export const kaa: PartialCatalog<typeof uz> = {
   "landing.nav.faq": "Sorawlar",
   "landing.nav.menu": "Menyu",
   "landing.nav.close": "Jabıw",
+  "landing.nav.telegram": "Telegram",
 
   "landing.hero.eyebrow": "Dúkán hám biznes ushın esap",
   "landing.hero.title1": "Tártipli esap.",

@@ -795,6 +795,7 @@ export const ru: RuCatalog = {
   "landing.nav.faq": "Вопросы",
   "landing.nav.menu": "Меню",
   "landing.nav.close": "Закрыть",
+  "landing.nav.telegram": "Telegram",
 
   "landing.hero.eyebrow": "Учёт для магазина и бизнеса",
   "landing.hero.title1": "Порядок в учёте.",
