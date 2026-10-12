@@ -620,6 +620,12 @@ def _many_documents_and_two_drafts(owner: psycopg.Connection, shop: Shop, posted
         "FROM generate_series(1, %(count)s) n",
         {"shop": shop.shop_id, "member": shop.member_id, "count": posted + 2},
     )
+    # The planner has to know the table before it is asked which index it would use. Two of them can serve
+    # this read -- `stock_document_recent` and `stock_document_by_status`, both partial on `kind <> 'sale'`,
+    # both leading with the shop and carrying `created_at DESC, id DESC` -- so with no statistics it guesses
+    # between them, and the guess is not stable: that is what made this test fail at random in CI. The cash
+    # book's plan test seeds its table and analyzes it the same way (test_cash_book_schema.py).
+    owner.execute("ANALYZE stock_document")
 
 
 def _measured(conn: psycopg.Connection, statement: str, values: dict[str, Any]) -> str:
