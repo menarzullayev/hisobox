@@ -37,6 +37,9 @@ UNARCHIVE_CUSTOMER = operation("customers.unarchive", Capability.MANAGE)
 
 MAX_PAGE = 100
 _UNSET: Any = object()
+# What a page of customers may be filtered down to (Phase 1 of the qarzapp port): "all" is no filter at
+# all, the others ask which balances a listed customer holds.
+_DEBT_STATUSES = ("all", "debtors", "overdue", "inCredit", "noDebt")
 
 
 class SubscriptionLimited(AppError):
@@ -154,6 +157,8 @@ def customer_body(customer: CustomerRecord, balance: int, usd: int | None = None
         "reminders_off": customer.reminders_off,
         "credit_limit": customer.credit_limit,
         "balance": balance,
+        # The folder the customer sits in, or None while unfiled (Phase 1 of the qarzapp port).
+        "folder": None if customer.folder_id is None else str(customer.folder_id),
     }
     if usd is not None:
         body["usd"] = {"balance": usd, "credit_limit": customer.credit_limit_usd}
@@ -207,7 +212,20 @@ def decode_cursor(cursor: str, count: int) -> list[str]:
 
 
 async def list_customers_in(
-    session: TenantSession, *, query: str | None, status: str, cursor: str | None, limit: int
+    session: TenantSession,
+    *,
+    query: str | None,
+    status: str,
+    cursor: str | None,
+    limit: int,
+    # The folder to list from, or None for every folder including the unfiled (Phase 1 of the port).
+    folder_id: UUID | None = None,
+    # Which balances a page may hold: "debtors", "overdue", "inCredit" or "noDebt"; None for all.
+    debt_status: str | None = None,
+    # The smallest balance a listed customer may have, in so'm.
+    min_balance: int | None = None,
+    # The day an overdue figure is read for: the shop's own, never the database server's.
+    today: date | None = None,
 ) -> dict[str, Any]:
     """One page of customers with their balances. The caller has already decided who may see them."""
     fields: dict[str, str] = {}
@@ -217,6 +235,12 @@ async def list_customers_in(
         fields["status"] = "must be active or archived"
     if query is not None and len(query) > 80:
         fields["q"] = "at most 80 characters"
+    if debt_status is not None and debt_status not in _DEBT_STATUSES:
+        fields["debt_status"] = "must be all, debtors, overdue, inCredit or noDebt"
+    if min_balance is not None and (
+        isinstance(min_balance, bool) or not isinstance(min_balance, int) or min_balance < 0
+    ):
+        fields["min_balance"] = "a whole amount of so'm, or nothing"
     if fields:
         raise ValidationFailed(fields)
     after: tuple[str, UUID] | None = None
@@ -236,6 +260,10 @@ async def list_customers_in(
         status=status,
         after=after,
         limit=limit + 1,
+        folder_id=folder_id,
+        debt_status=None if debt_status in (None, "all") else debt_status,
+        min_balance=min_balance,
+        today=today,
     )
     page, more = rows[:limit], len(rows) > limit
     dollars = await dollar_balances(session, [customer.customer_id for customer, _, _ in page])
@@ -246,6 +274,26 @@ async def list_customers_in(
         ],
         "next_cursor": encode_cursor(page[-1][2], page[-1][0].customer_id) if more else None,
     }
+
+
+async def _checked_folder(session: TenantSession, folder_id: Any) -> UUID | None:
+    """The folder a request names for a customer: None leaves them unfiled, otherwise a folder of this
+    shop. Anything else -- a folder that is not there, one of another shop's -- is refused like a
+    malformed field, and the policy of another shop's rows never lets it be seen."""
+    if folder_id is None:
+        return None
+    if isinstance(folder_id, UUID):
+        wanted = folder_id
+    elif isinstance(folder_id, str):
+        try:
+            wanted = UUID(folder_id)
+        except ValueError as error:
+            raise ValidationFailed({"folder_id": "not a folder returned by this API"}) from error
+    else:
+        raise ValidationFailed({"folder_id": "not a folder returned by this API"})
+    if await session.get_folder(wanted) is None:
+        raise ValidationFailed({"folder_id": "no such folder"})
+    return wanted
 
 
 class CustomerService:
@@ -305,12 +353,32 @@ class CustomerService:
             )
 
     async def list(
-        self, user_id: UUID, shop_id: UUID, *, query: str | None, status: str, cursor: str | None, limit: int
+        self,
+        user_id: UUID,
+        shop_id: UUID,
+        *,
+        query: str | None,
+        status: str,
+        cursor: str | None,
+        limit: int,
+        folder_id: UUID | None = None,
+        debt_status: str | None = None,
+        min_balance: int | None = None,
     ) -> dict[str, Any]:
         async with self._storage.tenant(shop_id) as session:
             actor = await require_member(session, user_id, LIST_CUSTOMERS)
             await require_viewable(session, actor, self._today())
-            return await list_customers_in(session, query=query, status=status, cursor=cursor, limit=limit)
+            return await list_customers_in(
+                session,
+                query=query,
+                status=status,
+                cursor=cursor,
+                limit=limit,
+                folder_id=folder_id,
+                debt_status=debt_status,
+                min_balance=min_balance,
+                today=self._today(),
+            )
 
     async def update(
         self,
@@ -325,6 +393,9 @@ class CustomerService:
         credit_limit: Any = _UNSET,
         credit_limit_usd: Any = _UNSET,
         address: Any = _UNSET,
+        # The folder the customer sits in (Phase 1 of the qarzapp port): left out, the folder stays as
+        # it is; null leaves the customer unfiled; a folder moves them into it.
+        folder_id: Any = _UNSET,
         lang: str = "uz",
     ) -> dict[str, Any]:
         """`address`, only while the platform switch `address_on` is on: left out, the address stays as
@@ -346,6 +417,7 @@ class CustomerService:
                 and credit_limit is _UNSET
                 and credit_limit_usd is _UNSET
                 and address is _UNSET
+                and folder_id is _UNSET
             ):
                 raise ValidationFailed({"_": "nothing to change"})
             if credit_limit is not _UNSET and credit_limit is not None and not valid_limit(credit_limit):
@@ -361,6 +433,7 @@ class CustomerService:
             name = clean_name(display_name) if display_name is not None else None
             number = _UNSET if phone is _UNSET else clean_phone(phone)
             place = None if address is _UNSET else await checked_address(session, parse_address(address))
+            folder = _UNSET if folder_id is _UNSET else _checked_folder(session, folder_id)
             await require_writable(session, self._today(), new_credit=False)
 
             async def apply() -> dict[str, Any]:
@@ -378,6 +451,8 @@ class CustomerService:
                     credit_limit=None if credit_limit is _UNSET else credit_limit,
                     set_limit_usd=credit_limit_usd is not _UNSET,
                     credit_limit_usd=None if credit_limit_usd is _UNSET else credit_limit_usd,
+                    set_folder=folder is not _UNSET,
+                    folder_id=None if folder is _UNSET else folder,
                 )
                 if address is not _UNSET:
                     await session.set_customer_address(customer_id, place, self._now())
@@ -414,6 +489,9 @@ class CustomerService:
                     **({} if credit_limit_usd is _UNSET else {"credit_limit_usd": credit_limit_usd}),
                     # The same for the address.
                     **({} if address is _UNSET else {"address": address_fingerprint(place)}),
+                    # And the same for the folder: a request that does not name it keeps the fingerprint
+                    # it had before the folders existed.
+                    **({} if folder_id is _UNSET else {"folder": None if folder is None else str(folder)}),
                 },
                 action=apply,
             )

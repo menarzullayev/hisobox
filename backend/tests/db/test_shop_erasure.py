@@ -147,6 +147,7 @@ def fill(owner: psycopg.Connection, shop: Shop) -> uuid.UUID:
     for sql, values in statements:
         owner.execute(sql, values)
     fill_stock(owner, shop, entry)
+    fill_payables(owner, shop)
     owner.execute("UPDATE app_user SET active_shop = %s WHERE id = %s", (shop.shop_id, shop.user_id))
     return linked
 
@@ -204,6 +205,26 @@ def fill_stock(owner: psycopg.Connection, shop: Shop, entry: uuid.UUID) -> None:
         "VALUES (gen_random_uuid(), %s, %s, 1, 'purchase', 100000, %s, %s)",
         (shop.shop_id, supplier, document, shop.member_id),
     )
+
+
+def fill_payables(owner: psycopg.Connection, shop: Shop) -> None:
+    """A row of the shop in each table of the payables (migration 0054): a folder with a customer in
+    it, a contact the shop owes, and one entry of that contact's account."""
+    folder, contact = uuid.uuid4(), uuid.uuid4()
+    owner.execute(
+        "INSERT INTO folder (id, shop_id, name, name_norm) VALUES (%s, %s, 'Doimiy', 'doimiy')",
+        (folder, shop.shop_id),
+    )
+    owner.execute(
+        "INSERT INTO contact (id, shop_id, name, name_norm) VALUES (%s, %s, 'Ulgurji bozor', 'ulgurji bozor')",
+        (contact, shop.shop_id),
+    )
+    owner.execute(
+        "INSERT INTO payable_entry (id, shop_id, contact_id, seq, kind, amount, promised_date, author_id) "
+        "VALUES (gen_random_uuid(), %s, %s, 1, 'credit', 100000, current_date + 7, %s)",
+        (shop.shop_id, contact, shop.member_id),
+    )
+    owner.execute("UPDATE customer SET folder_id = %s WHERE id = %s", (folder, shop.customer_id))
 
 
 def make_due(owner: psycopg.Connection, shop: Shop, interval: str = "-1 minute") -> None:

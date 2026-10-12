@@ -80,6 +80,7 @@ from qarz.domain.money import Currency
 from qarz.domain.ops_alerts import LEDGER_SERIES, STOCK_SERIES, Alert, DatabaseFigures
 from qarz.infrastructure.db_cash import CashStatements
 from qarz.infrastructure.db_network import NetworkQueries
+from qarz.infrastructure.db_payables import PayablesStatements
 from qarz.infrastructure.db_shared_catalog import SharedCatalogAdminQueries, SharedCatalogQueries
 from qarz.infrastructure.db_stock import StockQueries
 from qarz.infrastructure.db_territories import TerritoryAdminQueries, TerritoryQueries
@@ -88,7 +89,9 @@ from qarz.infrastructure.db_territories import TerritoryAdminQueries, TerritoryQ
 # identifier itself (ADR-010).
 _MEASURE_NAMESPACE = UUID("6f1d1c0e-8f0b-5d55-9d0a-51a7c0de0a10")
 
-_CUSTOMER_COLUMNS = "c.id, c.display_name, c.phone, c.status, c.reminders_off, c.credit_limit, c.credit_limit_usd"
+_CUSTOMER_COLUMNS = (
+    "c.id, c.display_name, c.phone, c.status, c.reminders_off, c.credit_limit, c.credit_limit_usd, c.folder_id"
+)
 _CUSTOMER_BY_ID = f"SELECT {_CUSTOMER_COLUMNS} FROM customer c WHERE c.id = :id"
 _CUSTOMER_LOCKED = f"{_CUSTOMER_BY_ID} FOR UPDATE"
 
@@ -127,6 +130,31 @@ _BALANCE_OF_C = (
     "FROM ledger_entry e WHERE e.customer_id = c.id AND e.currency = :currency AND e.kind <> 'reversal' "
     "AND NOT EXISTS (SELECT 1 FROM ledger_entry r WHERE r.reverses_id = e.id))"
 )
+
+# What a customer still owes, and what of it is late, as the open debts the database keeps (migration
+# 0026): one row per debt the oldest-first allocation leaves partly or wholly unpaid, with its current
+# promised date. What they have paid ahead is the `customer_advance` row (migration 0048). Each of the
+# three is one indexed lookup for one customer, so a page of customers still costs what the page holds;
+# nothing here adds up what the whole shop owes, which is what `shop_totals` is for.
+_OWES = "EXISTS (SELECT 1 FROM open_debt d WHERE d.customer_id = c.id AND d.currency = :currency AND d.remaining > 0)"
+_OWES_LATE = (
+    "EXISTS (SELECT 1 FROM open_debt d WHERE d.customer_id = c.id AND d.currency = :currency "
+    "AND d.remaining > 0 AND d.promised_date < :today)"
+)
+_IN_CREDIT = "EXISTS (SELECT 1 FROM customer_advance a WHERE a.customer_id = c.id AND a.currency = :currency)"
+_SETTLED = f"NOT {_OWES} AND NOT {_IN_CREDIT}"
+# Which balances a page may hold (Phase 1 of the qarzapp port): "debtors", "overdue", "inCredit",
+# "noDebt", or nothing named for every customer. The names are the API's; only these four are read here.
+_DEBT_STATUS = (
+    "AND (CAST(:debt_status AS text) IS NULL "
+    f"     OR (CAST(:debt_status AS text) = 'debtors' AND {_OWES}) "
+    f"     OR (CAST(:debt_status AS text) = 'overdue' AND {_OWES_LATE}) "
+    f"     OR (CAST(:debt_status AS text) = 'inCredit' AND {_IN_CREDIT}) "
+    f"     OR (CAST(:debt_status AS text) = 'noDebt' AND {_SETTLED})) "
+)
+# The folder the customers are listed from; nothing named is every folder, the unfiled included.
+_FOLDER_OF = "AND (CAST(:folder AS uuid) IS NULL OR c.folder_id = CAST(:folder AS uuid)) "
+_MIN_BALANCE = f"AND (CAST(:min_balance AS bigint) IS NULL OR {_BALANCE_OF_C} >= CAST(:min_balance AS bigint)) "
 
 # What each customer still owes, from the stored open debts (migration 0026): one row for every debt the
 # oldest-first allocation (BR-3) leaves partly or wholly unpaid, with what is left of it and its current
@@ -475,7 +503,14 @@ def _membership(row: Any) -> Membership:
     )
 
 
-class PgTenantSession(CashStatements, StockQueries, NetworkQueries, SharedCatalogQueries, TerritoryQueries):
+class PgTenantSession(
+    CashStatements,
+    PayablesStatements,
+    StockQueries,
+    NetworkQueries,
+    SharedCatalogQueries,
+    TerritoryQueries,
+):
     def __init__(self, conn: AsyncConnection, shop_id: UUID) -> None:
         self._conn = conn
         self._shop_id = shop_id
@@ -918,6 +953,7 @@ class PgTenantSession(CashStatements, StockQueries, NetworkQueries, SharedCatalo
             row.reminders_off,
             None if row.credit_limit is None else int(row.credit_limit),
             None if row.credit_limit_usd is None else int(row.credit_limit_usd),
+            row.folder_id,
         )
 
     async def active_customers(self, *, lock: bool = False) -> int:
@@ -962,6 +998,8 @@ class PgTenantSession(CashStatements, StockQueries, NetworkQueries, SharedCatalo
         credit_limit: int | None = None,
         set_limit_usd: bool = False,
         credit_limit_usd: int | None = None,
+        set_folder: bool = False,
+        folder_id: UUID | None = None,
     ) -> CustomerRecord:
         row = (
             await self._conn.execute(
@@ -972,7 +1010,8 @@ class PgTenantSession(CashStatements, StockQueries, NetworkQueries, SharedCatalo
                     "reminders_off = coalesce(:reminders_off, c.reminders_off), "
                     "credit_limit = CASE WHEN :set_limit THEN CAST(:credit_limit AS bigint) ELSE c.credit_limit END, "
                     "credit_limit_usd = CASE WHEN :set_limit_usd THEN CAST(:credit_limit_usd AS bigint) "
-                    "                   ELSE c.credit_limit_usd END "
+                    "                   ELSE c.credit_limit_usd END, "
+                    "folder_id = CASE WHEN :set_folder THEN CAST(:folder AS uuid) ELSE c.folder_id END "
                     f"WHERE c.id = :id RETURNING {_CUSTOMER_COLUMNS}"
                 ),
                 {
@@ -986,6 +1025,8 @@ class PgTenantSession(CashStatements, StockQueries, NetworkQueries, SharedCatalo
                     "credit_limit": credit_limit,
                     "set_limit_usd": set_limit_usd,
                     "credit_limit_usd": credit_limit_usd,
+                    "set_folder": set_folder,
+                    "folder": folder_id,
                 },
             )
         ).one()
@@ -1008,6 +1049,15 @@ class PgTenantSession(CashStatements, StockQueries, NetworkQueries, SharedCatalo
         status: str,
         after: tuple[str, UUID] | None,
         limit: int,
+        # The folder the customers are listed from, or None for every folder including the unfiled.
+        folder_id: UUID | None = None,
+        # Which balances a page may hold: "debtors", "overdue", "inCredit" or "noDebt"; None for all.
+        debt_status: str | None = None,
+        # The smallest balance a listed customer may have, in the currency the figures are read in.
+        min_balance: int | None = None,
+        # The calendar day an overdue figure is read for: the shop's own (Tashkent's), never the
+        # database server's. Only read while a debt status is named.
+        today: date | None = None,
     ) -> list[tuple[CustomerRecord, int, str]]:
         rows = (
             await self._conn.execute(
@@ -1021,15 +1071,22 @@ class PgTenantSession(CashStatements, StockQueries, NetworkQueries, SharedCatalo
                     "       OR regexp_replace(coalesce(c.phone, ''), '[^0-9]', '', 'g') LIKE CAST(:digits AS text)) "
                     "  AND (CAST(:after_name AS text) IS NULL "
                     "       OR (c.name_norm, c.id) > (CAST(:after_name AS text), CAST(:after_id AS uuid))) "
-                    "ORDER BY c.name_norm, c.id LIMIT :limit) c ORDER BY c.name_norm, c.id"
+                    + _FOLDER_OF
+                    + _DEBT_STATUS
+                    + _MIN_BALANCE
+                    + "ORDER BY c.name_norm, c.id LIMIT :limit) c ORDER BY c.name_norm, c.id"
                 ),
                 {
                     "currency": Currency.UZS.value,
+                    "today": today,
                     "status": status,
                     "name": _like_pattern(name_part) if name_part else None,
                     "digits": f"%{phone_digits}%" if phone_digits else None,
                     "after_name": after[0] if after else None,
                     "after_id": after[1] if after else None,
+                    "folder": folder_id,
+                    "debt_status": debt_status,
+                    "min_balance": min_balance,
                     "limit": limit,
                 },
             )

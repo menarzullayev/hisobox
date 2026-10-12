@@ -146,6 +146,7 @@ TENANT_TABLES = [
     "network_invite", "network_link", "network_order_draft", "network_order", "network_order_line",
     "network_note", "network_note_line", "network_payment", "network_event",
     "shared_suggestion",
+    "contact", "payable_entry", "folder",
 ]  # fmt: skip
 
 

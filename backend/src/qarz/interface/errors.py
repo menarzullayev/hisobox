@@ -108,6 +108,10 @@ _STATUS = {
     "CASH_CATEGORY_NAME_TAKEN": 409,
     "CASH_CATEGORY_FIXED": 409,
     "CASH_CATEGORY_IN_USE": 409,
+    "CONTACT_NAME_TAKEN": 409,
+    "CONTACT_ARCHIVED": 409,
+    "CONTACT_HAS_BALANCE": 409,
+    "FOLDER_NAME_TAKEN": 409,
 }
 
 _MESSAGES = {
@@ -212,6 +216,10 @@ _MESSAGES = {
         "CASH_CATEGORY_NAME_TAKEN": "Shu nomli toifa allaqachon bor (arxivda bo'lishi ham mumkin).",
         "CASH_CATEGORY_FIXED": "Mijozlar to'lovi tushadigan toifani arxivlab yoki o'chirib bo'lmaydi.",
         "CASH_CATEGORY_IN_USE": "Bu toifada yozuvlar bor, uni o'chirib bo'lmaydi. Arxivlash mumkin.",
+        "CONTACT_NAME_TAKEN": "Shu nomli kontakt bor (arxivda bo'lishi ham mumkin).",
+        "CONTACT_ARCHIVED": "Bu kontakt arxivda. Avval arxivdan chiqaring.",
+        "CONTACT_HAS_BALANCE": "Hisob-kitobi yopilmagan kontaktni arxivlab bo'lmaydi.",
+        "FOLDER_NAME_TAKEN": "Shu nomli papka bor.",
         "ONLINE_PAY_OFF": "Onlayn to'lov hozircha yoqilmagan. Karta orqali to'lash: /obuna",
         "STOCK_INSUFFICIENT": "Omborda bu tovar yetarli emas. Avval kirim yozing yoki miqdorni kamaytiring.",
         "STOCK_ALREADY_USED": (
@@ -356,6 +364,10 @@ _MESSAGES = {
         "CASH_CATEGORY_NAME_TAKEN": "Статья с таким названием уже есть (возможно, в архиве).",
         "CASH_CATEGORY_FIXED": "Статью, в которую попадают оплаты клиентов, нельзя архивировать или удалить.",
         "CASH_CATEGORY_IN_USE": "В этой статье есть записи, удалить её нельзя. Можно архивировать.",
+        "CONTACT_NAME_TAKEN": "Контакт с таким названием уже есть (возможно, он в архиве).",
+        "CONTACT_ARCHIVED": "Этот контакт в архиве. Сначала верните его из архива.",
+        "CONTACT_HAS_BALANCE": "Контакт с незакрытыми расчётами нельзя отправить в архив.",
+        "FOLDER_NAME_TAKEN": "Папка с таким названием уже есть.",
         "ONLINE_PAY_OFF": "Онлайн-оплата пока не включена. Оплата переводом на карту: /obuna",
         "STOCK_INSUFFICIENT": "На складе недостаточно этого товара. Сначала запишите приход или уменьшите количество.",
         "STOCK_ALREADY_USED": (

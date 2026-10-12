@@ -72,6 +72,9 @@ class CustomerPatch(BaseModel):
     credit_limit_usd: int | None = None
     # Absent leaves the address as it is; null removes it; an object replaces it as a whole.
     address: AddressInput | None = None
+    # The folder the customer sits in (Phase 1 of the qarzapp port): absent leaves it as it is; null
+    # leaves the customer unfiled. Read as text, as every other identifier a request may carry.
+    folder_id: str | None = Field(default=None, max_length=40)
 
 
 def _address(body: NewCustomer | CustomerPatch) -> Any:
@@ -168,8 +171,24 @@ def add_customer_routes(
         status: Annotated[str, Query()] = "active",
         cursor: Annotated[str | None, Query(max_length=400)] = None,
         limit: Annotated[int, Query()] = 50,
+        # The folder to list from, or none for every folder including the unfiled (qarzapp port).
+        folder_id: Annotated[UUID | None, Query()] = None,
+        # Which balances a page may hold: all, debtors, overdue, inCredit or noDebt.
+        debt_status: Annotated[str | None, Query(max_length=16)] = None,
+        # The smallest balance a listed customer may have, in whole so'm.
+        min_balance: Annotated[int | None, Query()] = None,
     ) -> dict[str, Any]:
-        return await customers.list(user_id, shop_id, query=q, status=status, cursor=cursor, limit=limit)
+        return await customers.list(
+            user_id,
+            shop_id,
+            query=q,
+            status=status,
+            cursor=cursor,
+            limit=limit,
+            folder_id=folder_id,
+            debt_status=debt_status,
+            min_balance=min_balance,
+        )
 
     @app.get(
         base + "/{customer_id}",
@@ -200,6 +219,7 @@ def add_customer_routes(
             credit_limit=body.credit_limit if "credit_limit" in body.model_fields_set else UNSET,
             credit_limit_usd=body.credit_limit_usd if "credit_limit_usd" in body.model_fields_set else UNSET,
             address=_address(body),
+            folder_id=body.folder_id if "folder_id" in body.model_fields_set else UNSET,
             lang=_lang(request),
         )
 

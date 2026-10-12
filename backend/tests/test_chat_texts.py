@@ -101,6 +101,11 @@ def test_every_refusal_the_ledger_can_give_has_a_chat_text() -> None:
         "CASH_CATEGORY_NAME_TAKEN",
         "CASH_CATEGORY_FIXED",
         "CASH_CATEGORY_IN_USE",
+        # The payables and the folders are worked in the Mini App, never in the chat.
+        "CONTACT_NAME_TAKEN",
+        "CONTACT_ARCHIVED",
+        "CONTACT_HAS_BALANCE",
+        "FOLDER_NAME_TAKEN",
         # The network between shops is worked in the Mini App and the panel; the chat only tells.
         "NETWORK_STATE",
         "NETWORK_INVITE_INVALID",

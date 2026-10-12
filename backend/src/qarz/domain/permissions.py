@@ -84,6 +84,8 @@ GROUPS: tuple[Group, ...] = (
     Group("goods", "Tovarlar", "Товары"),
     Group("stock", "Ombor", "Склад"),
     Group("suppliers", "Ta'minotchilar", "Поставщики"),
+    Group("payables", "Men qarzdorman", "Я должен"),
+    Group("folders", "Papkalar", "Папки"),
     Group("network", "Hamkorlar", "Партнёры"),
     Group("reminders", "Eslatmalar", "Напоминания"),
     Group("reports", "Hisobot va fayllar", "Отчёты и файлы"),
@@ -350,6 +352,63 @@ CATALOGUE: tuple[Permission, ...] = (
         "Записывать оплату поставщику и отменять её",
         _MANAGERS,
         ("suppliers.entries.create", "suppliers.entries.cancel"),
+    ),
+    # --- "Men qarzdarman" — what the shop owes (Phase 1 of the qarzapp port; no platform switch: it is
+    # --- a ported core feature) ------------------------------------------------------------------------
+    # The shop's own side of the counter: a contact is anyone it owes -- a supplier it buys from on
+    # credit, a lender, staff. Three permissions, as for the suppliers: looking at the accounts,
+    # recording what is owed (a credit or an opening balance), and paying it back.
+    Permission(
+        "payables.view",
+        "payables",
+        "Men qarzdorman: kontaktlar va qarzlarni ko'rish",
+        "Я должен: видеть контакты и долги",
+        _MANAGERS,
+        ("contacts.list", "contacts.read", "payables.summary"),
+    ),
+    # Recording on a contact's account is opened by either of the next two: stating what the shop owes
+    # goes with managing the contacts, a payment with paying them.
+    Permission(
+        "payables.manage",
+        "payables",
+        "Kontakt qo'shish, tahrirlash, arxivlash va qarzni kiritish",
+        "Добавлять, изменять, архивировать контакты и вносить долг",
+        _MANAGERS,
+        (
+            "contacts.create",
+            "contacts.update",
+            "contacts.archive",
+            "contacts.unarchive",
+            "payables.record",
+            "payables.reverse",
+        ),
+    ),
+    Permission(
+        "payables.pay",
+        "payables",
+        "Kontaktga to'lov yozish va uni bekor qilish",
+        "Записывать оплату контакту и отменять её",
+        _MANAGERS,
+        ("payables.record", "payables.reverse"),
+    ),
+    # --- folders customers sit in (Phase 1 of the qarzapp port) ----------------------------------------
+    # Looking is what every member does while serving a customer; the names themselves are a manager's,
+    # because a folder is how the shop groups its own customers.
+    Permission(
+        "folders.view",
+        "folders",
+        "Papkalarni ko'rish",
+        "Просматривать папки",
+        _ALL,
+        ("folders.list",),
+    ),
+    Permission(
+        "folders.manage",
+        "folders",
+        "Papka qo'shish, nomini o'zgartirish va o'chirish",
+        "Добавлять папки, переименовывать и удалять",
+        _MANAGERS,
+        ("folders.create", "folders.update", "folders.delete"),
     ),
     # --- the network between shops (expansion module J; every operation below exists only while ---------
     # --- `network_on` and `stock_on` are on) --------------------------------------------------------------
@@ -680,6 +739,11 @@ STOCK_SELL_CANCEL = "stock.sell.cancel"
 SUPPLIERS_VIEW = "suppliers.view"
 SUPPLIERS_MANAGE = "suppliers.manage"
 SUPPLIERS_PAY = "suppliers.pay"
+PAYABLES_VIEW = "payables.view"
+PAYABLES_MANAGE = "payables.manage"
+PAYABLES_PAY = "payables.pay"
+FOLDERS_VIEW = "folders.view"
+FOLDERS_MANAGE = "folders.manage"
 PERMISSIONS_MANAGE = "permissions.manage"
 CASH_VIEW = "cash.view"
 CASH_RECORD_INCOME = "cash.record_income"

@@ -268,6 +268,13 @@ TABLE_RIGHTS: dict[str, tuple[str, str, str]] = {
     "export_job": ("SELECT; INSERT; UPDATE", "", "SELECT; UPDATE"),
     "import_batch": ("SELECT; INSERT; UPDATE; DELETE", "", "SELECT; UPDATE"),
     "activity": ("SELECT; INSERT", "INSERT", "INSERT"),
+    # "Men qarzdorman" (migration 0054): the contacts the shop owes and their accounts, and the folders
+    # of customers. A contact is renamed and archived, an entry is insert-only (a wrong one is cancelled
+    # by a reversal, never changed), a folder is made, renamed and deleted while its customers stay. The
+    # worker reads all three for the shop's export.
+    "contact": ("SELECT; INSERT; UPDATE(name, name_norm, phone, note, status)", "", "SELECT"),
+    "payable_entry": ("SELECT; INSERT", "", "SELECT"),
+    "folder": ("SELECT; INSERT; DELETE; UPDATE(name, name_norm)", "", "SELECT"),
 }
 
 _TABLE_LEVEL = ("SELECT", "INSERT", "UPDATE", "DELETE", "TRUNCATE", "REFERENCES", "TRIGGER")
