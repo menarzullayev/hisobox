@@ -16,8 +16,8 @@ import { BRAND_NAME, BRAND_TAGLINE } from "../shared/brand.ts";
 /** Where the plugin puts the head tags that need the site's address, in web/index.html. */
 export const SEO_MARKER = "<!--seo:origin-->";
 
-/** The sharing card's image: the product's own mark, at the largest size the build makes. */
-const CARD_IMAGE = "/panel/icons/icon-512.png";
+/** The sharing card's image: the brand's 1200x630 card, beside the icons the build makes. */
+const CARD_IMAGE = "/panel/icons/og-share.png";
 
 /**
  * The site's own address from a build-time setting, or null. Only an absolute http(s) address with a

@@ -26,6 +26,10 @@ Brend nomi manbai — `backend/src/hiso_box/domain/brand.json` (bu yerda faqat q
 
 ## 3. Ishlash tizimi (avtomatik)
 
+- **SVG belgi (vektor) saytda:** header va footer `BrandMark` komponenti orqali geometriyadan chiziladi — PNG kerak emas, o'tkir ekranlarda mukammal.
+- **OG/share kartochkasi:** `frontend/public/panel/icons/og-share.png` (1200×630, C1 asosida) — `seo.ts` uni `og:image` qilib beradi; Telegram/WhatsApp'da havola shu rasm bilan ochiladi.
+- **Landing sahifa:** B1 illustratsiyasi "daftar" bo'limida, D2 maskot "qanday ishlaydi" bo'limida (`src/assets/brand/`, Vite bundle, matnlar i18n katalogdan).
+
 - `brand.json` dagi `mark` geometriyasi — belgining **manbasi**. Frontend `brand.ts` uni o'qiydi.
 - `frontend/scripts/pwaIcons.ts` — geometriyadan PWA ikonalar, favicon va manifestni **generatsiya qiladi** (commit qilinadi).
 - Geometriya o'zgarsa: `node scripts/pwaIcons.ts --check` (test `pwaFiles.test.tsx` buziladi).

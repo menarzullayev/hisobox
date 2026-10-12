@@ -93,7 +93,7 @@ describe("the panel's manifest", () => {
     expect(readdirSync(PUBLIC)).toEqual(["panel"]);
     expect(readdirSync(resolve(PUBLIC, "panel")).sort()).toEqual(["icons", "manifest.webmanifest"]);
     expect(readdirSync(resolve(PUBLIC, "panel", "icons")).sort()).toEqual(
-      [...PNG_ICONS.map((icon) => icon.file), SVG_ICON].sort(),
+      [...PNG_ICONS.map((icon) => icon.file), SVG_ICON, "og-share.png"].sort(),
     );
   });
 });

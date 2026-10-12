@@ -19,6 +19,9 @@ import { Suspense, lazy, useCallback, useEffect, useRef, useState } from "react"
 import { useI18n } from "../i18n/I18nProvider";
 import { LANGUAGES, type Language, type MessageKey } from "../i18n/types";
 import { BRAND_NAME } from "../shared/brand";
+import { BrandMark } from "../shared/BrandMark";
+import illustrationLedger from "../assets/brand/illustration-ledger.png";
+import mascotCalculator from "../assets/brand/mascot-calculator.png";
 import { BOT_USERNAME } from "../shared/settings";
 import { start as startAnalytics, track } from "./analytics";
 import { PaperPhone, PaperToPhone } from "./PaperPhone";
@@ -269,7 +272,7 @@ function Header() {
       <div className="hdr__inner">
         <a className="hdr__brand" href="#bosh">
           <span className="hdr__mark" aria-hidden="true">
-            {BRAND_NAME.charAt(0)}
+            <BrandMark />
           </span>
           <span className="hdr__name">{BRAND_NAME}</span>
         </a>
@@ -413,6 +416,17 @@ export function Landing() {
             <p className="band__lead">{t("landing.paper.lead")}</p>
           </div>
           <PaperToPhone />
+          <figure className="band__figure">
+            <img
+              className="band__img"
+              src={illustrationLedger}
+              alt={t("landing.illustration.alt")}
+              width={1024}
+              height={1024}
+              loading="lazy"
+            />
+            <figcaption className="band__figcaption">{t("landing.illustration.caption")}</figcaption>
+          </figure>
           <p className="plans__note">{t("landing.showcase.demo")}</p>
         </section>
 
@@ -466,6 +480,17 @@ export function Landing() {
               </li>
             ))}
           </ol>
+          <figure className="band__figure band__figure--mascot">
+            <img
+              className="band__img band__img--mascot"
+              src={mascotCalculator}
+              alt={t("landing.mascot.alt")}
+              width={1024}
+              height={1024}
+              loading="lazy"
+            />
+            <figcaption className="band__figcaption">{t("landing.mascot.caption")}</figcaption>
+          </figure>
         </section>
 
         {/* 6 — what it is worth to the business. */}
@@ -570,7 +595,7 @@ export function Landing() {
       <footer className="foot">
         <div className="foot__brand">
           <span className="hdr__mark" aria-hidden="true">
-            {BRAND_NAME.charAt(0)}
+            <BrandMark />
           </span>
           <span>
             <strong className="hdr__name">{BRAND_NAME}</strong>

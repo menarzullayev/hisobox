@@ -30,7 +30,7 @@ describe("what the page's head carries", () => {
     const head = seoHead(origin, PRICE_UZS_DEFAULT);
     expect(head).toContain(`<link rel="canonical" href="${origin}/web/" />`);
     expect(head).toContain(`<meta property="og:url" content="${origin}/web/" />`);
-    expect(head).toContain(`<meta property="og:image" content="${origin}/panel/icons/icon-512.png" />`);
+    expect(head).toContain(`<meta property="og:image" content="${origin}/panel/icons/og-share.png" />`);
     expect(head).toContain('<script type="application/ld+json">');
     expect(JSON.parse(head.slice(head.indexOf(">", head.indexOf("ld+json")) + 1, head.lastIndexOf("</script>")))).toHaveProperty(
       "@graph",
