@@ -51,7 +51,7 @@ export function Recorded() {
  * and shown to the owner, so the list is asked for when the screen opens and when a search is sent,
  * never while typing.
  */
-export function CustomersScreen({ api, shopId }: { api: AdminApi; shopId: string }) {
+export function SupportCustomersScreen({ api, shopId }: { api: AdminApi; shopId: string }) {
   const { t, language } = useI18n();
   const client = useMemo(() => supportCustomers(api), [api]);
   const [text, setText] = useState("");

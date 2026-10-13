@@ -5,7 +5,7 @@ import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { ruAdmin } from "../i18n/admin/ru";
 import { uzAdmin } from "../i18n/admin/uz";
 import { deferred, type Reply, type Sent } from "../testing/fakeServer";
-import { ReceiptScreen } from "./ReceiptScreen";
+import { SubscriptionReceiptScreen } from "./SubscriptionReceiptScreen";
 import { ReceiptsScreen } from "./ReceiptsScreen";
 import { cleanNote, parseReceiptMonths, RECEIPT_MONTHS_MAX, RECEIPT_STATUSES } from "./rules";
 import { ShopScreen } from "./ShopScreen";
@@ -142,7 +142,7 @@ describe("one receipt", () => {
   function receipt(read: unknown = receiptDetailBody(), decide: (sent: Sent) => Reply = (sent) => ok(sent.path.endsWith("/approve") ? { ...approved(), subscription: { state: "active", paid_through: "2026-12-05" } } : rejected())) {
     const held = { read: ok(read) as Reply };
     const made = adminApi((sent) => (sent.method === "GET" ? held.read : decide(sent)));
-    renderAdmin(<ReceiptScreen api={made.api} receiptId={RECEIPT_ID} />);
+    renderAdmin(<SubscriptionReceiptScreen api={made.api} receiptId={RECEIPT_ID} />);
     return { server: made.server, held };
   }
   const facts = () => [...document.querySelectorAll("dl.facts > *")].map((node) => node.textContent?.replace(/\s/g, " "));
@@ -210,7 +210,7 @@ describe("one receipt", () => {
   });
 
   it("shows nothing of the shop's customers: no such heading, term or figure", async () => {
-    const view = renderAdmin(<ReceiptScreen api={adminApi(() => ok(receiptDetailBody({ customers: [{ display_name: "Ali Valiyev", balance: 120000 }] }))).api} receiptId={RECEIPT_ID} />);
+    const view = renderAdmin(<SubscriptionReceiptScreen api={adminApi(() => ok(receiptDetailBody({ customers: [{ display_name: "Ali Valiyev", balance: 120000 }] }))).api} receiptId={RECEIPT_ID} />);
     await screen.findByRole("button", { name: "Tasdiqlash" });
     expect(view.container.textContent).not.toMatch(/mijoz|qarz|Ali Valiyev|120/i);
   });
@@ -357,11 +357,11 @@ describe("one receipt", () => {
   });
 
   it("shows the not-found screen for a receipt that does not exist, and a failure with a retry otherwise", async () => {
-    renderAdmin(<ReceiptScreen api={adminApi(() => refusal(404, "NOT_FOUND", "Topilmadi.")).api} receiptId={RECEIPT_ID} />);
+    renderAdmin(<SubscriptionReceiptScreen api={adminApi(() => refusal(404, "NOT_FOUND", "Topilmadi.")).api} receiptId={RECEIPT_ID} />);
     expect(await screen.findByText("Bunday sahifa yo'q yoki sizda unga ruxsat yo'q.")).toBeTruthy();
     cleanup();
     let fail = true;
-    renderAdmin(<ReceiptScreen api={adminApi(() => (fail ? refusal(500, "ERROR", "Xatolik yuz berdi.") : ok(receiptDetailBody()))).api} receiptId={RECEIPT_ID} />);
+    renderAdmin(<SubscriptionReceiptScreen api={adminApi(() => (fail ? refusal(500, "ERROR", "Xatolik yuz berdi.") : ok(receiptDetailBody()))).api} receiptId={RECEIPT_ID} />);
     expect(await screen.findByText("Xatolik yuz berdi.")).toBeTruthy();
     fail = false;
     press("Qayta urinish");
@@ -374,12 +374,12 @@ describe("one receipt", () => {
   ] as const)("names the review group's administrator who decided by the Telegram identifier, in %s", async (language, name) => {
     // Decided from the review group by one of its Telegram administrators, who has no account here (DEC-064).
     const decided = receiptDetailBody({ status: "approved", months: 2, decided_at: "2026-10-06T07:00:00+00:00", decided_by: null, decided_by_tg_id: 700123456 });
-    renderAdmin(<ReceiptScreen api={adminApi(() => ok(decided)).api} receiptId={RECEIPT_ID} />, language);
+    renderAdmin(<SubscriptionReceiptScreen api={adminApi(() => ok(decided)).api} receiptId={RECEIPT_ID} />, language);
     await waitFor(() => expect(facts()).toContain(name));
     expect(facts()).not.toContain("a1b2c3");
     // An administrator of the platform is still named by the code, and nobody by a dash.
     cleanup();
-    renderAdmin(<ReceiptScreen api={adminApi(() => ok({ ...decided, decided_by: ADMIN_ID, decided_by_tg_id: null })).api} receiptId={RECEIPT_ID} />, language);
+    renderAdmin(<SubscriptionReceiptScreen api={adminApi(() => ok({ ...decided, decided_by: ADMIN_ID, decided_by_tg_id: null })).api} receiptId={RECEIPT_ID} />, language);
     await waitFor(() => expect(facts()).toContain("a1b2c3"));
     expect(facts()).not.toContain(name);
   });
@@ -391,7 +391,7 @@ describe("one receipt", () => {
   });
 
   it("says the same in Russian", async () => {
-    renderAdmin(<ReceiptScreen api={adminApi(() => ok(receiptDetailBody())).api} receiptId={RECEIPT_ID} />, "ru");
+    renderAdmin(<SubscriptionReceiptScreen api={adminApi(() => ok(receiptDetailBody())).api} receiptId={RECEIPT_ID} />, "ru");
     fireEvent.click(await screen.findByRole("button", { name: "Подтвердить" }));
     fireEvent.click(screen.getByRole("button", { name: "Продолжить" }));
     expect(question()[0]).toBe("Подтвердить чек магазина «Baraka savdo» на сумму 200 000 сум? Засчитать месяцев: 2.");

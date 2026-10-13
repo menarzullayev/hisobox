@@ -14,15 +14,15 @@ import { AuditScreen } from "./AuditScreen";
 import { CatalogQueueScreen } from "./CatalogQueueScreen";
 import "./messages";
 import { ADMIN_SECTIONS } from "./navigation";
-import { ReceiptScreen } from "./ReceiptScreen";
+import { SubscriptionReceiptScreen } from "./SubscriptionReceiptScreen";
 import { ReceiptsScreen } from "./ReceiptsScreen";
 import { isUuid } from "./rules";
 import { PasskeysSection } from "./PasskeysSection";
 import { SettingsScreen } from "./SettingsScreen";
 import { ShopScreen } from "./ShopScreen";
 import { ShopsScreen } from "./ShopsScreen";
-import { CustomerScreen } from "./support/CustomerScreen";
-import { CustomersScreen } from "./support/CustomersScreen";
+import { SupportCustomerScreen } from "./support/SupportCustomerScreen";
+import { SupportCustomersScreen } from "./support/SupportCustomersScreen";
 import { SupportAccessScreen } from "./SupportAccessScreen";
 import type { Who } from "./SupportSection";
 
@@ -59,13 +59,13 @@ function customers(shopId: string, rest: readonly string[], api: AdminApi): Matc
     return null;
   }
   if (customerId === undefined) {
-    return { sectionPath: "/", titleKey: "admin.support.customers.title", screen: <CustomersScreen key={shopId} api={api} shopId={shopId} /> };
+    return { sectionPath: "/", titleKey: "admin.support.customers.title", screen: <SupportCustomersScreen key={shopId} api={api} shopId={shopId} /> };
   }
   return isUuid(customerId)
     ? {
         sectionPath: "/",
         titleKey: "admin.support.customer.title",
-        screen: <CustomerScreen key={customerId} api={api} shopId={shopId} customerId={customerId} />,
+        screen: <SupportCustomerScreen key={customerId} api={api} shopId={shopId} customerId={customerId} />,
       }
     : null;
 }
@@ -96,7 +96,7 @@ function match(path: string, api: AdminApi, now: () => Date, who: Who): Match | 
     return { sectionPath: "/receipts", titleKey: "admin.nav.receipts", screen: <ReceiptsScreen api={api} /> };
   }
   if (first === "receipts" && second !== undefined && isUuid(second)) {
-    return { sectionPath: "/receipts", titleKey: "admin.rc.title", screen: <ReceiptScreen key={second} api={api} receiptId={second} /> };
+    return { sectionPath: "/receipts", titleKey: "admin.rc.title", screen: <SubscriptionReceiptScreen key={second} api={api} receiptId={second} /> };
   }
   if (path === "/settings") {
     return { sectionPath: "/settings", titleKey: "admin.nav.settings", screen: <SettingsScreen api={api} /> };

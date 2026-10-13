@@ -431,7 +431,7 @@ describe("the administrator's entry keeps to itself", () => {
    * The one place a shop's customers may appear on the administrator's side (REQ-059): the module that
    * reads them under an open support access, and the two screens that show what it read.
    */
-  const SUPPORT_SCREENS = ["admin/support/customers.ts", "admin/support/CustomersScreen.tsx", "admin/support/CustomerScreen.tsx"];
+  const SUPPORT_SCREENS = ["admin/support/customers.ts", "admin/support/SupportCustomersScreen.tsx", "admin/support/SupportCustomerScreen.tsx"];
   const CUSTOMER_WORDS =
     /displayName|display_name|customerName|customer_name|\bbalance\b|creditLimit|listCustomers|readCustomer|reading\.customer|supportCustomers|CustomerDetail\b/;
 
@@ -457,10 +457,10 @@ describe("the administrator's entry keeps to itself", () => {
     const using = (pattern: RegExp) => admin.filter((file) => imports(file.text).some((specifier) => pattern.test(specifier))).map((file) => file.name).sort();
     // `send` is the only way to a call that the admin API does not build itself.
     expect(admin.filter((file) => /\.send\(/.test(file.text)).map((file) => file.name)).toEqual(["admin/support/customers.ts"]);
-    expect(using(/(^|\/)customers$/)).toEqual(["admin/support/CustomerScreen.tsx", "admin/support/CustomersScreen.tsx"]);
-    expect(using(/(^|\/)CustomerScreen$/)).toEqual(["admin/AdminApp.tsx"]);
+    expect(using(/(^|\/)customers$/)).toEqual(["admin/support/SupportCustomerScreen.tsx", "admin/support/SupportCustomersScreen.tsx"]);
+    expect(using(/(^|\/)SupportCustomerScreen$/)).toEqual(["admin/AdminApp.tsx"]);
     // The customer's page borrows the list's two notices; nothing else borrows anything from either.
-    expect(using(/(^|\/)CustomersScreen$/)).toEqual(["admin/AdminApp.tsx", "admin/support/CustomerScreen.tsx"]);
+    expect(using(/(^|\/)SupportCustomersScreen$/)).toEqual(["admin/AdminApp.tsx", "admin/support/SupportCustomerScreen.tsx"]);
     // Nothing of them is reachable from the shared code or the other two entries.
     expect(others.filter((file) => /admin\/support|supportCustomers/.test(file.text)).map((file) => file.name)).toEqual([]);
   });

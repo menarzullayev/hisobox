@@ -323,7 +323,7 @@ function Detail({ api, loaded, reload, onAlready }: { api: AdminApi; loaded: Adm
  * receipts that carry the same file, and the decision. The server records that it was looked at.
  * Nothing of the shop's customers is here: the API gives none of it.
  */
-export function ReceiptScreen({ api, receiptId }: { api: AdminApi; receiptId: string }) {
+export function SubscriptionReceiptScreen({ api, receiptId }: { api: AdminApi; receiptId: string }) {
   const { state, reload } = useLoad((signal) => api.readReceipt(receiptId, signal), [api, receiptId]);
   // "Decided already" outlives the read that follows it: the receipt below then shows what was decided.
   const [already, setAlready] = useState<string | null>(null);

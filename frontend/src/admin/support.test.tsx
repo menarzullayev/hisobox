@@ -10,9 +10,9 @@ import { AdminRoutes } from "./AdminApp";
 import { AuditScreen } from "./AuditScreen";
 import { isOpenAccess, parseHours, SUPPORT_HOURS_MAX, SUPPORT_HOURS_MIN } from "./rules";
 import { ShopScreen } from "./ShopScreen";
-import { CustomerScreen } from "./support/CustomerScreen";
+import { SupportCustomerScreen } from "./support/SupportCustomerScreen";
 import { supportCustomers } from "./support/customers";
-import { CustomersScreen } from "./support/CustomersScreen";
+import { SupportCustomersScreen } from "./support/SupportCustomersScreen";
 import { SupportAccessScreen } from "./SupportAccessScreen";
 import { SupportSection, type Who } from "./SupportSection";
 import {
@@ -416,12 +416,12 @@ describe("a shop's customers under an open support access", () => {
   const VALI = customerBody({ id: "11111111-1111-4111-8111-111111111112", display_name: "Vali Aliyev", phone: null, status: "archived", balance: 0 });
   const list = (handler: (sent: Sent) => Reply = () => ok({ items: [customerBody(), VALI], next_cursor: null })) => {
     const made = adminApi(handler);
-    renderAdmin(<CustomersScreen api={made.api} shopId={SHOP_ID} />);
+    renderAdmin(<SupportCustomersScreen api={made.api} shopId={SHOP_ID} />);
     return made.server;
   };
   const page = (handler: (sent: Sent) => Reply = () => ok(detailBody({ overdue: { amount: 45000, since: "2026-10-01", days: 5, due_today: 0 }, entries_total: 7, entries: [entryBody(), entryBody({ id: "e2", kind: "payment", amount: 20000, note: "Naqd", promised_date: null, reversed: true, disputed: true })] }))) => {
     const made = adminApi(handler);
-    renderAdmin(<CustomerScreen api={made.api} shopId={SHOP_ID} customerId={CUSTOMER_ID} />);
+    renderAdmin(<SupportCustomerScreen api={made.api} shopId={SHOP_ID} customerId={CUSTOMER_ID} />);
     return made.server;
   };
 
@@ -549,7 +549,7 @@ describe("a shop's customers under an open support access", () => {
 
   it("says the statement in Russian too", () => {
     const made = adminApi(() => ok({ items: [], next_cursor: null }));
-    renderAdmin(<CustomersScreen api={made.api} shopId={SHOP_ID} />, "ru");
+    renderAdmin(<SupportCustomersScreen api={made.api} shopId={SHOP_ID} />, "ru");
     expect(screen.getByRole("note").textContent).toBe("Только для чтения. Каждый ваш просмотр записывается и показывается владельцу магазина.");
   });
 });

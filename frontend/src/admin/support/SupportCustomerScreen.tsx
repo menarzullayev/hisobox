@@ -13,7 +13,7 @@ import type { AdminApi } from "../adminApi";
 import "../messages";
 import { NONE } from "../ShopsScreen";
 import { supportCustomers } from "./customers";
-import { AccessRequired, Recorded } from "./CustomersScreen";
+import { AccessRequired, Recorded } from "./SupportCustomersScreen";
 
 function Detail({ customer }: { customer: CustomerDetail }) {
   const { t, language } = useI18n();
@@ -76,7 +76,7 @@ function Detail({ customer }: { customer: CustomerDetail }) {
  * who they are, what they owe, and their entries. Nothing here records, reverses or changes anything:
  * the administrator's side has no call that would. Each look is recorded and shown to the owner.
  */
-export function CustomerScreen({ api, shopId, customerId }: { api: AdminApi; shopId: string; customerId: string }) {
+export function SupportCustomerScreen({ api, shopId, customerId }: { api: AdminApi; shopId: string; customerId: string }) {
   const { t } = useI18n();
   const client = useMemo(() => supportCustomers(api), [api]);
   const { state, reload } = useLoad((signal) => client.read(shopId, customerId, signal), [client, shopId, customerId]);
