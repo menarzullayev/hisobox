@@ -58,6 +58,16 @@ const ICONS: [string, string][] = [
   ["CircleHelpIcon", "circle-help"],
   ["ArrowRightIcon", "arrow-right"],
   ["StoreIcon", "store"],
+  // The controls of shared/ui: a clear button, a calendar, an upload, a hidden password, chevrons.
+  ["XIcon", "x"],
+  ["CalendarIcon", "calendar"],
+  ["UploadIcon", "upload"],
+  ["EyeOffIcon", "eye-off"],
+  ["FileIcon", "file"],
+  ["CameraIcon", "camera"],
+  ["TrashIcon", "trash-2"],
+  ["ChevronLeftIcon", "chevron-left"],
+  ["ChevronRightIcon", "chevron-right"],
 ];
 
 type Definition = { body?: string; parent?: string };

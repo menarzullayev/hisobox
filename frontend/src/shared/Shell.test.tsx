@@ -169,17 +169,19 @@ describe("language picker", () => {
   it("switches every text, the lang attribute, and persists the choice", () => {
     renderStaff("seller", "uz");
     expect(document.documentElement.lang).toBe("uz");
-    const picker = screen.getByRole<HTMLSelectElement>("combobox", { name: "Til" });
-    expect(picker.value).toBe("uz");
-    expect(within(picker).getByRole("option", { name: "Русский" }).getAttribute("lang")).toBe("ru");
+    const picker = screen.getByRole<HTMLButtonElement>("combobox", { name: "Til" });
+    expect(picker.textContent?.trim()).toBe("O'zbekcha");
     expect(window.localStorage.getItem(LANGUAGE_STORAGE_KEY)).toBeNull();
 
-    fireEvent.change(picker, { target: { value: "ru" } });
+    // The list is the control's own, and each language is marked as the language it names.
+    fireEvent.click(picker);
+    expect(screen.getByRole("option", { name: "Русский" }).getAttribute("lang")).toBe("ru");
+    fireEvent.click(screen.getByRole("option", { name: "Русский" }));
 
     expect(document.documentElement.lang).toBe("ru");
     expect(navLabels()).toEqual(["Обзор", "Клиенты", "Новая запись", "Каталог"]);
     expect(heading()).toBe("Обзор");
-    expect(screen.getByRole<HTMLSelectElement>("combobox", { name: "Язык" }).value).toBe("ru");
+    expect(screen.getByRole<HTMLButtonElement>("combobox", { name: "Язык" }).textContent?.trim()).toBe("Русский");
     expect(window.localStorage.getItem(LANGUAGE_STORAGE_KEY)).toBe("ru");
     expect(screen.queryByText("Mijozlar")).toBeNull();
   });

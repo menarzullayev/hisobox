@@ -107,7 +107,8 @@ describe("theme toggle", () => {
     const group = screen.getByRole("group", { name: "Тема" });
     fireEvent.click(within(group).getByRole("button", { name: "Тёмная" }));
     expect(root().getAttribute("data-theme")).toBe("dark");
-    fireEvent.change(screen.getByRole("combobox", { name: "Язык" }), { target: { value: "uz" } });
+    fireEvent.click(screen.getByRole("combobox", { name: "Язык" }));
+    fireEvent.click(screen.getByRole("option", { name: "O'zbekcha" }));
     expect(pressed()).toEqual(["Tungi"]);
     expect(root().getAttribute("data-theme")).toBe("dark");
   });

@@ -6,6 +6,7 @@ const tokens = definedTokens();
 
 const SHEETS: readonly (readonly string[])[] = [
   ["shared", "shell.css"],
+  ["shared", "ui", "ui.css"],
   ["shared", "workspace", "workspace.css"],
   ["shared", "reports", "reports.css"],
   ["panel", "panel.css"],
@@ -32,6 +33,7 @@ function ruleOf(css: string, selector: string): string {
 describe("the style sheets use the design tokens and nothing else", () => {
   it.each([
     [["shared", "workspace", "workspace.css"]],
+    [["shared", "ui", "ui.css"]],
     [["shared", "reports", "reports.css"]],
     [["panel", "panel.css"]],
     [["k", "k.css"]],

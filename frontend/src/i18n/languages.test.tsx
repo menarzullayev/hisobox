@@ -277,11 +277,20 @@ describe("money, dates and counts in each language", () => {
 });
 
 describe("the language picker", () => {
-  const picker = () => screen.getByRole<HTMLSelectElement>("combobox");
+  const picker = () => screen.getByRole<HTMLButtonElement>("combobox");
   const heading = () => screen.getByRole("heading", { level: 1 }).textContent;
 
   function renderApp(language: Language = "uz") {
     return render(<StaffApp entryKey="entry.app" session={{ role: "seller", shopName: "Baraka savdo" }} initialLanguage={language} />);
+  }
+
+  /** What the picker shows on its face: the chosen language, named in itself. */
+  const shown = () => picker().textContent?.trim();
+
+  /** Opens the picker and picks the language named as `label`. */
+  function choose(label: string) {
+    fireEvent.click(picker());
+    fireEvent.click(screen.getByRole("option", { name: label }));
   }
 
   beforeEach(() => {
@@ -293,37 +302,41 @@ describe("the language picker", () => {
 
   it("is one labelled control with the six languages, each named in itself and marked as itself", () => {
     renderApp();
-    const control = screen.getByRole<HTMLSelectElement>("combobox", { name: "Til" });
-    expect(control.tagName).toBe("SELECT");
+    const control = screen.getByRole<HTMLButtonElement>("combobox", { name: "Til" });
+    expect(control.tagName).toBe("BUTTON");
     expect(control.disabled).toBe(false);
     expect(control.tabIndex).toBeGreaterThanOrEqual(0);
+    expect(control.getAttribute("aria-expanded")).toBe("false");
     expect(document.querySelector(`label[for="${control.id}"]`)?.textContent).toBe("Til");
-    expect(within(control).getAllByRole("option").map((option) => [option.getAttribute("value"), option.getAttribute("lang"), option.textContent])).toEqual([
-      ["uz", "uz", "O'zbekcha"],
-      ["uz-Cyrl", "uz-Cyrl", "Ўзбекча"],
-      ["ru", "ru", "Русский"],
-      ["tg", "tg", "Тоҷикӣ"],
-      ["kaa", "kaa", "Qaraqalpaqsha"],
-      ["en", "en", "English"],
+    // The list is the control's own, opened by pressing it.
+    fireEvent.click(control);
+    expect(control.getAttribute("aria-expanded")).toBe("true");
+    expect(screen.getAllByRole("option").map((option) => [option.getAttribute("lang"), option.textContent])).toEqual([
+      ["uz", "O'zbekcha"],
+      ["uz-Cyrl", "Ўзбекча"],
+      ["ru", "Русский"],
+      ["tg", "Тоҷикӣ"],
+      ["kaa", "Qaraqalpaqsha"],
+      ["en", "English"],
     ]);
-    expect(control.value).toBe("uz");
+    expect(shown()).toBe("O'zbekcha");
     // Inside the banner, so that it is found where a header's controls are looked for.
     expect(within(screen.getByRole("banner")).getByRole("combobox")).toBe(control);
   });
 
   it.each([
-    ["uz-Cyrl", "Умумий кўриниш", "Тил"],
-    ["tg", "Намуди умумӣ", "Забон"],
-    ["kaa", "Ulıwma kórinis", "Til"],
-    ["en", "Overview", "Language"],
-  ] as const)("changes to %s once its text has arrived, sets lang and dir, and remembers the choice", async (language, title, label) => {
+    ["uz-Cyrl", "Ўзбекча", "Умумий кўриниш", "Тил"],
+    ["tg", "Тоҷикӣ", "Намуди умумӣ", "Забон"],
+    ["kaa", "Qaraqalpaqsha", "Ulıwma kórinis", "Til"],
+    ["en", "English", "Overview", "Language"],
+  ] as const)("changes to %s once its text has arrived, sets lang and dir, and remembers the choice", async (language, label, title, pickerLabel) => {
     renderApp();
     expect(document.documentElement.lang).toBe("uz");
-    fireEvent.change(picker(), { target: { value: language } });
+    choose(label);
     await waitFor(() => expect(document.documentElement.lang).toBe(language));
     expect(document.documentElement.dir).toBe("ltr");
     expect(heading()).toBe(title);
-    expect(screen.getByRole<HTMLSelectElement>("combobox", { name: label }).value).toBe(language);
+    expect(screen.getByRole<HTMLButtonElement>("combobox", { name: pickerLabel }).textContent?.trim()).toBe(label);
     expect(window.localStorage.getItem(LANGUAGE_STORAGE_KEY)).toBe(language);
     expect(screen.queryByText("Mijozlar")).toBeNull();
   });
@@ -338,20 +351,18 @@ describe("the language picker", () => {
     renderApp("en");
     expect(heading()).toBe("Overview");
     expect(document.documentElement.lang).toBe("en");
-    expect(picker().value).toBe("en");
+    expect(shown()).toBe("English");
     // Starting in a language is not choosing it: nothing is stored until the person picks.
     expect(window.localStorage.getItem(LANGUAGE_STORAGE_KEY)).toBeNull();
   });
 
-  it("ignores a value that is not one of the six", () => {
+  it("offers the six languages and nothing else: no other value can be chosen", () => {
     renderApp();
-    const control = picker();
-    act(() => {
-      const stray = document.createElement("option");
-      stray.value = "kk";
-      control.append(stray);
-    });
-    fireEvent.change(control, { target: { value: "kk" } });
+    fireEvent.click(picker());
+    const offered = screen.getAllByRole("option").map((option) => option.getAttribute("lang"));
+    expect(offered).toEqual([...LANGUAGES]);
+    // Nothing outside the list is reachable: the control is a button, not a field a value can be typed into.
+    expect(picker().tagName).toBe("BUTTON");
     expect(document.documentElement.lang).toBe("uz");
     expect(window.localStorage.getItem(LANGUAGE_STORAGE_KEY)).toBeNull();
   });

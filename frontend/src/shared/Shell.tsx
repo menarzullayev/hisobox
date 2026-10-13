@@ -5,6 +5,7 @@ import { LANGUAGES, type Language, type MessageKey } from "../i18n/types";
 import { BrandMark } from "./BrandMark";
 import { NavIcon } from "./icons";
 import { Link } from "./router";
+import { Select } from "./ui";
 import { ThemeToggle } from "./ThemeToggle";
 import "./tokens.css";
 import "./shell.css";
@@ -48,33 +49,26 @@ const PICKER_ID = "hb-language";
 const isLanguage = (code: string): code is Language => LANGUAGES.some((language) => language === code);
 
 /**
- * The language picker: a native list, so that six languages take the room of one, the phone shows its
- * own chooser, and a keyboard or a screen reader needs nothing explained. Each language is named in
- * itself and marked with its own `lang`, so that it is read aloud as that language.
+ * The language picker: six languages take the room of one, drawn from the design tokens rather than by
+ * the operating system. Each language is named in itself and marked with its own `lang`, so that it is
+ * read aloud as that language.
  */
 function LanguagePicker() {
   const { language, setLanguage, t } = useI18n();
   return (
     <div className="language">
-      <label className="visually-hidden" htmlFor={PICKER_ID}>
-        {t("shell.language")}
-      </label>
-      <select
+      <Select
         id={PICKER_ID}
-        className="input language__picker"
+        label={t("shell.language")}
+        labelHidden
         value={language}
-        onChange={(event) => {
-          if (isLanguage(event.target.value)) {
-            setLanguage(event.target.value);
+        options={LANGUAGES.map((code) => ({ value: code, label: t(`lang.${code}`), lang: code }))}
+        onChange={(next) => {
+          if (isLanguage(next)) {
+            setLanguage(next);
           }
         }}
-      >
-        {LANGUAGES.map((code) => (
-          <option key={code} value={code} lang={code}>
-            {t(`lang.${code}`)}
-          </option>
-        ))}
-      </select>
+      />
     </div>
   );
 }

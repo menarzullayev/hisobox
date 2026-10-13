@@ -121,6 +121,38 @@ const ARROW_RIGHT_1_STROKE_LINEJOIN = "round";
 const ARROW_RIGHT_1_D = "M5 12h14m-7-7l7 7l-7 7";
 const STORE_1_D = "M15 21v-5a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v5m8.774-10.69a1.12 1.12 0 0 0-1.549 0a2.5 2.5 0 0 1-3.451 0a1.12 1.12 0 0 0-1.548 0a2.5 2.5 0 0 1-3.452 0a1.12 1.12 0 0 0-1.549 0a2.5 2.5 0 0 1-3.77-3.248l2.889-4.184A2 2 0 0 1 7 2h10a2 2 0 0 1 1.653.873l2.895 4.192a2.5 2.5 0 0 1-3.774 3.244";
 const STORE_2_D = "M4 10.95V19a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8.05";
+const X_1_FILL = "none";
+const X_1_STROKE = "currentColor";
+const X_1_STROKE_LINECAP = "round";
+const X_1_STROKE_LINEJOIN = "round";
+const X_1_D = "M18 6L6 18M6 6l12 12";
+const CALENDAR_1_D = "M8 2v3m8-3v3";
+const CALENDAR_3_D = "M3 9h18";
+const UPLOAD_1_FILL = "none";
+const UPLOAD_1_STROKE = "currentColor";
+const UPLOAD_1_STROKE_LINECAP = "round";
+const UPLOAD_1_STROKE_LINEJOIN = "round";
+const UPLOAD_1_D = "M12 3v12m5-7l-5-5l-5 5m14 7v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4";
+const EYE_OFF_1_D = "M10.733 5.076a10.744 10.744 0 0 1 11.205 6.575a1 1 0 0 1 0 .696a10.8 10.8 0 0 1-1.444 2.49m-6.41-.679a3 3 0 0 1-4.242-4.242";
+const EYE_OFF_2_D = "M17.479 17.499a10.75 10.75 0 0 1-15.417-5.151a1 1 0 0 1 0-.696a10.75 10.75 0 0 1 4.446-5.143M2 2l20 20";
+const FILE_1_D = "M6 22a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8a2.4 2.4 0 0 1 1.704.706l3.588 3.588A2.4 2.4 0 0 1 20 8v12a2 2 0 0 1-2 2z";
+const FILE_2_D = "M14 2v5a1 1 0 0 0 1 1h5";
+const CAMERA_1_D = "M13.997 4a2 2 0 0 1 1.76 1.05l.486.9A2 2 0 0 0 18.003 7H20a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h1.997a2 2 0 0 0 1.759-1.048l.489-.904A2 2 0 0 1 10.004 4z";
+const TRASH_1_FILL = "none";
+const TRASH_1_STROKE = "currentColor";
+const TRASH_1_STROKE_LINECAP = "round";
+const TRASH_1_STROKE_LINEJOIN = "round";
+const TRASH_1_D = "M10 11v6m4-6v6m5-11v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2";
+const CHEVRON_LEFT_1_FILL = "none";
+const CHEVRON_LEFT_1_STROKE = "currentColor";
+const CHEVRON_LEFT_1_STROKE_LINECAP = "round";
+const CHEVRON_LEFT_1_STROKE_LINEJOIN = "round";
+const CHEVRON_LEFT_1_D = "m15 18l-6-6l6-6";
+const CHEVRON_RIGHT_1_FILL = "none";
+const CHEVRON_RIGHT_1_STROKE = "currentColor";
+const CHEVRON_RIGHT_1_STROKE_LINECAP = "round";
+const CHEVRON_RIGHT_1_STROKE_LINEJOIN = "round";
+const CHEVRON_RIGHT_1_D = "m9 18l6-6l-6-6";
 
 export function HomeIcon() {
   return (
@@ -404,6 +436,74 @@ export function StoreIcon() {
     <Icon>
       <path d={STORE_1_D} />
       <path d={STORE_2_D} />
+    </Icon>
+  );
+}
+export function XIcon() {
+  return (
+    <Icon>
+      <path fill={X_1_FILL} stroke={X_1_STROKE} strokeLinecap={X_1_STROKE_LINECAP} strokeLinejoin={X_1_STROKE_LINEJOIN} strokeWidth="2" d={X_1_D} />
+    </Icon>
+  );
+}
+export function CalendarIcon() {
+  return (
+    <Icon>
+      <path d={CALENDAR_1_D} />
+      <rect width="18" height="18" x="3" y="3" rx="2" />
+      <path d={CALENDAR_3_D} />
+    </Icon>
+  );
+}
+export function UploadIcon() {
+  return (
+    <Icon>
+      <path fill={UPLOAD_1_FILL} stroke={UPLOAD_1_STROKE} strokeLinecap={UPLOAD_1_STROKE_LINECAP} strokeLinejoin={UPLOAD_1_STROKE_LINEJOIN} strokeWidth="2" d={UPLOAD_1_D} />
+    </Icon>
+  );
+}
+export function EyeOffIcon() {
+  return (
+    <Icon>
+      <path d={EYE_OFF_1_D} />
+      <path d={EYE_OFF_2_D} />
+    </Icon>
+  );
+}
+export function FileIcon() {
+  return (
+    <Icon>
+      <path d={FILE_1_D} />
+      <path d={FILE_2_D} />
+    </Icon>
+  );
+}
+export function CameraIcon() {
+  return (
+    <Icon>
+      <path d={CAMERA_1_D} />
+      <circle cx="12" cy="13" r="3" />
+    </Icon>
+  );
+}
+export function TrashIcon() {
+  return (
+    <Icon>
+      <path fill={TRASH_1_FILL} stroke={TRASH_1_STROKE} strokeLinecap={TRASH_1_STROKE_LINECAP} strokeLinejoin={TRASH_1_STROKE_LINEJOIN} strokeWidth="2" d={TRASH_1_D} />
+    </Icon>
+  );
+}
+export function ChevronLeftIcon() {
+  return (
+    <Icon>
+      <path fill={CHEVRON_LEFT_1_FILL} stroke={CHEVRON_LEFT_1_STROKE} strokeLinecap={CHEVRON_LEFT_1_STROKE_LINECAP} strokeLinejoin={CHEVRON_LEFT_1_STROKE_LINEJOIN} strokeWidth="2" d={CHEVRON_LEFT_1_D} />
+    </Icon>
+  );
+}
+export function ChevronRightIcon() {
+  return (
+    <Icon>
+      <path fill={CHEVRON_RIGHT_1_FILL} stroke={CHEVRON_RIGHT_1_STROKE} strokeLinecap={CHEVRON_RIGHT_1_STROKE_LINECAP} strokeLinejoin={CHEVRON_RIGHT_1_STROKE_LINEJOIN} strokeWidth="2" d={CHEVRON_RIGHT_1_D} />
     </Icon>
   );
 }

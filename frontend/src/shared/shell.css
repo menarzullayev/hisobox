@@ -167,7 +167,7 @@ a {
 }
 
 /* The language picker: one control for six languages, as wide as the name of the one chosen. */
-.language__picker {
+.language .select__button {
   width: auto;
   max-width: 100%;
   font-weight: 700;
