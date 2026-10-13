@@ -180,14 +180,10 @@ a {
   align-items: center;
 }
 
-.hdr__select {
-  height: var(--hb-control-height);
-  padding: 0 var(--hb-space-3);
-  border: 1px solid var(--hb-field-line);
-  border-radius: var(--hb-radius-md);
-  background: var(--hb-field);
-  color: var(--hb-text);
-  font: var(--hb-type-control);
+/* The picker in the header is as wide as the name of the chosen language, and no wider. */
+.hdr__lang .select__button {
+  width: auto;
+  min-height: var(--hb-control-height);
 }
 
 .hdr__telegram {

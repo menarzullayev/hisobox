@@ -20,6 +20,7 @@ import { useI18n } from "../i18n/I18nProvider";
 import { LANGUAGES, type Language, type MessageKey } from "../i18n/types";
 import { BRAND_NAME } from "../shared/brand";
 import { BrandMark } from "../shared/BrandMark";
+import { Select } from "../shared/ui";
 import illustrationLedger from "../assets/brand/illustration-ledger.png";
 import mascotCalculator from "../assets/brand/mascot-calculator.png";
 import { BOT_USERNAME } from "../shared/settings";
@@ -344,20 +345,20 @@ function Header() {
         </nav>
 
         <div className="hdr__tools">
-          <label className="hdr__lang">
-            <span className="visually-hidden">{t("shell.language")}</span>
-            <select
-              className="hdr__select"
+          <div className="hdr__lang">
+            <Select
+              id="landing-language"
+              label={t("shell.language")}
+              labelHidden
               value={language}
-              onChange={(event) => setLanguage(event.target.value as Language)}
-            >
-              {LANGUAGES.map((option) => (
-                <option key={option} value={option}>
-                  {t(("lang." + option) as MessageKey)}
-                </option>
-              ))}
-            </select>
-          </label>
+              options={LANGUAGES.map((option) => ({
+                value: option,
+                label: t(("lang." + option) as MessageKey),
+                lang: option,
+              }))}
+              onChange={(next) => setLanguage(next as Language)}
+            />
+          </div>
           {telegramHref === null ? null : (
             <a
               className="hdr__telegram"

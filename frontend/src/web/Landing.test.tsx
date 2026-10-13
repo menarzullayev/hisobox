@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { cleanup, render, screen, within } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
 import { afterEach, describe, expect, it } from "vitest";
 
 import { I18nProvider } from "../i18n/I18nProvider";
@@ -138,10 +138,11 @@ describe("the landing page", () => {
   });
 
   it("offers the interface's languages, and counts them the same way the interface does", () => {
-    const container = renderPage();
-    const select = container.querySelector(".hdr__select");
-    expect(select).toBeTruthy();
-    expect((select as HTMLSelectElement).options).toHaveLength(LANGUAGES.length);
+    renderPage();
+    // The picker is our own control now: its list is opened by pressing it.
+    const picker = screen.getByRole("combobox", { name: "Til" });
+    fireEvent.click(picker);
+    expect(screen.getAllByRole("option")).toHaveLength(LANGUAGES.length);
     expect(screen.getByText(`${LANGUAGES.length} tilda`)).toBeTruthy();
   });
 
