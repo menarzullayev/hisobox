@@ -181,7 +181,7 @@ def test_only_the_database_moves_the_tenant_and_only_the_confirmation_asks_it_to
     for path in sorted(SOURCES.rglob("*.py")):
         source = path.read_text(encoding="utf-8")
         where = path.relative_to(SOURCES).as_posix()
-        setting += [where] * len(re.findall(r"set_config\('qd\.shop_id'", source))
+        setting += [where] * len(re.findall(r"set_config\('hb\.shop_id'", source))
         entering += [where] * source.count("network_enter_peer(")
         asking += [where] * len(re.findall(r"\.network_peer\(", source))
     assert setting == ["infrastructure/db.py"]

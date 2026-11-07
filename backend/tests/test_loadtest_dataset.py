@@ -60,6 +60,10 @@ def test_it_holds_every_kind_of_record_the_targets_touch() -> None:
     assert kinds == {"credit", "opening", "payment", "reversal"}
     statuses = {row[column("customer", "status")] for shop in shops for row in shop.rows["customer"]}
     assert statuses == {"active", "archived"}
+    # The breakages below change the large shop alone, so it must hold an archived customer for any seed.
+    for seed in (1, 2, 3, 7, 42):
+        large = next(shop for shop in tiny(seed) if shop.large)
+        assert "archived" in {row[column("customer", "status")] for row in large.rows["customer"]}, seed
     for table in ("promise", "goods_line", "catalog_item", "customer_link", "user_session", "activity"):
         assert any(shop.rows[table] for shop in shops), table
     roles = {row[column("membership", "role")] for shop in shops for row in shop.rows["membership"]}

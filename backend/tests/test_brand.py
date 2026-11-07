@@ -187,7 +187,16 @@ ALLOWED_LINES: tuple[tuple[str, str, str], ...] = (
         "release 1 schema (PostgreSQL 16).",
         "an applied migration is never edited",
     ),
-    ("backend/tests/api/test_chat.py", 'seller.say("/yordam@', "a bot's username is configuration"),
+    (
+        "deploy/production/scripts/single-host.sh",
+        "# Environment: DEPLOY_ENV_FILE (default ~/.",
+        "the env file of the running installation lives in this folder; moving it is an operation",
+    ),
+    (
+        "deploy/production/scripts/single-host.sh",
+        'export DEPLOY_ENV_FILE="${DEPLOY_ENV_FILE:-$HOME/.',
+        "the env file of the running installation lives in this folder; moving it is an operation",
+    ),
     ("frontend/src/shared/qr.test.ts", 'readBotUsername(" @', "a bot's username is configuration"),
 )
 

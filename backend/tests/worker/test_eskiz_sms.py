@@ -407,7 +407,7 @@ def test_a_failed_send_logs_and_raises_nothing_secret_or_personal(
     caplog.set_level(logging.DEBUG)
     with pytest.raises(outcome) as raised:
         send(provider(eskiz))
-    records = [record for record in caplog.records if record.name == "qarz.sms"]
+    records = [record for record in caplog.records if record.name == "hiso_box.sms"]
     assert records, "a failure is logged"
     assert [leaks(record) for record in records] == [[]] * len(records)
     for record in records:
@@ -423,21 +423,21 @@ def test_a_failed_send_logs_and_raises_nothing_secret_or_personal(
 def test_the_check_for_leaks_sees_one() -> None:
     """The counterpart: a log call that did carry the number or the text would fail the test above."""
     for value in (PHONE, TEXT, TOKEN, PASSWORD):
-        careless = logging.LogRecord("qarz.sms", logging.WARNING, __file__, 1, "sms_retry to %s", (value,), None)
+        careless = logging.LogRecord("hiso_box.sms", logging.WARNING, __file__, 1, "sms_retry to %s", (value,), None)
         assert leaks(careless)
     try:
         raise OSError(f"Bearer {TOKEN}")
     except OSError:
         import sys
 
-        with_trace = logging.LogRecord("qarz.sms", logging.ERROR, __file__, 1, "sms_retry", None, sys.exc_info())
+        with_trace = logging.LogRecord("hiso_box.sms", logging.ERROR, __file__, 1, "sms_retry", None, sys.exc_info())
     assert leaks(with_trace) == [TOKEN]
 
 
 def test_a_sent_message_is_logged_without_who_or_what(caplog: pytest.LogCaptureFixture) -> None:
     caplog.set_level(logging.DEBUG)
     send(provider(FakeEskiz(logins=[token_answer(TOKEN)], sends=[ACCEPTED])))
-    records = [record for record in caplog.records if record.name == "qarz.sms"]
+    records = [record for record in caplog.records if record.name == "hiso_box.sms"]
     assert [record.getMessage() for record in records] == ["sms_sent"]
     assert leaks(records[0]) == []
 

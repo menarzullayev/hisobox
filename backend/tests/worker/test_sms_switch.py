@@ -32,7 +32,11 @@ from hiso_box.infrastructure.sms_sender import (
     platform_switch,
 )
 
-ACCOUNT = {"eskiz_email": "owner@hiso-box-test.example", "eskiz_password": "eskiz-PASSWORD-9f2c", "eskiz_sender": "4546"}
+ACCOUNT = {
+    "eskiz_email": "owner@hiso-box-test.example",
+    "eskiz_password": "eskiz-PASSWORD-9f2c",
+    "eskiz_sender": "4546",
+}
 TEXT = "Shop A: Ali, 70 000 so'm qarz muddati o'tgan. Iltimos, to'lab qo'ying."
 TOKEN = json.dumps({"data": {"token": "token-one"}}).encode()
 ACCEPTED = b'{"id": "59bf10a2", "status": "waiting"}'
@@ -103,7 +107,7 @@ def test_a_partly_set_account_is_said_in_the_log_without_its_values(caplog: pyte
     caplog.set_level(logging.DEBUG)
     build_sms_provider(settings(**{**ACCOUNT, "eskiz_sender": ""}), switched_on=on, transport=FakeEskiz())
     build_sms_provider(settings(), switched_on=on, transport=FakeEskiz())
-    events = [record for record in caplog.records if record.name == "qarz.sms"]
+    events = [record for record in caplog.records if record.name == "hiso_box.sms"]
     assert [record.getMessage() for record in events] == ["sms_partly_configured"], "nothing set is not a warning"
     assert not [value for value in ACCOUNT.values() if value in repr(vars(events[0]))]
 

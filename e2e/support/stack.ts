@@ -65,7 +65,7 @@ export function sql(query: string): string[][] {
     "docker",
     [
       "exec", "-i", "-e", "PGOPTIONS=-c default_transaction_read_only=on", stack.dbContainer,
-      "psql", "-U", "postgres", "-d", "qarz", "-AtX", "-F", FIELD, "-v", "ON_ERROR_STOP=1", "-f", "-",
+      "psql", "-U", "postgres", "-d", "hiso_box", "-AtX", "-F", FIELD, "-v", "ON_ERROR_STOP=1", "-f", "-",
     ],
     { input: query, encoding: "utf8", stdio: ["pipe", "pipe", "pipe"] },
   );
