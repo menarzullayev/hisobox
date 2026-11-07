@@ -413,7 +413,7 @@ def test_a_refused_second_factor_is_a_security_event_and_a_rate_limit_is_not(
     import json
     import logging
 
-    caplog.set_level(logging.INFO, logger="qarz.request")
+    caplog.set_level(logging.INFO, logger="hiso_box.request")
     secret = make_admin(owner, admin_env, world.admin)
     session = f"{ADMIN_API}/auth/session"
 
@@ -467,7 +467,7 @@ def test_a_refused_administrator_route_is_logged_with_the_caller(
 ) -> None:
     import logging
 
-    caplog.set_level(logging.INFO, logger="qarz.request")
+    caplog.set_level(logging.INFO, logger="hiso_box.request")
     assert observed.get(SETTINGS, headers=as_user(world.owner_a)).status_code == 404
     logged = [r for r in caplog.records if r.getMessage() == "request" and r.__dict__.get("route") == SETTINGS]
     assert [(str(r.__dict__["user_id"]), r.__dict__["status"]) for r in logged] == [(str(world.owner_a), 404)]

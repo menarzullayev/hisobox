@@ -179,7 +179,7 @@ expect_field() {
 }
 said() { grep -qF -- "$2" "$OUT_DIR/$1.err" "$OUT_DIR/$1.out"; }
 
-sql() { dc exec -T db psql -X -qAt -v ON_ERROR_STOP=1 -U postgres -d qarz -c "$1" | tr -d '\r'; }
+sql() { dc exec -T db psql -X -qAt -v ON_ERROR_STOP=1 -U postgres -d hiso_box -c "$1" | tr -d '\r'; }
 # wait_for_sql SECONDS QUERY WANTED: true as soon as the query answers WANTED, false after SECONDS.
 wait_for_sql() {
   local waited=0
@@ -502,9 +502,9 @@ for name, size in (("receipts/2026/a-receipt.jpg", 30000), ("receipts/2026/b-rec
   # (b) the backup itself: its largest object in the bucket overwritten with random bytes.
   local label object
   label="$(field backup)"
-  object="$(bucket 'rc lsf -R --files-only --format sp "qdr2:$HB_R2_BUCKET/pgbackrest/backup/hiso_box/'"$label"'" | grep -v backup.manifest | sort -n | tail -n 1 | sed "s/^ *[0-9]*;//"' | tr -d '\r')"
-  bucket 'size="$(rc size --json "qdr2:$HB_R2_BUCKET/pgbackrest/backup/hiso_box/'"$label/$object"'" | jq .bytes)"; head -c "$size" /dev/urandom | rc rcat "qdr2:$HB_R2_BUCKET/pgbackrest/backup/hiso_box/'"$label/$object"'"'
-  echo "      overwrote with random bytes: backup/hiso_box/$label/$object"
+  object="$(bucket 'rc lsf -R --files-only --format sp "qdr2:$HB_R2_BUCKET/pgbackrest/backup/qarz/'"$label"'" | grep -v backup.manifest | sort -n | tail -n 1 | sed "s/^ *[0-9]*;//"' | tr -d '\r')"
+  bucket 'size="$(rc size --json "qdr2:$HB_R2_BUCKET/pgbackrest/backup/qarz/'"$label/$object"'" | jq .bytes)"; head -c "$size" /dev/urandom | rc rcat "qdr2:$HB_R2_BUCKET/pgbackrest/backup/qarz/'"$label/$object"'"'
+  echo "      overwrote with random bytes: backup/qarz/$label/$object"
   step restore-test-damaged-backup 1 job restore-test
   expect_field failed_check restore
   step backup-full-after-damage 0 job full
@@ -531,9 +531,9 @@ for name, size in (("receipts/2026/a-receipt.jpg", 30000), ("receipts/2026/b-rec
   archive_now || fail "the WAL segment did not reach the bucket"
   step pitr 0 single pitr "$moment"
   expect "the copy has what was written before $moment and not what came after" \
-    [ "$(dc exec -T db-scratch psql -X -qAt -U postgres -d qarz -c "select string_agg(label, ',' order by id) from hb_proof_marker where label like '%the-moment'" | tr -d '\r')" = "before-the-moment" ]
+    [ "$(dc exec -T db-scratch psql -X -qAt -U postgres -d hiso_box -c "select string_agg(label, ',' order by id) from hb_proof_marker where label like '%the-moment'" | tr -d '\r')" = "before-the-moment" ]
   expect "the live database has both" [ "$(sql "select count(*) from hb_proof_marker where label like '%the-moment'")" = 2 ]
-  expect "the copy archives nothing" [ "$(dc exec -T db-scratch psql -X -qAt -U postgres -d qarz -c 'show archive_mode' | tr -d '\r')" = off ]
+  expect "the copy archives nothing" [ "$(dc exec -T db-scratch psql -X -qAt -U postgres -d hiso_box -c 'show archive_mode' | tr -d '\r')" = off ]
   step pitr-down 0 single pitr-down
 
   # ---------------------------------------------------------------------------------------------

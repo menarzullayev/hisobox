@@ -16,12 +16,12 @@ from uuid import UUID
 
 import psycopg
 
-from loadtest.dataset import COLUMNS, Row, ShopData
 from hiso_box.domain import ledger
 from hiso_box.domain.ledger import Entry, EntryKind, LedgerIntegrityError
 from hiso_box.domain.names import normalize_name
 from hiso_box.domain.promise import MAX_PROMISE_DAYS, tashkent_date
 from hiso_box.domain.rounding import line_total
+from loadtest.dataset import COLUMNS, Row, ShopData
 
 MIN_AMOUNT = 100
 MAX_AMOUNT = 100_000_000

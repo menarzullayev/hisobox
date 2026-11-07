@@ -635,7 +635,7 @@ def test_a_reassignment_is_a_security_event_and_a_refused_one_is_not(
     logged = " ".join(str(record.__dict__) for record in caplog.records)
     for secret_thing in (REASON, "pasport", str(new_tg)):
         assert secret_thing not in logged
-    named = [record.getMessage() for record in caplog.records if record.name == "qarz.admin"]
+    named = [record.getMessage() for record in caplog.records if record.name == "hiso_box.admin"]
     assert any(
         line == f"admin_owner_reassigned admin={world.admin} shop={world.shop_a} "
         f"previous={world.owner_a} new={world.stranger}"

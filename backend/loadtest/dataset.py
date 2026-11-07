@@ -463,7 +463,9 @@ def _shop(profile: Profile, seed: int, now: datetime, index: int, customers: int
     for position, (display_name, count) in enumerate(zip(_people_names(customers, rng), sizes, strict=True)):
         customer_id = _uuid(rng)
         created = opened + timedelta(seconds=rng.randint(0, 40 * 86400))
-        archived = count >= 2 and rng.random() < 0.03
+        # A large shop always has one archived customer, so every rule about them is exercised whatever
+        # the seed; elsewhere it is chance.
+        archived = count >= 2 and (rng.random() < 0.03 or (entries is not None and position == customers - 1))
         settle = archived or (count >= 2 and rng.random() < 0.25)
         phone = f"+9989{rng.randint(0, 9)}{rng.randint(0, 9_999_999):07d}" if rng.random() < 0.6 else None
         rows["customer"].append(
