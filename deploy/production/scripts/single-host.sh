@@ -80,7 +80,7 @@ volumes_init() {
     if docker volume inspect "${PROJECT}_$name" >/dev/null 2>&1; then
       say "there already: ${PROJECT}_$name (left as it is)"
     else
-      docker volume create --label "com.hisobox.data=$name" --label "com.hisobox.project=$PROJECT" \
+      docker volume create --label "data-volume=$name" --label "deploy-project=$PROJECT" \
         "${PROJECT}_$name" >/dev/null
       say "created, empty: ${PROJECT}_$name"
       made=$((made + 1))
