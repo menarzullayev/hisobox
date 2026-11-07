@@ -168,6 +168,7 @@ Each is implemented. If one is rejected, the named story must be revisited.
 | DEC-078 | How each open launch criterion is closed (decided by the founder) | Launch |
 | DEC-079 | The expansion after the comparison with pDaftar: fifteen decisions (`EXPANSION.md`) | Product |
 | DEC-080 | Single host: the data volumes are external, created only by `volumes-init` (the founder's, 2026-11-08; ADR-022) | Deployment |
+| DEC-082 | A passkey is the administrator's second factor: it opens the admin session without a code; changes that need a code still ask for one; a key or a password is not a second factor (the founder's, 2026-11-08; option A; ADR-017) | Administration |
 | DEC-081 | `main` red since 2026-10-13: CI is repaired in small PRs by failing area while feature work goes on beside it; nothing is merged or deployed on red (the founder's, 2026-11-08; option B, against the recommendation to stop features first) | Development |
 | DEC-068 | Three database roles, one for each part of the application; what each is granted; sign out everywhere | S19.2 |
 
