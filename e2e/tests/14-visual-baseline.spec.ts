@@ -27,7 +27,8 @@ test("authenticated panel screens match the visual baseline", async ({ page, cha
     await test.step(`${screen.name} matches the baseline`, async () => {
       if (screen.route) await goTo(page, screen.route);
       await settled(page);
-      await expect(page).toHaveScreenshot(`${screen.name}.png`, {
+      // Soft: one run shows every screen that changed, and the test still fails.
+      await expect.soft(page).toHaveScreenshot(`${screen.name}.png`, {
         fullPage: true,
         maxDiffPixelRatio: 0.02,
       });

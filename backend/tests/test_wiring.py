@@ -111,7 +111,7 @@ def test_the_test_authenticator_cannot_reach_production_wiring() -> None:
     """The header-based authenticator exists only under tests/; the package must not contain it."""
     import pathlib
 
-    import qarz
+    import hiso_box
 
     source = pathlib.Path(hiso_box.__file__).parent
     assert not [p for p in source.rglob("*.py") if "X-Test-User" in p.read_text(encoding="utf-8")]

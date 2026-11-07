@@ -55,11 +55,11 @@ from uuid import UUID, uuid4
 import httpx
 import psycopg
 
+from hiso_box.domain.promise import tashkent_date
+from hiso_box.infrastructure.settings import Settings
 from loadtest import report
 from loadtest.dataset import FIRST_NAMES, GOODS, SURNAMES, session_token
 from loadtest.load import ADMIN_URL_VARIABLE, BACKEND, app_url, database_url, read_manifest
-from hiso_box.domain.promise import tashkent_date
-from hiso_box.infrastructure.settings import Settings
 
 WEBHOOK_SECRET = "loadtest-webhook-secret-0123456789"  # noqa: S105  (for the throwaway server only)
 BOT_TOKEN = "1234567890:LOADTEST-ONLY-token-not-a-real-bot"  # noqa: S105

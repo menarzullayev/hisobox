@@ -118,7 +118,11 @@ def test_the_application_role_sees_one_shop_at_a_time(loaded: Loaded) -> None:
 
 # --- the database checks notice each broken rule ----------------------------------------------------------
 
-_CUSTOMER = "(SELECT customer_id FROM ledger_entry WHERE kind = 'payment' LIMIT 1)"
+# An active customer: an archived one must owe nothing, so a breakage on one would trip that rule instead.
+_CUSTOMER = (
+    "(SELECT e.customer_id FROM ledger_entry e JOIN customer c ON c.id = e.customer_id "
+    "WHERE e.kind = 'payment' AND c.status = 'active' ORDER BY e.customer_id, e.seq LIMIT 1)"
+)
 _ENTRY_COLUMNS = "(id, shop_id, customer_id, seq, kind, amount, reverses_id, author_id, created_at)"
 _NEXT = (
     f"INSERT INTO ledger_entry {_ENTRY_COLUMNS} "

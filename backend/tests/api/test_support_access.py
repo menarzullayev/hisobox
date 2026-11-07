@@ -607,7 +607,7 @@ def test_opening_and_a_refused_look_are_security_events(
     admin_env: AdminEnv,
     caplog: pytest.LogCaptureFixture,
 ) -> None:
-    caplog.set_level(logging.INFO, logger="qarz.request")
+    caplog.set_level(logging.INFO, logger="hiso_box.request")
     admin = elevate(observed, admin_env, world.admin, make_admin(owner, admin_env, world.admin))
 
     assert _customers(observed, admin, world).status_code == 403

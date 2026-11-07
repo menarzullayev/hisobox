@@ -61,7 +61,7 @@ SET_BACK_BEFORE_EACH_TEST = {Metrics: {"_requests", "_buckets", "_sums", "_secur
 
 
 def _ours(value: object) -> bool:
-    return (type(value).__module__ or "").startswith(("qarz.", "tests."))
+    return (type(value).__module__ or "").startswith(("hiso_box.", "tests."))
 
 
 def kept_state(roots: list[tuple[str, object]]) -> tuple[list[str], set[str]]:

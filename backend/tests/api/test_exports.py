@@ -614,7 +614,7 @@ def test_a_failed_job_says_what_kind_of_failure_it_was_and_nothing_else(
     for failure, kind in ((crash, "internal"), (too_slow, "timeout")):
         monkeypatch.setattr(ExportService, "_write", failure)
         ask(client, world)
-        with caplog.at_level(logging.ERROR, logger="qarz.exports"):
+        with caplog.at_level(logging.ERROR, logger="hiso_box.exports"):
             assert work(worker_database_url, file_root) == 1
         assert jobs(owner, world.shop_a)[-1] == ("failed", kind, 1, False, None)
     everything = (

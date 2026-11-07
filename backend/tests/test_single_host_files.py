@@ -140,7 +140,10 @@ def test_a_proxy_that_does_not_check_the_address_is_reported() -> None:
 
 def test_both_forms_of_the_proxy_share_their_limits_routes_and_log() -> None:
     """A limit or a route changed for one form is changed for the other: they are the same files."""
-    for main, server in (("nginx.conf", "conf.d/hiso-box.conf"), ("nginx.single-host.conf", "single-host.d/hiso-box.conf")):
+    for main, server in (
+        ("nginx.conf", "conf.d/hiso-box.conf"),
+        ("nginx.single-host.conf", "single-host.d/hiso-box.conf"),
+    ):
         assert "include /etc/nginx/snippets/http-common.conf;" in read(NGINX / main)
         block = read(NGINX / server)
         assert "include /etc/nginx/snippets/limit-zones.conf;" in block

@@ -222,7 +222,7 @@ run() {
 
     section "6. Negative: the newest backup's files are damaged"
     label="$(newest_label)"
-    file="$(on_standby bash -c "find /var/lib/pgbackrest/backup/hiso_box/$label -type f ! -name 'backup.manifest*' -printf '%s %p\n' | sort -n | tail -n 1 | cut -d' ' -f2-")"
+    file="$(on_standby bash -c "find /var/lib/pgbackrest/backup/qarz/$label -type f ! -name 'backup.manifest*' -printf '%s %p\n' | sort -n | tail -n 1 | cut -d' ' -f2-")"
     on_standby bash -c "head -c \"\$(stat -c %s '$file')\" /dev/urandom > '$file'"
     echo "      overwrote with random bytes: ${file#/var/lib/pgbackrest/}"
     step restore-test-damaged-backup 1 on_standby bash "$S/restore-test.sh"

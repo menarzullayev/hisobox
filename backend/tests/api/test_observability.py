@@ -41,7 +41,7 @@ def observed(app_database_url: str) -> Iterator[TestClient]:
 
 def lines(caplog: pytest.LogCaptureFixture, event: str) -> list[dict[str, Any]]:
     formatter = JsonFormatter()
-    parsed = [json.loads(formatter.format(record)) for record in caplog.records if record.name == "qarz.request"]
+    parsed = [json.loads(formatter.format(record)) for record in caplog.records if record.name == "hiso_box.request"]
     return [line for line in parsed if line["event"] == event]
 
 
@@ -55,7 +55,7 @@ def metrics(client: TestClient) -> str:
 def test_every_answer_carries_a_request_identifier_and_is_logged_with_it(
     observed: TestClient, world: World, caplog: pytest.LogCaptureFixture
 ) -> None:
-    caplog.set_level(logging.INFO, logger="qarz.request")
+    caplog.set_level(logging.INFO, logger="hiso_box.request")
     first = observed.get(f"/api/v1/shops/{world.shop_a}/customers?q=Vali", headers=as_user(world.owner_a))
     second = observed.get("/healthz")
     ids = [first.headers["X-Request-Id"], second.headers["X-Request-Id"]]
@@ -66,7 +66,7 @@ def test_every_answer_carries_a_request_identifier_and_is_logged_with_it(
     assert logged[0] == {
         "ts": logged[0]["ts"],
         "level": "info",
-        "logger": "qarz.request",
+        "logger": "hiso_box.request",
         "event": "request",
         "request_id": ids[0],
         "method": "GET",
@@ -95,7 +95,7 @@ def test_an_identifier_given_by_the_proxy_is_kept_and_anything_else_is_replaced(
 
 def test_paths_nobody_routes_are_one_label(observed: TestClient, caplog: pytest.LogCaptureFixture) -> None:
     """Paths are chosen by the caller: as labels they would grow without bound and could carry anything."""
-    caplog.set_level(logging.INFO, logger="qarz.request")
+    caplog.set_level(logging.INFO, logger="hiso_box.request")
     for path in ("/nothing/here", "/api/v1/unknown/+998901234567", "/wp-login.php"):
         assert observed.get(path).status_code == 404
     assert [line["route"] for line in lines(caplog, "request")] == ["unmatched"] * 3
@@ -132,7 +132,7 @@ def test_metrics_exist_only_with_the_token(observed: TestClient, client: TestCli
 def test_security_events_are_logged_and_counted(
     observed: TestClient, world: World, caplog: pytest.LogCaptureFixture
 ) -> None:
-    caplog.set_level(logging.INFO, logger="qarz.request")
+    caplog.set_level(logging.INFO, logger="hiso_box.request")
     observed.get(f"/api/v1/shops/{world.shop_a}/customers", headers=as_user(world.owner_b))
     observed.get(f"/api/v1/shops/{world.shop_a}/customers", headers=as_user(world.stranger))
     observed.post("/api/v1/auth/telegram-webapp", json={"init_data": "user=%7B%7D&hash=00"})
@@ -172,7 +172,7 @@ def test_which_answers_are_security_events() -> None:
 def test_a_failure_nobody_handled_is_answered_with_the_identifier_and_nothing_else(
     app_database_url: str, world: World, caplog: pytest.LogCaptureFixture
 ) -> None:
-    caplog.set_level(logging.INFO, logger="qarz.request")
+    caplog.set_level(logging.INFO, logger="hiso_box.request")
     database = Database(app_database_url)
 
     class Broken(HeaderAuthenticator):
@@ -198,15 +198,15 @@ def test_a_failure_nobody_handled_is_answered_with_the_identifier_and_nothing_el
 
 
 def test_only_the_allowed_fields_reach_a_log_line() -> None:
-    record = logging.LogRecord("qarz.x", logging.INFO, __file__, 1, "event_name", None, None)
+    record = logging.LogRecord("hiso_box.x", logging.INFO, __file__, 1, "event_name", None, None)
     record.__dict__.update(
-        {"update_id": 7, "job": "reminders", "name": "qarz.x", "customer_name": "Vali", "phone": "+998901234567"}
+        {"update_id": 7, "job": "reminders", "name": "hiso_box.x", "customer_name": "Vali", "phone": "+998901234567"}
     )
     line = json.loads(JsonFormatter().format(record))
     assert line == {
         "ts": line["ts"],
         "level": "info",
-        "logger": "qarz.x",
+        "logger": "hiso_box.x",
         "event": "event_name",
         "update_id": 7,
         "job": "reminders",

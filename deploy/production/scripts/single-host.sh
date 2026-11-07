@@ -219,7 +219,7 @@ pitr() {
   say "starting a copy of the database${1:+ as it was at $1}; the live database is not touched"
   DEPLOY_PITR_TARGET="${1:-}" compose --profile scratch up --detach --wait --wait-timeout 1800 db-scratch
   say "the copy is up. To look at it:"
-  say "  docker compose -p $PROJECT exec db-scratch psql -U postgres -d qarz"
+  say "  docker compose -p $PROJECT exec db-scratch psql -U postgres -d hiso_box"
   say "when done: single-host.sh pitr-down"
 }
 
