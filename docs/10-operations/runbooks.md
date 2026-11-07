@@ -793,7 +793,9 @@ in the last five minutes.
      new server secret every administrator must enrol the second factor again, runbook 7; with a new
      webhook secret the webhook must be set again). New database passwords are fine: they are set from
      the file in step 7.
-5. `single-host.sh restore`. It builds the database image, checks that the data volume is empty, and
+5. `single-host.sh volumes-init`: the five data volumes, empty. Compose never creates them by itself
+   (ADR-022), so every other command refuses until this has been run once on the machine.
+   `single-host.sh restore`. It builds the database image, checks that the data volume is empty, and
    restores the newest backup and every archived WAL segment after it from the bucket. For a moment
    earlier than the end of the archive: `single-host.sh restore --time '<moment with time zone>'`.
 6. `single-host.sh restore-files`: the stored files, from the bucket.
@@ -815,17 +817,24 @@ volume aside by hand first, so that nothing is destroyed before the restore has 
 
 ```sh
 single-host.sh stop
-docker compose -p hisobox rm -f db backup
-docker volume create hiso_box_pgdata_aside
+docker compose -p hiso-box rm -f db backup
+docker volume create hiso-box_pgdata_aside
 # a copy of the volume, file for file (MSYS_NO_PATHCONV: Git Bash must not rewrite the container's paths)
 MSYS_NO_PATHCONV=1 docker run --rm --user 0 --entrypoint cp \
-  -v hiso_box_pgdata:/from:ro -v hiso_box_pgdata_aside:/to postgres:16.15-bookworm -a /from/. /to/
-docker volume rm hiso_box_pgdata          # the original; from here only the copy and the bucket hold the data
+  -v hiso-box_pgdata:/from:ro -v hiso-box_pgdata_aside:/to postgres:16.15-bookworm -a /from/. /to/
+docker volume rm hiso-box_pgdata          # the original; from here only the copy and the bucket hold the data
+single-host.sh volumes-init           # a new, empty hiso-box_pgdata; the other volumes are left as they are
 single-host.sh restore                # or: restore --time '<moment>'
 single-host.sh up
 ```
 
-Remove `hiso_box_pgdata_aside` only when the restored service has been checked.
+Remove `hiso-box_pgdata_aside` only when the restored service has been checked.
+
+**The data volumes are named after the Compose project** (`hiso-box_pgdata`, `hiso-box_files`, ...).
+Renaming the project, or running with another `DEPLOY_PROJECT`, does not move them: every command then
+refuses with "the data volume(s) of project ... are not on this machine" and starts nothing. Do not run
+`volumes-init` for the new name in that case: that is how the stored files were once left behind
+(2026-10-29). Copy each old volume into one of the new name as above, then start.
 
 **What has been proven and what has not.** In containers, with a MinIO server standing in for R2: the
 database volume was destroyed, `single-host.sh up` refused to start an empty database in front of the
