@@ -167,6 +167,8 @@ Each is implemented. If one is rejected, the named story must be revisited.
 | DEC-077 | Legal questions and the two languages reported settled by the founder, on oral advice | Launch |
 | DEC-078 | How each open launch criterion is closed (decided by the founder) | Launch |
 | DEC-079 | The expansion after the comparison with pDaftar: fifteen decisions (`EXPANSION.md`) | Product |
+| DEC-080 | Single host: the data volumes are external, created only by `volumes-init` (the founder's, 2026-11-08; ADR-022) | Deployment |
+| DEC-081 | `main` red since 2026-10-13: CI is repaired in small PRs by failing area while feature work goes on beside it; nothing is merged or deployed on red (the founder's, 2026-11-08; option B, against the recommendation to stop features first) | Development |
 | DEC-068 | Three database roles, one for each part of the application; what each is granted; sign out everywhere | S19.2 |
 
 Decided by the founder on 2026-10-07, and so not awaiting review: DEC-058 (nginx and Docker Compose, where the architecture document names Caddy; what to prepare before production); DEC-051 (buttons in the review group, honoured for platform administrators only, as the agent understood him), DEC-052 (no fresh code to decide a receipt), DEC-053 (store open debts).
