@@ -493,9 +493,9 @@ for name, size in (("receipts/2026/a-receipt.jpg", 30000), ("receipts/2026/b-rec
   # (b) the backup itself: its largest object in the bucket overwritten with random bytes.
   local label object
   label="$(field backup)"
-  object="$(bucket 'rc lsf -R --files-only --format sp "qdr2:$HB_R2_BUCKET/pgbackrest/backup/hiso_box/'"$label"'" | grep -v backup.manifest | sort -n | tail -n 1 | sed "s/^ *[0-9]*;//"' | tr -d '\r')"
-  bucket 'size="$(rc size --json "qdr2:$HB_R2_BUCKET/pgbackrest/backup/hiso_box/'"$label/$object"'" | jq .bytes)"; head -c "$size" /dev/urandom | rc rcat "qdr2:$HB_R2_BUCKET/pgbackrest/backup/hiso_box/'"$label/$object"'"'
-  echo "      overwrote with random bytes: backup/hiso_box/$label/$object"
+  object="$(bucket 'rc lsf -R --files-only --format sp "qdr2:$HB_R2_BUCKET/pgbackrest/backup/qarz/'"$label"'" | grep -v backup.manifest | sort -n | tail -n 1 | sed "s/^ *[0-9]*;//"' | tr -d '\r')"
+  bucket 'size="$(rc size --json "qdr2:$HB_R2_BUCKET/pgbackrest/backup/qarz/'"$label/$object"'" | jq .bytes)"; head -c "$size" /dev/urandom | rc rcat "qdr2:$HB_R2_BUCKET/pgbackrest/backup/qarz/'"$label/$object"'"'
+  echo "      overwrote with random bytes: backup/qarz/$label/$object"
   step restore-test-damaged-backup 1 job restore-test
   expect_field failed_check restore
   step backup-full-after-damage 0 job full
