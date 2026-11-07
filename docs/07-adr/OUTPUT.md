@@ -287,6 +287,22 @@ Records keep their numbers. Four version 1 records are superseded, six are kept 
 
 ---
 
+## ADR-022: Data volumes outside Compose's control on the single host
+
+**Status:** Accepted; chosen by the founder on 2026-11-08 (option A of four).
+
+**Context.** The single host's volumes were declared as `pgdata: {}` and so on, which makes Compose name them after the project and create any that is missing. When the project was renamed from `qarz` to `hiso-box`, Compose created a new, empty `files` volume: the shared catalogue's 13,129 images answered 404 and the files backup stayed unhealthy for five days (it refused, correctly, to mirror an empty directory over the bucket). The database survived only because `up` checks an empty data volume against the bucket's backups; the files had no such check.
+
+**Selected solution.** The five volumes that hold data (`pgdata`, `files`, `backup-state`, `backup-figures`, `files-state`) are `external: true` with the name `${DEPLOY_PROJECT}_<volume>`, which is what they were already called. Compose never creates them. `single-host.sh volumes-init` creates the missing ones, once per machine, and removes nothing. `up`, `start`, `restore` and `restore-files` refuse, naming the missing volumes, before anything starts. The socket and the restore-test scratch volume stay managed by Compose.
+
+**Alternatives.** (B) a fixed `name:` on managed volumes: a mistyped name would still be created empty without a word. (C) bind mounts to a host folder: slow and awkward for PostgreSQL under Docker Desktop on Windows. (D) a warning in the runbook only: the same failure on the next rename.
+
+**Consequences.** A new machine needs one more command before `restore` or the first `up`. A rename of the project is now a deliberate copy of each volume (runbook 15), not something Compose does silently. The proof stack makes and removes its own volumes, and refuses to remove any under the deployment's project name. Production needed no change of data: the external names are the volumes it already uses.
+
+**Evidence.** `backend/tests/test_single_host_files.py` (each rule and its negative case); `docker compose config` against the production env file resolves to the existing `hiso-box_*` volumes, and under the project `qarz` a run fails with `external volume "qarz_files" not found` and creates nothing; CI job `single-host` (section 14 of the proof). | **Reversibility.** High. **Approval.** Founder.
+
+---
+
 ## Superseded records
 
 - **ADR-001** (chat only), **ADR-008** (single server), **ADR-009** (daily backups, 24-hour loss): accepted under DEC-008 for the pilot MVP, superseded on 2026-10-06 by ADR-011, ADR-014 and ADR-015 after the change of direction (DEC-012). Their text is in version history.

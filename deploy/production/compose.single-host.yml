@@ -350,11 +350,27 @@ networks:
   # The tunnel's way out to Cloudflare. Nothing else is on it.
   tunnel-out: {}
 
+# The volumes that hold data are external: Compose never creates them. If one is missing (a renamed
+# project, a mistyped -p, a new machine), every command fails before a container starts, instead of
+# starting in front of a new, empty volume. `single-host.sh volumes-init` creates them, once per machine.
+# Their names are spelled out from the project (DEPLOY_PROJECT, set by the scripts), so another project
+# such as the proof never reaches these.
 volumes:
-  pgdata: {}
+  pgdata:
+    external: true
+    name: ${DEPLOY_PROJECT:?set by single-host.sh}_pgdata
+  files:
+    external: true
+    name: ${DEPLOY_PROJECT:?set by single-host.sh}_files
+  backup-state:
+    external: true
+    name: ${DEPLOY_PROJECT:?set by single-host.sh}_backup-state
+  backup-figures:
+    external: true
+    name: ${DEPLOY_PROJECT:?set by single-host.sh}_backup-figures
+  files-state:
+    external: true
+    name: ${DEPLOY_PROJECT:?set by single-host.sh}_files-state
+  # Nothing in these two outlives its containers: a socket, and the throwaway copy of restore-test.
   pgsocket: {}
-  files: {}
-  backup-state: {}
-  backup-figures: {}
-  files-state: {}
   pgscratch: {}

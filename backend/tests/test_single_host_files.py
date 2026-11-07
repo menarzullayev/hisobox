@@ -19,7 +19,7 @@ SINGLE = PRODUCTION / "single-host"
 NGINX = PRODUCTION / "nginx"
 
 # Set by scripts/single-host.sh for the commands that need them, never written in an env file.
-SET_BY_THE_SCRIPTS = {"DEPLOY_PGBACKUP_TAG", "DEPLOY_PITR_TARGET"}
+SET_BY_THE_SCRIPTS = {"DEPLOY_PGBACKUP_TAG", "DEPLOY_PITR_TARGET", "DEPLOY_PROJECT"}
 RETENTION = (
     "repo1-retention-full-type",
     "repo1-retention-full",
@@ -140,7 +140,10 @@ def test_a_proxy_that_does_not_check_the_address_is_reported() -> None:
 
 def test_both_forms_of_the_proxy_share_their_limits_routes_and_log() -> None:
     """A limit or a route changed for one form is changed for the other: they are the same files."""
-    for main, server in (("nginx.conf", "conf.d/hiso-box.conf"), ("nginx.single-host.conf", "single-host.d/hiso-box.conf")):
+    for main, server in (
+        ("nginx.conf", "conf.d/hiso-box.conf"),
+        ("nginx.single-host.conf", "single-host.d/hiso-box.conf"),
+    ):
         assert "include /etc/nginx/snippets/http-common.conf;" in read(NGINX / main)
         block = read(NGINX / server)
         assert "include /etc/nginx/snippets/limit-zones.conf;" in block
@@ -270,3 +273,90 @@ def test_the_check_writes_its_status_under_a_name_of_its_own() -> None:
     assert len(_shares_a_temporary_name(before)) == 2
     proof = read(PRODUCTION / "scripts" / "single-host-proof.sh")
     assert "step checks-at-once 0" in proof and "/opt/hiso-box-single/job.sh check --quiet > /dev/null &" in proof
+
+
+# The volumes that hold data. A rename of the Compose project once left the stored files behind in the
+# old project's volume while Compose made a new, empty one; these must never be made by Compose.
+DATA_VOLUMES = ("pgdata", "files", "backup-state", "backup-figures", "files-state")
+GUARDED = ("up() {", "restore() {", "  start)", "  restore-files)")
+
+
+def top_level_volumes(compose_text: str) -> dict[str, str]:
+    """Each volume of the top-level `volumes:` block, with the lines that define it."""
+    block = compose_text.split("\nvolumes:\n", 1)[1]
+    found: dict[str, str] = {}
+    name = None
+    for line in block.splitlines():
+        head = re.match(r"^  ([a-z-]+):(.*)$", line)
+        if head:
+            name = head.group(1)
+            found[name] = head.group(2)
+        elif name and line.startswith("    "):
+            found[name] += "\n" + line.strip()
+        elif line and not line.startswith(" ") and not line.startswith("#"):
+            break
+    return found
+
+
+def unguarded_data_volumes(compose_text: str) -> list[str]:
+    volumes = top_level_volumes(compose_text)
+    wanted = {name: f"name: ${{DEPLOY_PROJECT:?set by single-host.sh}}_{name}" for name in DATA_VOLUMES}
+    return [
+        name
+        for name in DATA_VOLUMES
+        if "external: true" not in volumes.get(name, "") or wanted[name] not in volumes.get(name, "")
+    ]
+
+
+def test_compose_never_creates_a_volume_that_holds_data(overlay: str) -> None:
+    assert unguarded_data_volumes(overlay) == []
+    volumes = top_level_volumes(overlay)
+    assert "external" not in volumes["pgsocket"] and "external" not in volumes["pgscratch"]
+
+
+def test_a_data_volume_compose_would_create_is_reported(overlay: str) -> None:
+    managed = overlay.replace(
+        "  files:\n    external: true\n    name: ${DEPLOY_PROJECT:?set by single-host.sh}_files\n", "  files: {}\n"
+    )
+    assert managed != overlay
+    assert unguarded_data_volumes(managed) == ["files"]
+    renamed = overlay.replace("}_pgdata", "}_pg")
+    assert unguarded_data_volumes(renamed) == ["pgdata"]
+
+
+def _commands_without_the_volume_check(script: str) -> list[str]:
+    missing = []
+    for start in GUARDED:
+        body = script.split(start, 1)[1]
+        body = body.split("\n}\n", 1)[0] if start.endswith("{") else body.split(";;", 1)[0]
+        if "require_data_volumes" not in body:
+            missing.append(start.strip())
+    return missing
+
+
+def test_every_command_that_starts_the_data_first_checks_its_volumes() -> None:
+    script = read(PRODUCTION / "scripts" / "single-host.sh")
+    assert _commands_without_the_volume_check(script) == []
+    assert f'DATA_VOLUMES="{" ".join(DATA_VOLUMES)}"' in script
+    # Only volumes-init makes a volume, and nothing in the script removes a data volume.
+    assert script.count("docker volume create") == 1
+    assert re.findall(r"docker volume rm \S+", script) == ['docker volume rm "${PROJECT}_pgscratch"']
+    compose_wrapper = read(PRODUCTION / "scripts" / "lib.sh")
+    assert 'DEPLOY_PROJECT="$PROJECT" docker compose --project-name "$PROJECT"' in compose_wrapper
+
+
+def test_a_command_without_the_volume_check_is_reported() -> None:
+    script = read(PRODUCTION / "scripts" / "single-host.sh")
+    without = script.replace(
+        "restore-files) use_current_or_head; require_data_volumes;", "restore-files) use_current_or_head;"
+    )
+    assert without != script
+    assert _commands_without_the_volume_check(without) == ["restore-files)"]
+
+
+def test_the_proof_removes_no_volume_of_the_deployment() -> None:
+    proof = read(PRODUCTION / "scripts" / "single-host-proof.sh")
+    down = proof.split("down() {", 1)[1].split("\n}\n", 1)[0]
+    guard = down.index('[ "$PROJECT" != "hiso-box" ] || die')
+    assert guard < down.index('docker volume rm "${PROJECT}_$name"')
+    assert "step up-without-volume nonzero single up" in proof and "step volumes-init 0 single volumes-init" in proof

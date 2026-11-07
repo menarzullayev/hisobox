@@ -37,7 +37,7 @@ compose() {
   local files=(-f "$(native_path "$PRODUCTION_DIR/compose.yml")")
   if [ -n "${DEPLOY_COMPOSE_OVERLAY:-}" ]; then files+=(-f "$(native_path "$DEPLOY_COMPOSE_OVERLAY")"); fi
   if [ -n "${DEPLOY_COMPOSE_OVERLAY_EXTRA:-}" ]; then files+=(-f "$(native_path "$DEPLOY_COMPOSE_OVERLAY_EXTRA")"); fi
-  DEPLOY_RELEASE="$RELEASE" docker compose --project-name "$PROJECT" \
+  DEPLOY_RELEASE="$RELEASE" DEPLOY_PROJECT="$PROJECT" docker compose --project-name "$PROJECT" \
     --env-file "$(native_path "$ENV_FILE")" "${files[@]}" "$@"
 }
 

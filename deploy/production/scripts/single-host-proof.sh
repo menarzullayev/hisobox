@@ -99,6 +99,8 @@ up() {
   # the bucket is made with the database image.
   ensure_images "$RELEASE"
   ensure_pgbackup_image "$RELEASE"
+  # The data volumes are external: made once, here, as on a new machine.
+  single volumes-init
   dc up --detach --wait --wait-timeout 120 r2
   # A key limited to its bucket cannot create one (env.sh tells rclone not to try); here the key is the
   # stand-in's own administrator, and the proof says so for this one command.
@@ -110,6 +112,13 @@ up() {
 down() {
   load_state
   dc --profile restore --profile scratch down --volumes --remove-orphans || true
+  # The data volumes are external, so `down --volumes` leaves them; these are the proof's own, by name.
+  # Never the deployment's: the proof refuses to remove anything under its project name.
+  [ "$PROJECT" != "hiso-box" ] || die "DEPLOY_PROJECT is the deployment's own project; the proof removes nothing of it"
+  local name
+  for name in pgdata files backup-state backup-figures files-state; do
+    docker volume rm "${PROJECT}_$name" >/dev/null 2>&1 || true
+  done
   # Only the images this proof built: the release's two and the database image of its tag.
   local image
   for image in "$(backend_image "$RELEASE")" "$(proxy_image "$RELEASE")" "$(pgbackup_image)"; do
@@ -541,6 +550,12 @@ for name, size in (("receipts/2026/a-receipt.jpg", 30000), ("receipts/2026/b-rec
   dc rm --force db backup > /dev/null 2>&1
   docker volume rm "${PROJECT}_pgdata" > /dev/null
   expect "the database volume is gone" bash -c '! docker volume inspect "$1" > /dev/null 2>&1' _ "${PROJECT}_pgdata"
+  step up-without-volume nonzero single up "$RELEASE"
+  expect "starting without the data volume is refused" said up-without-volume "REFUSED"
+  expect "and the attempt created no volume in its place" bash -c '! docker volume inspect "$1" > /dev/null 2>&1' _ "${PROJECT}_pgdata"
+  step volumes-init 0 single volumes-init
+  expect "volumes-init makes only the missing volume" said volumes-init "created, empty: ${PROJECT}_pgdata"
+  expect "and leaves the others as they are" said volumes-init "there already: ${PROJECT}_files"
   step up-before-restore nonzero single up "$RELEASE"
   expect "starting an empty database in front of the bucket's backups is refused" said up-before-restore "REFUSED"
   expect "and no database was created by the attempt" volume_is_empty "${PROJECT}_pgdata"

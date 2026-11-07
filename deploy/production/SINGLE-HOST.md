@@ -173,8 +173,15 @@ and never printed by the scripts.
 
 ```sh
 git -C <checkout> pull                      # the checkout must be at the commit to run
+deploy/production/scripts/single-host.sh volumes-init   # once per machine: the five data volumes, empty
 deploy/production/scripts/single-host.sh up
 ```
+
+The volumes that hold data (`pgdata`, `files`, `backup-state`, `backup-figures`, `files-state`) are
+external to Compose (ADR-022): it never creates them, and every command refuses to start while one is
+missing, so a renamed project or a mistyped `DEPLOY_PROJECT` cannot start in front of new, empty ones.
+`volumes-init` creates only the missing ones and leaves the rest as they are. On a machine that
+replaces a lost one, run it before `restore` (runbook 15).
 
 **Script, in this order:** checks that every required name has a value; builds the three images from
 the commit; checks the data volume against the bucket and stops if the volume is empty while the bucket

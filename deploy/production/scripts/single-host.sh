@@ -3,6 +3,8 @@
 # Tunnel, the backups to R2). The guide, in the order things are done, is deploy/production/SINGLE-HOST.md.
 #
 #   single-host.sh env-init [<file>]      write a new env file with generated passwords and secrets
+#   single-host.sh volumes-init           create this project's data volumes that are missing, empty (once
+#                                         per machine; Compose never creates them); removes nothing
 #   single-host.sh up [<git-ref>]         build what is missing, start the database, migrate, set the
 #                                         roles' passwords, deploy the release (default HEAD), then start
 #                                         the backups and the tunnel. Also the command for a new release.
@@ -48,6 +50,44 @@ DEPLOY_COMPOSE_OVERLAY="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)/compose
 
 # docker compose with arguments that are paths INSIDE a container: Git Bash on Windows must leave them alone.
 dce() { MSYS_NO_PATHCONV=1 compose "$@"; }
+
+# The volumes that hold data (external in compose.single-host.yml): Compose never creates them, and no
+# command here removes one. They are made once per machine by `volumes-init`.
+DATA_VOLUMES="pgdata files backup-state backup-figures files-state"
+
+missing_data_volumes() {
+  local name missing=""
+  for name in $DATA_VOLUMES; do
+    docker volume inspect "${PROJECT}_$name" >/dev/null 2>&1 || missing="$missing ${PROJECT}_$name"
+  done
+  printf '%s' "${missing# }"
+}
+
+# Before anything starts: every data volume of this project is there. A missing one means a renamed
+# project, a mistyped DEPLOY_PROJECT or a new machine, and in none of them may a new, empty one be used.
+require_data_volumes() {
+  local missing
+  missing="$(missing_data_volumes)"
+  [ -z "$missing" ] && return 0
+  say "REFUSED: the data volume(s) of project $PROJECT are not on this machine: $missing"
+  say "REFUSED: if the project was renamed, the data is in the old project's volumes; nothing was started."
+  die "on a new machine: single-host.sh volumes-init, then single-host.sh restore and restore-files, then up"
+}
+
+volumes_init() {
+  local name made=0
+  for name in $DATA_VOLUMES; do
+    if docker volume inspect "${PROJECT}_$name" >/dev/null 2>&1; then
+      say "there already: ${PROJECT}_$name (left as it is)"
+    else
+      docker volume create --label "com.hisobox.data=$name" --label "com.hisobox.project=$PROJECT" \
+        "${PROJECT}_$name" >/dev/null
+      say "created, empty: ${PROJECT}_$name"
+      made=$((made + 1))
+    fi
+  done
+  [ "$made" = 0 ] || say "next on a new machine: single-host.sh restore, then restore-files, then up"
+}
 
 # Names that must have a value before anything is started. Names only: a value is never printed.
 REQUIRED="CLOUDFLARE_TUNNEL_TOKEN DEPLOY_R2_ENDPOINT DEPLOY_R2_BUCKET DEPLOY_R2_ACCESS_KEY_ID
@@ -152,6 +192,7 @@ EOF
 up() {
   require_env_file
   preflight
+  require_data_volumes
   RELEASE="$(resolve_commit "${1:-HEAD}")"
   DEPLOY_PGBACKUP_TAG="$(pgbackup_tag "$RELEASE")"
   export DEPLOY_PGBACKUP_TAG
@@ -208,6 +249,7 @@ status() {
 
 restore() {
   use_current_or_head
+  require_data_volumes
   say "stopping everything that uses the database"
   compose stop cloudflared proxy api worker backup db >/dev/null 2>&1 || true
   compose run --rm --no-deps restore restore "$@"
@@ -233,8 +275,9 @@ pitr_down() {
 
 case "${1:-}" in
   env-init) env_init "${2:-}" ;;
+  volumes-init) volumes_init ;;
   up) up "${2:-}" ;;
-  start) use_current; compose up --detach; compose ps --format 'table {{.Service}}\t{{.Status}}' ;;
+  start) use_current; require_data_volumes; compose up --detach; compose ps --format 'table {{.Service}}\t{{.Status}}' ;;
   stop) use_current; compose stop ;;
   status) status ;;
   backup)
@@ -283,7 +326,7 @@ case "${1:-}" in
     use_current
     dce exec api python -m hiso_box.interface.admin_sign_in password-set "$2" "$3" ;;
   restore) shift; restore "$@" ;;
-  restore-files) use_current_or_head; compose run --rm --no-deps restore-files ;;
+  restore-files) use_current_or_head; require_data_volumes; compose run --rm --no-deps restore-files ;;
   pitr) pitr "${2:-}" ;;
   pitr-down) pitr_down ;;
   rollback)
@@ -294,5 +337,5 @@ case "${1:-}" in
     [ -n "$(env_value DEPLOY_PUBLIC_HOST)" ] || die "DEPLOY_PUBLIC_HOST has no value in $ENV_FILE"
     bash "$SCRIPTS_DIR/smoke.sh" "https://$(env_value DEPLOY_PUBLIC_HOST)" ;;
   logs) shift; use_current; compose logs --no-color --tail 80 "$@" ;;
-  *) die "usage: single-host.sh env-init [<file>] | up [<git-ref>] | start | stop | status | alert-test | catalog-import <directory> | territories-import <directory> | backup <full|diff> | restore-test | restore [--time '<moment>'] | restore-files | pitr ['<moment>'] | pitr-down | rollback <git-ref> | smoke | logs [<service>...]" ;;
+  *) die "usage: single-host.sh env-init [<file>] | volumes-init | up [<git-ref>] | start | stop | status | alert-test | catalog-import <directory> | territories-import <directory> | backup <full|diff> | restore-test | restore [--time '<moment>'] | restore-files | pitr ['<moment>'] | pitr-down | rollback <git-ref> | smoke | logs [<service>...]" ;;
 esac
