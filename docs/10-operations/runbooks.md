@@ -420,6 +420,14 @@ To change it: set the line in the env file of the installation (`HB_ADMIN_SECOND
 `required`) and restart the API as for any other setting of the environment (runbook 1). Nothing is
 migrated in either direction.
 
+**With `required`, a passkey is the second factor (DEC-082).** Signing in with "Passkey bilan kirish"
+opens the administrators' side at once, for eight hours, with no code; the audit has
+`admin.session_opened` with `by: passkey`. The changes that need a code (module switches, cards, the
+price, the review group, a shop's owner) still ask for one from the authenticator. A service key or a
+password opens only the door: an administrator who signs in with one gives a code before anything else,
+as before. So before switching back to `required`, add a passkey on every device an administrator uses
+(Settings, "Passkey qurilmalari"); afterwards the code is needed only for those few changes.
+
 ## 8. Review and decide subscription receipts; a suspected forged or reused receipt
 
 **When.** An owner sent a receipt for a card transfer. An alert fires when one has waited 24 hours.

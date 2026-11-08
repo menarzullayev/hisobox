@@ -15,6 +15,7 @@ from hiso_box.application.admin_passkeys import (
     START_PASSKEY,
     AdminPasskeys,
 )
+from hiso_box.interface.admin_api import ADMIN_COOKIE
 from hiso_box.interface.admin_api import _read as read_body
 from hiso_box.interface.auth_api import SESSION_COOKIE
 from hiso_box.interface.shops_api import IdempotencyKey
@@ -56,12 +57,24 @@ def add_passkey_sign_in_routes(app: FastAPI, passkeys: AdminPasskeys) -> None:
     async def sign_in_passkey(body: PasskeyAnswer, response: Response) -> dict[str, Any]:
         if body.id is None or body.client_data is None or body.authenticator_data is None or body.signature is None:
             raise passkeys.wanted()
-        issued = await passkeys.sign_in(
+        signed = await passkeys.sign_in(
             credential_id=body.id,
             client_data=body.client_data,
             authenticator_data=body.authenticator_data,
             signature=body.signature,
         )
+        issued = signed.web
+        if signed.admin is not None:
+            # The administrator's side, opened by the passkey: the same cookie a code would have set.
+            response.set_cookie(
+                ADMIN_COOKIE,
+                signed.admin.token,
+                expires=signed.admin.expires_at,
+                path="/api/admin",
+                httponly=True,
+                secure=True,
+                samesite="strict",
+            )
         response.set_cookie(
             SESSION_COOKIE,
             issued.token,

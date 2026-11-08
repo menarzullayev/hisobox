@@ -105,10 +105,12 @@ class Device:
         }
 
 
-def _app(app_url: str, admin_url: str, env: AdminEnv, site: PasskeySite | None) -> Iterator[TestClient]:
+def _app(
+    app_url: str, admin_url: str, env: AdminEnv, site: PasskeySite | None, *, required: bool = False
+) -> Iterator[TestClient]:
     database, admin_database = Database(app_url), Database(admin_url)
     admin = AdminAccess(
-        admin_database, allowed_tg_ids=env.allowed, cipher=env.box, now=env.clock.now, second_factor_required=False
+        admin_database, allowed_tg_ids=env.allowed, cipher=env.box, now=env.clock.now, second_factor_required=required
     )
     app = create_app(
         database.reachable,
@@ -128,6 +130,12 @@ def _app(app_url: str, admin_url: str, env: AdminEnv, site: PasskeySite | None) 
 @pytest.fixture
 def client(app_database_url: str, admin_database_url: str, admin_env: AdminEnv) -> Iterator[TestClient]:
     yield from _app(app_database_url, admin_database_url, admin_env, SITE)
+
+
+@pytest.fixture
+def strict(app_database_url: str, admin_database_url: str, admin_env: AdminEnv) -> Iterator[TestClient]:
+    """A deployment that asks for the second factor (`HB_ADMIN_SECOND_FACTOR=required`)."""
+    yield from _app(app_database_url, admin_database_url, admin_env, SITE, required=True)
 
 
 def _key_for(app_url: str, admin_url: str, env: AdminEnv, tg_id: int) -> dict[str, str]:
@@ -390,3 +398,71 @@ def test_a_host_that_is_not_a_bare_host_name_refuses_to_start(monkeypatch: pytes
         monkeypatch.setenv("HB_PASSKEY_HOST", bad)
         with pytest.raises(ValueError, match="HB_PASSKEY_HOST"):
             Settings().passkey_site_host()
+
+
+# --- the passkey is the second factor (DEC-082) ---------------------------------------------------------
+
+
+def _stored(owner: psycopg.Connection, admin: uuid.UUID, device: Device) -> str:
+    """A passkey put in place directly: where codes are asked for, a key cannot reach the route that adds one."""
+    passkey_id = uuid.uuid4()
+    owner.execute(
+        "INSERT INTO admin_passkey (id, user_id, credential_id, public_key, algorithm, label) "
+        "VALUES (%s, %s, %s, %s, -7, 'laptop')",
+        (passkey_id, admin, device.credential, passkey.unb64(device.public_key)),
+    )
+    return str(passkey_id)
+
+
+def _admin_sessions(owner: psycopg.Connection, admin: uuid.UUID) -> int:
+    row = owner.execute("SELECT count(*) FROM admin_session WHERE user_id = %s", (admin,)).fetchone()
+    assert row is not None
+    return int(row[0])
+
+
+def test_where_a_code_is_asked_for_a_passkey_opens_the_administrators_side(
+    strict: TestClient, inside: dict[str, str], world: World, owner: psycopg.Connection
+) -> None:
+    device = Device()
+    passkey_id = _stored(owner, world.admin, device)
+    answer = strict.post(SIGN_IN, json=device.answer(_challenge(strict)))
+    assert answer.status_code == 200, answer.text
+    assert "hb_admin" in strict.cookies
+    status = strict.get(f"{ADMIN_API}/auth").json()
+    assert status["elevated"] is True and "second_factor" not in status
+    assert strict.get(MINE).status_code == 200  # by the cookies alone: no key, no code
+    opened = owner.execute(
+        "SELECT detail FROM admin_audit WHERE action = 'admin.session_opened' AND admin_id = %s", (world.admin,)
+    ).fetchall()
+    assert [row[0] for row in opened] == [{"expires_at": status["expires_at"], "by": "passkey", "passkey": passkey_id}]
+    # A change that needs a code still needs one: the passkey opens the side, not every change on it.
+    changed = strict.patch(
+        f"{ADMIN_API}/settings",
+        json={"changes": {"catalog_on": True}},
+        headers={"X-CSRF-Token": answer.json()["csrf_token"], **_once()},
+    )
+    assert changed.status_code == 422 and "code" in changed.text
+
+
+def test_a_refused_or_repeated_answer_opens_no_administrators_side(
+    strict: TestClient, inside: dict[str, str], world: World, owner: psycopg.Connection
+) -> None:
+    device = Device()
+    _stored(owner, world.admin, device)
+    wrong = device.answer(_challenge(strict), signer=Device())
+    assert strict.post(SIGN_IN, json=wrong).status_code == 401
+    assert "hb_admin" not in strict.cookies and _admin_sessions(owner, world.admin) == 0
+
+    answer = device.answer(_challenge(strict))
+    assert strict.post(SIGN_IN, json=answer).status_code == 200
+    strict.cookies.clear()
+    assert strict.post(SIGN_IN, json=answer).status_code == 401
+    assert "hb_admin" not in strict.cookies and _admin_sessions(owner, world.admin) == 1
+
+
+def test_where_a_code_is_asked_for_a_key_alone_opens_no_administrator_operation(
+    strict: TestClient, inside: dict[str, str]
+) -> None:
+    """ADR-017, unchanged by DEC-082: a service key or a password is not a second factor."""
+    assert strict.get(f"{ADMIN_API}/auth", headers=inside).status_code == 200  # the door
+    assert strict.get(MINE, headers=inside).status_code == 404

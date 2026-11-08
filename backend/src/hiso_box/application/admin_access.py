@@ -347,6 +347,34 @@ class AdminAccess:
             raise refusal
         return IssuedAdminSession(token, expires)
 
+    async def open_session_by_passkey(self, user_id: UUID, passkey_id: UUID) -> IssuedAdminSession:
+        """The admin session of an administrator who has just signed in with a passkey (DEC-082).
+
+        A passkey is bound to this site and answers only after its holder is verified on the device, so
+        it is the second factor itself: no code is asked to open the administrator's side. The changes
+        that need a code ask for one as ever. Called only after the passkey's answer was accepted once.
+        """
+        now = self._now()
+        token = secrets.token_urlsafe(32)
+        expires = now + ADMIN_SESSION
+        async with self._storage.platform() as session:
+            account = await self._candidate(session, user_id)
+            if account is None or not account.confirmed:
+                # The database opens an admin session only for an account that confirmed a factor.
+                raise NotFound()
+            await session.open_admin_session(token_hash=_hash(token), user_id=user_id, now=now, expires_at=expires)
+            await session.add_admin_audit(
+                admin_id=user_id,
+                action="admin.session_opened",
+                target_type="admin",
+                target_id=str(user_id),
+                shop_id=None,
+                reason=None,
+                detail={"expires_at": expires.isoformat(), "by": "passkey", "passkey": str(passkey_id)},
+                now=now,
+            )
+        return IssuedAdminSession(token, expires)
+
     async def end_sessions_of(self, user_id: UUID) -> int:
         """End the administrator sessions of a person who signs out everywhere (security review, finding 9).
 

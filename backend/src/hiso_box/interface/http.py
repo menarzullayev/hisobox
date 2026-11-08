@@ -323,6 +323,7 @@ def create_app(
                 allowed_tg_ids=admin.allowed_tg_ids,
                 site=passkey_site,
                 auth=auth,
+                access=admin,
                 now=now,
             )
         )

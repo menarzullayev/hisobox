@@ -22,7 +22,7 @@ from typing import Any
 from uuid import UUID
 
 from hiso_box.application import idempotency
-from hiso_box.application.admin_access import AdminRequestKeys
+from hiso_box.application.admin_access import AdminAccess, AdminRequestKeys, IssuedAdminSession
 from hiso_box.application.admin_sign_in_ports import Passkey
 from hiso_box.application.auth import AuthService, IssuedSession
 from hiso_box.application.errors import AppError, NotFound, Unauthenticated, ValidationFailed
@@ -74,6 +74,14 @@ class PasskeyWanted(Unauthenticated):
         self.www_authenticate = www_authenticate
 
 
+@dataclass(frozen=True)
+class PasskeySignedIn:
+    """What an accepted passkey gives: a web session, and the administrator's side opened with it."""
+
+    web: IssuedSession
+    admin: IssuedAdminSession | None
+
+
 class AdminPasskeys:
     def __init__(
         self,
@@ -83,9 +91,11 @@ class AdminPasskeys:
         allowed_tg_ids: Container[int],
         site: PasskeySite,
         auth: AuthService | None = None,
+        access: AdminAccess | None = None,
         now: Callable[[], datetime] | None = None,
     ) -> None:
         self._storage = admin_storage
+        self._access = access
         self._sessions = sessions
         self._allowed = allowed_tg_ids
         self._site = site
@@ -228,13 +238,15 @@ class AdminPasskeys:
 
     async def sign_in(
         self, *, credential_id: str, client_data: str, authenticator_data: str, signature: str
-    ) -> IssuedSession:
-        """A web session for the administrator this passkey belongs to. Every refusal is one answer."""
+    ) -> PasskeySignedIn:
+        """A web session for the administrator this passkey belongs to, and their admin session: the
+        passkey is the second factor (DEC-082). Every refusal is one answer."""
         if self._auth is None:
             raise Unauthenticated()
         now = self._now()
         refusal: AppError | None = None
         user_id: UUID | None = None
+        passkey_id: UUID | None = None
         try:
             raw_client, raw_data = passkey.unb64(client_data), passkey.unb64(authenticator_data)
             challenge = passkey.check_client_data(raw_client, "webauthn.get", self._site.origin)
@@ -271,7 +283,7 @@ class AdminPasskeys:
                 if tg_id is None or tg_id not in self._allowed or account is None or account.status != "active":
                     refusal = Unauthenticated()
                 else:
-                    user_id = stored.user_id
+                    user_id, passkey_id = stored.user_id, stored.id
                     await session.note_passkey_use(stored.id, data.sign_count, now)
                     await session.add_admin_audit(
                         admin_id=user_id,
@@ -290,4 +302,7 @@ class AdminPasskeys:
             fresh = await session.use_signed_data(hashlib.sha256(b"passkey:" + challenge).digest(), expires)
         if not fresh:
             raise Unauthenticated()
-        return await self._auth.issue_web_session(user_id)
+        assert passkey_id is not None
+        web = await self._auth.issue_web_session(user_id)
+        admin = None if self._access is None else await self._access.open_session_by_passkey(user_id, passkey_id)
+        return PasskeySignedIn(web, admin)
