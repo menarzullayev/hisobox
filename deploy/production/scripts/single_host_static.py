@@ -171,6 +171,22 @@ def backups_are_encrypted_and_scheduled(c: Composition) -> str | None:
     return None
 
 
+# rclone's flags that keep the five-minute file copy inside R2's free tier (one listing instead of a
+# HEAD request per file). Given to files-backup only: a restore must copy whatever the bucket holds.
+CHEAP_SYNC = ("RCLONE_FAST_LIST", "RCLONE_UPDATE", "RCLONE_USE_SERVER_MODTIME")
+
+
+def the_file_copy_lists_instead_of_asking_per_file(c: Composition) -> str | None:
+    environment = services(c)["files-backup"].get("environment") or {}
+    for name in CHEAP_SYNC:
+        if str(environment.get(name, "")).lower() != "true":
+            return f"files-backup is not given {name}=true: every sync would ask the bucket once per file"
+    restore = services(c).get("restore-files", {}).get("environment") or {}
+    if "RCLONE_UPDATE" in restore:
+        return "restore-files is given RCLONE_UPDATE: a restore would skip files"
+    return None
+
+
 def the_watch_reads_figures_and_nothing_else(c: Composition) -> str | None:
     """The worker's operations watch (DEC-078): it is shown the figures of the backup jobs read-only, and
     is given neither the backups' state, nor the database's files, nor the bucket's key or passphrase."""
@@ -316,6 +332,16 @@ CHECKS: list[tuple[str, Check, Callable[[Composition], None]]] = [
         "the backups are encrypted and on a schedule",
         backups_are_encrypted_and_scheduled,
         break_by(lambda s: s["db"]["environment"].pop("HB_BACKUP_PASSPHRASE")),
+    ),
+    (
+        "the file copy compares by listing, not with a request per file",
+        the_file_copy_lists_instead_of_asking_per_file,
+        break_by(lambda s: s["files-backup"]["environment"].pop("RCLONE_USE_SERVER_MODTIME")),
+    ),
+    (
+        "a restore of the files skips nothing",
+        the_file_copy_lists_instead_of_asking_per_file,
+        break_by(lambda s: s["restore-files"].setdefault("environment", {}).update(RCLONE_UPDATE="true")),
     ),
 ]
 
