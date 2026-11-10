@@ -251,6 +251,13 @@ services:
     environment:
       <<: *r2-env
       HB_FILES_INTERVAL: ${DEPLOY_FILES_INTERVAL:-300}
+      # Compare by listing, not object by object. Without these, every sync sends one HEAD per file to
+      # read its modification time: measured 2026-11-11, 13 129 files, a 4-minute sync, about 2 million
+      # Class B requests a day and a bill above R2's free tier. With them: 16 requests, 9 seconds.
+      # A file changed here is newer than its upload, so --update still sends it.
+      RCLONE_FAST_LIST: "true"
+      RCLONE_UPDATE: "true"
+      RCLONE_USE_SERVER_MODTIME: "true"
     healthcheck:
       # Healthy only while the files were copied recently (single-host/scripts/files-health.sh).
       test: ["CMD", "/opt/hiso-box-single/files-health.sh"]
