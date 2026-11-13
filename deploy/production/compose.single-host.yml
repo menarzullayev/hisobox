@@ -174,7 +174,7 @@ services:
 
   cloudflared:
     <<: *single
-    image: cloudflare/cloudflared:2026.9.3
+    image: cloudflare/cloudflared:2026.11.0
     # A named tunnel run from its token. Where the tunnel sends a host name is set in Cloudflare
     # (Zero Trust, the tunnel's public hostname): http://proxy:8080. The token is given in the
     # environment, never on the command line, where `docker inspect` and `ps` would show it.
