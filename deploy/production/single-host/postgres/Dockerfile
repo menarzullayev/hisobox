@@ -10,7 +10,7 @@
 # The official image carries the PGDG apt source, so pgBackRest comes from there (2.59 at the time of
 # writing). rclone is Debian's (1.60): S3 with path-style addressing and the `crypt` overlay are all
 # that is used of it.
-FROM postgres:16.15-bookworm
+FROM postgres:16.16-bookworm
 
 RUN apt-get update \
     && apt-get install -y --no-install-recommends ca-certificates curl jq openssl pgbackrest rclone \

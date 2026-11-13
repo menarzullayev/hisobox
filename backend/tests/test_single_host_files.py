@@ -237,13 +237,13 @@ def test_every_image_is_pinned() -> None:
             if not image.startswith("${")  # the three images built from this repository, tagged by the scripts
         ]
     assert sorted(set(images)) == sorted(
-        {"postgres:16.15-bookworm", "cloudflare/cloudflared:2026.11.0", "pgsty/minio:RELEASE.2026-08-04T00-00-00Z"}
+        {"postgres:16.16-bookworm", "cloudflare/cloudflared:2026.11.0", "pgsty/minio:RELEASE.2026-08-04T00-00-00Z"}
     )
     assert unpinned(images) == []
 
 
 def test_an_unpinned_image_is_reported() -> None:
-    assert unpinned(["postgres", "postgres:latest", "cloudflare/cloudflared:stable", "postgres:16.15-bookworm"]) == [
+    assert unpinned(["postgres", "postgres:latest", "cloudflare/cloudflared:stable", "postgres:16.16-bookworm"]) == [
         "postgres",
         "postgres:latest",
         "cloudflare/cloudflared:stable",

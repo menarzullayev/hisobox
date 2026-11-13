@@ -33,7 +33,7 @@ visitor ── HTTPS ──> Cloudflare ══ tunnel (outbound from this machin
 | `compose.single-host.yml` | Overlay on `compose.yml`: `db`, `cloudflared`, `backup`, `files-backup`, the one-shots `owner` and `roles`, and `restore`, `restore-files`, `db-scratch` for use by hand. Takes the proxy's published ports and certificate away. |
 | `single-host.env.example` | The settings it adds, without values |
 | `scripts/single-host.sh` | Every command of this document |
-| `single-host/postgres/` | The database image: PostgreSQL 16.15, pgBackRest 2.59, rclone; `pgbackrest.conf` |
+| `single-host/postgres/` | The database image: PostgreSQL 16.16, pgBackRest 2.59, rclone; `pgbackrest.conf` |
 | `single-host/scripts/` | What runs inside that image: the scheduler, the jobs, the copy of the files, restore, checks |
 | `nginx/nginx.single-host.conf`, `nginx/single-host.d/`, `nginx/single-host-entrypoint.sh` | The proxy's form behind the tunnel; the limits and routes are the same files as the other form's |
 | `compose.single-host.proof.yml`, `scripts/single-host-proof.sh`, `scripts/single_host_static.py` | The proof |
