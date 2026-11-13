@@ -521,3 +521,10 @@ jobs:
             echo "placeholder content found in stage documents" >&2
             exit 1
           fi
+      # `docker run` without --rm (stateful image) or `docker rm` without -v leaves an anonymous
+      # volume that nothing owns. Scans scripts, workflows and the commands in documents, so it
+      # runs here, where a change of documentation only is checked as well.
+      - name: Docker volume leaks (docker run without --rm, docker rm without -v)
+        run: |
+          python3 backend/scripts/check_docker_run.py --selftest
+          python3 backend/scripts/check_docker_run.py
