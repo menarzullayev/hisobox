@@ -829,7 +829,7 @@ docker compose -p hiso-box rm -f db backup
 docker volume create hiso-box_pgdata_aside
 # a copy of the volume, file for file (MSYS_NO_PATHCONV: Git Bash must not rewrite the container's paths)
 MSYS_NO_PATHCONV=1 docker run --rm --user 0 --entrypoint cp \
-  -v hiso-box_pgdata:/from:ro -v hiso-box_pgdata_aside:/to postgres:16.15-bookworm -a /from/. /to/
+  -v hiso-box_pgdata:/from:ro -v hiso-box_pgdata_aside:/to postgres:16.16-bookworm -a /from/. /to/
 docker volume rm hiso-box_pgdata          # the original; from here only the copy and the bucket hold the data
 single-host.sh volumes-init           # a new, empty hiso-box_pgdata; the other volumes are left as they are
 single-host.sh restore                # or: restore --time '<moment>'
