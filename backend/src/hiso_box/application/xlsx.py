@@ -24,6 +24,12 @@ MIME = XLSX
 MAX_ROWS = 1_048_576
 MAX_NAME = 31
 MAX_CELL = 32_767
+# The moment every member of the package carries, instead of the clock's: the same workbook is the same
+# bytes whenever it is written. `writestr` with a bare name stamps the member with the local time, to two
+# seconds, so the import template differed from itself across a tick (a test that compares it byte for
+# byte failed on CI, 2026-11-14). 1980-01-01 is the format's own zero, and what `ZipFile.open` already
+# gives the sheets.
+_STAMP = (1980, 1, 1, 0, 0, 0)
 _SPOOL_BYTES = 4 * 1024 * 1024
 _COPY_BYTES = 1024 * 1024
 # Characters XML 1.0 cannot carry at all.
@@ -179,6 +185,14 @@ class Sheet:
         self.data_rows += 1
 
 
+def _member(name: str) -> zipfile.ZipInfo:
+    """A package member as `writestr` would describe it, but dated `_STAMP`."""
+    info = zipfile.ZipInfo(name, date_time=_STAMP)
+    info.compress_type = zipfile.ZIP_DEFLATED
+    info.external_attr = 0o600 << 16
+    return info
+
+
 class Workbook:
     """Sheets appear in the file in the order they were added, whatever order their rows arrive in."""
 
@@ -205,12 +219,12 @@ class Workbook:
         try:
             with zipfile.ZipFile(packed, "w", zipfile.ZIP_DEFLATED) as archive:
                 archive.writestr(
-                    "[Content_Types].xml",
+                    _member("[Content_Types].xml"),
                     _CONTENT_TYPES.format(sheets="".join(_SHEET_TYPE.format(n=n) for n in numbers)),
                 )
-                archive.writestr("_rels/.rels", _ROOT_RELS)
+                archive.writestr(_member("_rels/.rels"), _ROOT_RELS)
                 archive.writestr(
-                    "xl/workbook.xml",
+                    _member("xl/workbook.xml"),
                     _WORKBOOK.format(
                         sheets="".join(
                             f'<sheet name="{escape(part.name, {chr(34): "&quot;"})}" sheetId="{n}" r:id="rId{n}"/>'
@@ -219,12 +233,12 @@ class Workbook:
                     ),
                 )
                 archive.writestr(
-                    "xl/_rels/workbook.xml.rels",
+                    _member("xl/_rels/workbook.xml.rels"),
                     _WORKBOOK_RELS.format(
                         sheets="".join(_SHEET_REL.format(n=n) for n in numbers), styles=len(parts) + 1
                     ),
                 )
-                archive.writestr("xl/styles.xml", _STYLES)
+                archive.writestr(_member("xl/styles.xml"), _STYLES)
                 for n, part in zip(numbers, parts, strict=True):
                     with archive.open(f"xl/worksheets/sheet{n}.xml", "w") as target:
                         target.write(part.head().encode())
