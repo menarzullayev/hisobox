@@ -17,7 +17,7 @@
 # gosu is removed. The official image carries it to step down from root; no container of this image
 # starts as root (USER below, and single_host_static.py refuses a root service), so it was a second
 # unused Go program with advisories of its own.
-FROM postgres:16.16-bookworm
+FROM postgres:16.16-bookworm AS build
 
 ARG RCLONE_VERSION=1.76.0
 RUN apt-get update \
@@ -49,6 +49,25 @@ COPY production/single-host/postgres/pgbackrest.conf /etc/pgbackrest/pgbackrest.
 COPY --chmod=755 backup/scripts/ /opt/hiso-box-backup/scripts/
 COPY --chmod=755 production/single-host/scripts/ /opt/hiso-box-single/
 COPY --chmod=755 production/single-host/postgres/hb-entrypoint.sh /usr/local/bin/hb-entrypoint.sh
+
+# One layer. `rm` in the stage above takes gosu out of the filesystem, but its bytes stay in the base
+# image's own layer: still stored, and still counted by a scanner that reads every layer (Docker Scout
+# kept reporting its 4 critical advisories, 2026-11-14). Copying the finished filesystem into an empty
+# image leaves only what is really there. `FROM scratch` inherits nothing, so the settings the official
+# image declares are restated here; test_single_host_files.py holds each of them:
+#   PATH with the server's bin directory    hb-entrypoint.sh and the scripts call postgres, pg_ctl, psql
+#   LANG, PG_MAJOR, PGDATA                  read by docker-entrypoint.sh
+#   STOPSIGNAL SIGINT                       a fast shutdown; the default SIGTERM waits for every session
+#   VOLUME, EXPOSE                          as the official image has them
+FROM scratch
+COPY --from=build / /
+ENV PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/lib/postgresql/16/bin \
+    LANG=en_US.utf8 \
+    PG_MAJOR=16 \
+    PGDATA=/var/lib/postgresql/data
+VOLUME /var/lib/postgresql/data
+EXPOSE 5432
+STOPSIGNAL SIGINT
 
 ENV TZ=Asia/Tashkent
 # Never root: the data directory, the socket directory and the state directory belong to postgres.
