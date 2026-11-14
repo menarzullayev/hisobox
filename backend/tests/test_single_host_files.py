@@ -228,8 +228,57 @@ def test_the_schedule_is_the_one_of_the_timers() -> None:
     assert "ENV TZ=Asia/Tashkent" in read(SINGLE / "postgres" / "Dockerfile")
 
 
+#: What the database image must declare itself: its last stage is `FROM scratch` (one layer), which
+#: inherits nothing from the official PostgreSQL image. Each line is one the official image has.
+RESTATED_BY_THE_DATABASE_IMAGE = (
+    "/usr/lib/postgresql/16/bin",  # on PATH: the entrypoint and the scripts call postgres, pg_ctl, psql
+    "LANG=en_US.utf8",
+    "PG_MAJOR=16",
+    "PGDATA=/var/lib/postgresql/data",
+    "VOLUME /var/lib/postgresql/data",
+    "EXPOSE 5432",
+    "STOPSIGNAL SIGINT",  # a fast shutdown; with the default SIGTERM the server waits for every session
+    "USER postgres",
+    'ENTRYPOINT ["hb-entrypoint.sh"]',
+    'CMD ["postgres"]',
+)
+
+
+def not_restated(dockerfile: str) -> list[str]:
+    """The settings of RESTATED_BY_THE_DATABASE_IMAGE that the last stage of a Dockerfile does not have."""
+    last_stage = re.split(r"^FROM .*$", dockerfile, flags=re.MULTILINE)[-1]
+    settings = " ".join(
+        line.strip().rstrip("\\").strip() for line in last_stage.splitlines() if not line.startswith("#")
+    )
+    return [setting for setting in RESTATED_BY_THE_DATABASE_IMAGE if setting not in settings]
+
+
+def test_the_one_layer_database_image_restates_the_official_settings() -> None:
+    dockerfile = read(SINGLE / "postgres" / "Dockerfile")
+    assert re.findall(r"^FROM (\S+)", dockerfile, flags=re.MULTILINE)[-1] == "scratch"
+    assert "COPY --from=build / /" in dockerfile
+    assert not_restated(dockerfile) == []
+
+
+def test_a_setting_lost_from_the_last_stage_is_reported() -> None:
+    dockerfile = read(SINGLE / "postgres" / "Dockerfile")
+    assert not_restated(dockerfile.replace("STOPSIGNAL SIGINT\n", "")) == ["STOPSIGNAL SIGINT"]
+    assert not_restated(dockerfile.replace("    PGDATA=/var/lib/postgresql/data\n", "")) == [
+        "PGDATA=/var/lib/postgresql/data"
+    ]
+    # Declared in the build stage only is not declared: `FROM scratch` drops it.
+    in_the_wrong_stage = dockerfile.replace("STOPSIGNAL SIGINT\n", "").replace(
+        "FROM scratch\n", "STOPSIGNAL SIGINT\nFROM scratch\n"
+    )
+    assert not_restated(in_the_wrong_stage) == ["STOPSIGNAL SIGINT"]
+
+
 def test_every_image_is_pinned() -> None:
-    images = re.findall(r"^FROM (\S+)", read(SINGLE / "postgres" / "Dockerfile"), flags=re.MULTILINE)
+    images = [
+        image
+        for image in re.findall(r"^FROM (\S+)", read(SINGLE / "postgres" / "Dockerfile"), flags=re.MULTILINE)
+        if image != "scratch"  # the empty image of the last stage, not something pulled
+    ]
     for compose in ("compose.single-host.yml", "compose.single-host.proof.yml"):
         images += [
             image
