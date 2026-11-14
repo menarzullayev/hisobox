@@ -22,7 +22,10 @@ ENV PATH=/opt/venv/bin:$PATH \
     PYTHONPATH=/app/src \
     PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1
-RUN groupadd --system --gid 10001 hiso-box \
+# `apt-get upgrade`: the base tag trails Debian's security updates (zlib1g was one revision behind,
+# two high advisories in Docker Scout, 2026-11-14).
+RUN apt-get update && apt-get upgrade -y && rm -rf /var/lib/apt/lists/* \
+    && groupadd --system --gid 10001 hiso-box \
     && useradd --system --uid 10001 --gid 10001 --no-create-home --home-dir /nonexistent \
        --shell /usr/sbin/nologin hiso-box \
     && python -m pip uninstall --yes pip \

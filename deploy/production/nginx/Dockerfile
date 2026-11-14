@@ -23,6 +23,10 @@ ENV VITE_PUBLIC_ORIGIN=$VITE_PUBLIC_ORIGIN
 RUN npm run build
 
 FROM nginx:1.30-alpine
+# The tag is rebuilt on nginx's schedule, not Alpine's: fixes wait in the package index until then.
+# Measured 2026-11-14 (Docker Scout): 1 critical and 5 high in zlib, libxslt, libxml2 and musl as
+# pulled; 0 critical and 2 high after the upgrade.
+RUN apk upgrade --no-cache
 # The stock entrypoint scripts edit the configuration at start; this image's configuration is complete.
 RUN rm -rf /docker-entrypoint.d/* /etc/nginx/conf.d/* /usr/share/nginx/html/*
 COPY deploy/production/nginx/nginx.conf /etc/nginx/nginx.conf
