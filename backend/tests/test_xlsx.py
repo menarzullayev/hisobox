@@ -1,5 +1,8 @@
 """The workbook writer, read back by an independent reader (specification: exports in `.xlsx`)."""
 
+import io
+import time
+import zipfile
 from decimal import Decimal
 
 import pytest
@@ -178,3 +181,40 @@ def test_a_large_table_is_spooled_and_packed_small() -> None:
     rows = xlsx_reader.read(content)["Daftar"]
     assert len(rows) == 120_001 and rows[-1] == [119_999, "Mijoz 499", 164_999]
     book.close()  # closing again after finishing is harmless
+
+
+def workbook_of_one_row() -> bytes:
+    book = Workbook()
+    book.sheet("Mijozlar", ("Ism", "Qarz"), (28, 14)).append(("Ali Valiyev", 50_000))
+    return book.finish()
+
+
+def test_the_same_workbook_is_the_same_bytes_whenever_it_is_written(monkeypatch: pytest.MonkeyPatch) -> None:
+    """A member of the package is dated by the writer, not by the clock.
+
+    `ZipFile.writestr` with a bare name stamps the member with the local time, to two seconds: the
+    import template then differed from itself across a tick, and a test that compares it byte for byte
+    failed on CI (2026-11-14). The second workbook here is written "eleven years later".
+    """
+    first = workbook_of_one_row()
+    later = time.struct_time((2037, 6, 15, 12, 30, 44, 0, 166, 0))
+    monkeypatch.setattr(time, "localtime", lambda *_: later)
+    assert workbook_of_one_row() == first
+    with zipfile.ZipFile(io.BytesIO(first)) as archive:
+        assert {info.date_time for info in archive.infolist()} == {(1980, 1, 1, 0, 0, 0)}
+        assert len(archive.infolist()) == 6
+
+
+def test_a_member_dated_by_the_clock_would_differ(monkeypatch: pytest.MonkeyPatch) -> None:
+    """The check above can fail: the same parts written with `writestr` and a bare name do differ."""
+
+    def clock_dated() -> bytes:
+        packed = io.BytesIO()
+        with zipfile.ZipFile(packed, "w", zipfile.ZIP_DEFLATED) as archive:
+            archive.writestr("xl/styles.xml", "<styleSheet/>")
+        return packed.getvalue()
+
+    first = clock_dated()
+    later = time.struct_time((2037, 6, 15, 12, 30, 44, 0, 166, 0))
+    monkeypatch.setattr(time, "localtime", lambda *_: later)
+    assert clock_dated() != first
