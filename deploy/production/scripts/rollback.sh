@@ -15,10 +15,12 @@ require_env_file
 RELEASE="$(resolve_commit "$1")"
 say "rolling back to $RELEASE (from: $(current_release || true))"
 
-if [ "$(env_value DEPLOY_PULL)" = "1" ]; then ensure_images "$RELEASE"; else require_images "$RELEASE"; fi
+# With rollback copies off (the default) the earlier images are gone: they are pulled or rebuilt from the commit.
+if [ "$(env_value DEPLOY_PULL)" = "1" ] || ! keep_rollback_images; then ensure_images "$RELEASE"; else require_images "$RELEASE"; fi
 
 restart_services
 wait_for_healthz
 record_release "$RELEASE" rollback
+prune_other_release_images "$RELEASE"
 print_deployed
 say "the database schema was not changed"

@@ -25,5 +25,6 @@ say "migrations: now at $(compose run --rm migrate alembic current 2>/dev/null |
 restart_services
 wait_for_healthz
 record_release "$RELEASE" deploy
+prune_other_release_images "$RELEASE"
 print_deployed
 say "next: run smoke.sh against the public address"

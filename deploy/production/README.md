@@ -135,6 +135,8 @@ up the sign-in limit of the address it runs from for about twenty seconds.
 
 ## Roll back
 
+> Rollback image copies are **off by default**: after a healthy deploy the images of the earlier releases this deployment ran are removed (they filled the Docker disk), and `rollback.sh` pulls or rebuilds the images of the commit. Set `DEPLOY_KEEP_ROLLBACK_IMAGES=1` in the env file to keep them (and the `previous` state file).
+
 ```sh
 deploy/production/scripts/rollback.sh <previous-ref>     # the last one: cat /var/lib/hiso_box/deploy/previous
 ```

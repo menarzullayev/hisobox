@@ -119,11 +119,28 @@ ensure_pgbackup_image() {
 
 current_release() { cat "$STATE_DIR/current" 2>/dev/null || true; }
 
+# Rollback copies are OFF unless DEPLOY_KEEP_ROLLBACK_IMAGES=1: a deployment keeps only the images of the
+# release it runs (the earlier ones filled the Docker disk), and rolling back builds or pulls the images.
+keep_rollback_images() { [ "$(env_value DEPLOY_KEEP_ROLLBACK_IMAGES)" = "1" ]; }
+
+# Removes the backend and proxy images of the releases THIS deployment ran before (its own history file), except
+# $1. Never forced, so an image a container still uses stays; never touches another deployment's images.
+prune_other_release_images() {
+  local keep="$1" commit
+  keep_rollback_images && return 0
+  [ -f "$STATE_DIR/history" ] || return 0
+  while IFS= read -r commit; do
+    [ -n "$commit" ] && [ "$commit" != "$keep" ] || continue
+    docker image rm "$(backend_image "$commit")" "$(proxy_image "$commit")" >/dev/null 2>&1 || true
+  done < <(awk '{print $3}' "$STATE_DIR/history" | sort -u)
+  say "rollback copies: off (earlier release images removed)"
+}
+
 record_release() {
   local commit="$1" previous
   mkdir -p "$STATE_DIR"
   previous="$(current_release)"
-  if [ -n "$previous" ] && [ "$previous" != "$commit" ]; then printf '%s\n' "$previous" > "$STATE_DIR/previous"; fi
+  if keep_rollback_images && [ -n "$previous" ] && [ "$previous" != "$commit" ]; then printf '%s\n' "$previous" > "$STATE_DIR/previous"; fi
   printf '%s\n' "$commit" > "$STATE_DIR/current"
   printf '%s %s %s\n' "$(date -u +%Y-%m-%dT%H:%M:%SZ)" "$2" "$commit" >> "$STATE_DIR/history"
 }
