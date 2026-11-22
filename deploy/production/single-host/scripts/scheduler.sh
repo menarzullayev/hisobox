@@ -92,7 +92,9 @@ mark() {
 }
 # Write to a temp file and rename it, so readers never see a half-written mark.
 set_mark() {
-    printf '%s\n' "$2" > "$MARKS/.$1.tmp" && mv -f "$MARKS/.$1.tmp" "$MARKS/$1"
+    local tmp
+    tmp="$(mktemp "$MARKS/.$1.XXXXXX")" || return 1
+    printf '%s\n' "$2" > "$tmp" && mv -f "$tmp" "$MARKS/$1"
 }
 
 # run JOB -> the job's exit code. One line of our own, after the job's.
