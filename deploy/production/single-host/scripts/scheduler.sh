@@ -83,8 +83,17 @@ fi
 
 # --- running ------------------------------------------------------------------------------------------
 say() { printf '{"event":"scheduler","message":"%s","at":"%s"}\n' "$1" "$(date -u +%Y-%m-%dT%H:%M:%SZ)"; }
-mark() { cat "$MARKS/$1" 2> /dev/null || echo 0; }
-set_mark() { printf '%s\n' "$2" > "$MARKS/$1"; }
+# A missing, empty or non-numeric mark reads as 0, so a torn write can never break the arithmetic below.
+mark() {
+    local v
+    v="$(cat "$MARKS/$1" 2> /dev/null)" || v=0
+    case "$v" in '' | *[!0-9]*) v=0 ;; esac
+    printf '%s\n' "$v"
+}
+# Write to a temp file and rename it, so readers never see a half-written mark.
+set_mark() {
+    printf '%s\n' "$2" > "$MARKS/.$1.tmp" && mv -f "$MARKS/.$1.tmp" "$MARKS/$1"
+}
 
 # run JOB -> the job's exit code. One line of our own, after the job's.
 run() {
