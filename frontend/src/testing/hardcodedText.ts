@@ -25,6 +25,8 @@ const TECHNICAL_ATTRIBUTES = new Set([
   // How a picture is fetched and decoded ("lazy", "async"): tokens, read by nobody.
   "loading",
   "decoding",
+  // Which file of a picture fits the screen: media conditions and lengths.
+  "sizes",
   "method",
   "scope",
   "autoComplete",
