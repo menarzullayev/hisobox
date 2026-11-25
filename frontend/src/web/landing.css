@@ -1038,6 +1038,11 @@ a {
   max-width: 34rem;
 }
 
+/* The <picture> only chooses a file: the image stays the figure's own child for the layout. */
+.band__figure picture {
+  display: contents;
+}
+
 .band__img {
   width: 100%;
   height: auto;
