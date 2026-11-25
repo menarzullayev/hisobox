@@ -22,7 +22,11 @@ import { BRAND_NAME } from "../shared/brand";
 import { BrandMark } from "../shared/BrandMark";
 import { Select } from "../shared/ui";
 import illustrationLedger from "../assets/brand/illustration-ledger.png";
+import illustrationLedger544 from "../assets/brand/illustration-ledger-544.webp";
+import illustrationLedger1024 from "../assets/brand/illustration-ledger-1024.webp";
 import mascotCalculator from "../assets/brand/mascot-calculator.png";
+import mascotCalculator256 from "../assets/brand/mascot-calculator-256.webp";
+import mascotCalculator512 from "../assets/brand/mascot-calculator-512.webp";
 import { BOT_USERNAME } from "../shared/settings";
 import {
   ArrowRightIcon,
@@ -469,14 +473,21 @@ export function Landing() {
           </div>
           <PaperToPhone />
           <figure className="band__figure">
-            <img
-              className="band__img"
-              src={illustrationLedger}
-              alt={t("landing.illustration.alt")}
-              width={1024}
-              height={1024}
-              loading="lazy"
-            />
+            <picture>
+              <source
+                type="image/webp"
+                srcSet={`${illustrationLedger544} 544w, ${illustrationLedger1024} 1024w`}
+                sizes="(max-width: 40rem) 90vw, 34rem"
+              />
+              <img
+                className="band__img"
+                src={illustrationLedger}
+                alt={t("landing.illustration.alt")}
+                width={1024}
+                height={1024}
+                loading="lazy"
+              />
+            </picture>
             <figcaption className="band__figcaption">{t("landing.illustration.caption")}</figcaption>
           </figure>
           <p className="plans__note">{t("landing.showcase.demo")}</p>
@@ -548,14 +559,21 @@ export function Landing() {
             })}
           </ol>
           <figure className="band__figure band__figure--mascot">
-            <img
-              className="band__img band__img--mascot"
-              src={mascotCalculator}
-              alt={t("landing.mascot.alt")}
-              width={1024}
-              height={1024}
-              loading="lazy"
-            />
+            <picture>
+              <source
+                type="image/webp"
+                srcSet={`${mascotCalculator256} 256w, ${mascotCalculator512} 512w`}
+                sizes="(max-width: 40rem) 60vw, 16rem"
+              />
+              <img
+                className="band__img band__img--mascot"
+                src={mascotCalculator}
+                alt={t("landing.mascot.alt")}
+                width={1024}
+                height={1024}
+                loading="lazy"
+              />
+            </picture>
             <figcaption className="band__figcaption">{t("landing.mascot.caption")}</figcaption>
           </figure>
         </section>

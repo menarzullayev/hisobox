@@ -16,8 +16,9 @@ import { BRAND_NAME, BRAND_TAGLINE } from "../shared/brand";
 /** Where the plugin puts the head tags that need the site's address, in web/index.html. */
 export const SEO_MARKER = "<!--seo:origin-->";
 
-/** The sharing card's image: the brand's 1200x630 card, beside the icons the build makes. */
+/** The sharing card's image, beside the icons the build makes, and its size (seo.test.ts reads the file). */
 const CARD_IMAGE = "/panel/icons/og-share.png";
+export const CARD_SIZE = { width: 1536, height: 1024 } as const;
 
 /**
  * The site's own address from a build-time setting, or null. Only an absolute http(s) address with a
@@ -83,7 +84,10 @@ export function seoHead(origin: string | null, priceUzs: number): string {
       `<meta property="og:url" content="${page}" />`,
       `<meta property="og:image" content="${origin}${CARD_IMAGE}" />`,
       `<meta property="og:image:alt" content="${BRAND_NAME}" />`,
+      `<meta property="og:image:width" content="${CARD_SIZE.width}" />`,
+      `<meta property="og:image:height" content="${CARD_SIZE.height}" />`,
       `<meta name="twitter:image" content="${origin}${CARD_IMAGE}" />`,
+      `<meta name="twitter:image:alt" content="${BRAND_NAME}" />`,
     );
   }
   return lines.join("\n    ");

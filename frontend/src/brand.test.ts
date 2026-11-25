@@ -57,7 +57,7 @@ describe("the one definition", () => {
 const SEARCHED = ["frontend", "e2e"];
 const NOT_ENTERED = new Set(["node_modules", "dist", "playwright-report", "test-results", ".vite"]);
 /** Pictures, and the lock files, whose hashes hold every pair of letters. */
-const NOT_SEARCHED = /\.png$|(^|\/)package-lock\.json$/;
+const NOT_SEARCHED = /\.(png|webp)$|(^|\/)package-lock\.json$/;
 /** Made from the definition and held to it by a check of its own: today's name may stand there, a former one may not. */
 const MADE_FROM_IT = [/^frontend\/public\/panel\/manifest\.webmanifest$/, /^frontend\/src\/app\/__snapshots__\/[^/]+\.snap$/];
 /** Single lines: [file, what the line holds, why]. */

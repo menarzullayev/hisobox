@@ -85,6 +85,11 @@ describe("findHardcodedText", () => {
     expect(reasons('export const A = () => <th scope="col">Mijoz</th>;')).toEqual(["text written in JSX"]);
   });
 
+  it("accepts a picture's sizes, which are lengths, and still rejects text beside them", () => {
+    expect(reasons('export const A = () => <source sizes="(max-width: 40rem) 90vw, 34rem" />;')).toEqual([]);
+    expect(reasons('export const A = () => <img sizes="34rem" alt="Daftar" />;')).toEqual(['text in the "alt" attribute']);
+  });
+
   it("accepts a currency code, which chooses a format, and still rejects a code that would be shown", () => {
     expect(reasons('export const A = () => <Lines currency="USD" />;')).toEqual([]);
     expect(reasons('export const A = () => <Lines currency="USD" title="USD" />;')).toEqual(['text in the "title" attribute']);

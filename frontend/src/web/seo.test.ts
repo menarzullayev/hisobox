@@ -1,8 +1,11 @@
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
+
 import { describe, expect, it } from "vitest";
 
 import { BRAND_NAME } from "../shared/brand";
 import { PRICE_UZS_DEFAULT } from "./tariff";
-import { landingUrl, publicOrigin, robotsTxt, seoHead, sitemapXml, structuredData } from "./seo";
+import { CARD_SIZE, landingUrl, publicOrigin, robotsTxt, seoHead, sitemapXml, structuredData } from "./seo";
 
 describe("the site's own address", () => {
   it("takes an absolute http(s) address, with or without a trailing slash", () => {
@@ -46,6 +49,11 @@ describe("what the page's head carries", () => {
     expect(head).not.toContain("/web/");
     expect(head).toContain('<script type="application/ld+json">');
   });
+
+  it("says the sharing image's real size", () => {
+    const png = readFileSync(resolve(process.cwd(), "public/panel/icons/og-share.png"));
+    expect({ width: png.readUInt32BE(16), height: png.readUInt32BE(20) }).toEqual(CARD_SIZE);
+  });
 });
 
 describe("the structured data", () => {
@@ -63,6 +71,12 @@ describe("the structured data", () => {
     expect(graph[0]).not.toHaveProperty("url");
     expect(graph[0]).not.toHaveProperty("logo");
     expect(graph[1]).not.toHaveProperty("url");
+  });
+
+  it("claims no rating or review: there are none the product could prove", () => {
+    const data = JSON.stringify(structuredData("https://qarz.example.uz", 100_000));
+    expect(data).not.toContain("aggregateRating");
+    expect(data).not.toContain("reviewCount");
   });
 });
 
