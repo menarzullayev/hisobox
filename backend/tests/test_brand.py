@@ -163,7 +163,7 @@ def test_the_api_and_the_second_factor_are_named_from_it() -> None:
 # --- nothing else writes it ---------------------------------------------------------------------------
 
 # Files that are not text a person wrote: pictures, and lock files whose hashes hold every pair of letters.
-NOT_SEARCHED = ("*.png", "*.lock", "*/package-lock.json")
+NOT_SEARCHED = ("*.png", "*.webp", "*.lock", "*/package-lock.json")
 
 # Where the name may be written out. `current` allows the name of today only: a file made from the
 # definition and held to it by a check of its own. `any` allows former names too: prose and history.
